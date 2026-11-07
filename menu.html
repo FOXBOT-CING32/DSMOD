@@ -1,0 +1,2017 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, shrink-to-fit=no">
+    <title>DS-MOD★ - 主菜单</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ===== 全局重置 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: 'Segoe UI', system-ui, -apple-system, 'Roboto', sans-serif;
+            position: relative;
+            overflow: hidden;
+            background: #0a0a1a;
+        }
+
+        .dynamic-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460, #1a1a2e);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            z-index: -2;
+            will-change: background-position;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 0%; }
+            25% { background-position: 100% 0%; }
+            50% { background-position: 100% 100%; }
+            75% { background-position: 0% 100%; }
+            100% { background-position: 0% 0%; }
+        }
+
+        .dynamic-glow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(255,200,100,0.08) 0%, rgba(0,0,0,0.3) 100%);
+            pointer-events: none;
+            z-index: -1;
+            animation: glowPulse 8s ease infinite;
+        }
+
+        @keyframes glowPulse {
+            0% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.05); }
+            100% { opacity: 0.3; transform: scale(1); }
+        }
+
+        .dynamic-scroll {
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, 
+                transparent 30%, 
+                rgba(255,200,100,0.03) 50%, 
+                transparent 70%);
+            animation: scrollGlow 12s linear infinite;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        @keyframes scrollGlow {
+            0% { transform: translate(0%, 0%) rotate(0deg); }
+            100% { transform: translate(10%, 10%) rotate(360deg); }
+        }
+
+        /* ===== 主容器 ===== */
+        .main-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 50px 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .main-container::-webkit-scrollbar {
+            width: 6px;
+            background: transparent;
+        }
+        .main-container::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+            border-radius: 3px;
+        }
+        .main-container::-webkit-scrollbar-thumb {
+            background: rgba(255,170,85,0.4);
+            border-radius: 3px;
+            transition: background 0.2s;
+        }
+        .main-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,170,85,0.7);
+        }
+        .main-container {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,170,85,0.4) rgba(255,255,255,0.05);
+        }
+
+        /* ===== 左侧面板 ===== */
+        .left-panel {
+            width: 280px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            max-height: none;
+            margin-bottom: 30px;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 30px;
+            flex-shrink: 0;
+        }
+
+        .logo-img {
+            width: 64px;
+            height: 64px;
+            object-fit: contain;
+            background: rgba(255,255,255,0.1);
+            border-radius: 0px;
+            display: block;
+            flex-shrink: 0;
+        }
+
+        .logo-fallback {
+            width: 64px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.1);
+            font-size: 36px;
+            flex-shrink: 0;
+        }
+
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+            letter-spacing: 3px;
+            font-family: monospace;
+            text-shadow: 0 0 20px rgba(0,0,0,0.5);
+            white-space: nowrap;
+        }
+
+        .logo-text span {
+            color: #ffaa55;
+        }
+
+        .user-badge {
+            font-size: 0.55rem;
+            color: #888;
+            font-family: monospace;
+            margin-left: 8px;
+            background: rgba(255,170,85,0.1);
+            padding: 2px 10px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,170,85,0.15);
+            display: inline-block;
+            white-space: nowrap;
+        }
+
+        .user-badge .icon {
+            margin-right: 4px;
+        }
+
+        .menu-scroll {
+            width: 100%;
+            flex-shrink: 0;
+            max-height: 380px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-right: 4px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .menu-scroll::-webkit-scrollbar {
+            width: 4px;
+            background: transparent;
+        }
+        .menu-scroll::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+            border-radius: 2px;
+        }
+        .menu-scroll::-webkit-scrollbar-thumb {
+            background: rgba(255,170,85,0.3);
+            border-radius: 2px;
+        }
+        .menu-scroll::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,170,85,0.6);
+        }
+        .menu-scroll {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,170,85,0.3) rgba(255,255,255,0.05);
+        }
+
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-bottom: 10px;
+        }
+
+        /* ===== 主菜单按钮 ===== */
+        .menu-btn {
+            background: rgba(30,30,40,0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 6px;
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #e0e0e0;
+            font-family: monospace;
+            cursor: pointer;
+            text-align: center;
+            letter-spacing: 1px;
+            width: 100%;
+            white-space: nowrap;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+            will-change: background-color, border-color, color;
+            outline: none;
+            position: relative;
+        }
+
+        .menu-btn i {
+            font-size: 1rem;
+            color: rgba(255,255,255,0.4);
+            transition: color 0.2s ease;
+            width: 20px;
+            text-align: center;
+        }
+
+        .menu-btn:hover {
+            background: rgba(255,170,85,0.18);
+            border-color: rgba(255,170,85,0.45);
+            color: #ffffff;
+        }
+
+        .menu-btn:hover i {
+            color: #ffaa55;
+        }
+
+        .menu-btn:active {
+            background: rgba(255,170,85,0.32);
+            border-color: #ffaa55;
+            color: #ffffff;
+        }
+
+        .menu-btn:active i {
+            color: #ffaa55;
+        }
+
+        /* ===== 禁用按钮 ===== */
+        .menu-btn.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+            border-color: rgba(255,255,255,0.08);
+            background: rgba(20,20,30,0.5);
+        }
+
+        .menu-btn.disabled i {
+            color: rgba(255,255,255,0.12);
+        }
+
+        .menu-btn.disabled::after {
+            content: ' 🔒';
+            font-size: 0.6rem;
+            color: #444;
+        }
+
+        /* ===== 未来按钮 ===== */
+        .menu-btn.future {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+            border-color: rgba(255,255,255,0.08);
+            background: rgba(20,20,30,0.5);
+        }
+
+        .menu-btn.future i {
+            color: rgba(255,255,255,0.12);
+        }
+
+        .menu-btn.future::after {
+            content: ' 🔜';
+            font-size: 0.6rem;
+            color: #444;
+        }
+
+        /* ===== 通知小红点 ===== */
+        .menu-btn .notification-badge {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            margin-left: 4px;
+            flex-shrink: 0;
+        }
+
+        .menu-btn .badge-dot {
+            color: #ff4444;
+            font-size: 0.6rem;
+            animation: pulse-dot 1.5s ease-in-out infinite;
+            margin-right: 2px;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        .menu-btn .badge-count {
+            background: #ff4444;
+            color: #ffffff;
+            font-size: 0.5rem;
+            font-weight: bold;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 5px;
+            font-family: monospace;
+        }
+
+        .menu-btn .badge-count.max {
+            font-size: 0.4rem;
+        }
+
+        /* ===== 版本 ===== */
+        .version-badge {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            padding: 6px 12px;
+            font-family: monospace;
+            font-size: 0.7rem;
+            color: #ffaa55;
+            border: 1px solid rgba(255,170,85,0.3);
+            z-index: 10;
+            letter-spacing: 1px;
+        }
+
+        /* ================================================================ */
+        /*  关于弹窗（开源学习项目版）                                      */
+        /* ================================================================ */
+        .about-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .about-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .about-modal {
+            width: 520px;
+            max-width: 92%;
+            max-height: 88vh;
+            background: linear-gradient(135deg, #1e1e2a, #151520);
+            border: 1px solid rgba(255,170,85,0.5);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transform: scale(0.9) translateY(30px);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+            opacity: 0;
+        }
+
+        .about-overlay.active .about-modal {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+
+        .about-header {
+            background: #2a2a35;
+            padding: 14px 20px;
+            border-bottom: 1px solid #ffaa55;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .about-header h3 {
+            color: #ffaa55;
+            font-size: 0.9rem;
+            font-family: monospace;
+        }
+
+        .about-close {
+            background: none;
+            border: none;
+            color: #aaa;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .about-close:hover {
+            color: #ffaa55;
+        }
+
+        .about-content {
+            padding: 20px;
+            color: #ccc;
+            font-family: monospace;
+            font-size: 0.72rem;
+            line-height: 1.6;
+            overflow-y: auto;
+            max-height: calc(88vh - 60px);
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,170,85,0.3) transparent;
+        }
+
+        .about-content::-webkit-scrollbar {
+            width: 4px;
+        }
+        .about-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .about-content::-webkit-scrollbar-thumb {
+            background: rgba(255,170,85,0.3);
+            border-radius: 4px;
+        }
+
+        .about-content p {
+            margin-bottom: 12px;
+        }
+
+        .warning {
+            color: #ff8855;
+            border-left: 3px solid #ffaa55;
+            padding-left: 12px;
+            margin: 15px 0;
+            font-size: 0.65rem;
+            line-height: 1.6;
+        }
+
+        .notice {
+            background: rgba(255,170,85,0.1);
+            border-left: 3px solid #ffaa55;
+            padding: 10px 12px;
+            margin: 15px 0;
+            font-size: 0.65rem;
+            color: #ffaa88;
+            line-height: 1.6;
+        }
+
+        /* ================================================================ */
+        /*  个人账户弹窗                                                    */
+        /* ================================================================ */
+        .account-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .account-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .account-modal {
+            background: linear-gradient(145deg, #1a1a2e, #252540);
+            border: 1px solid rgba(255,170,85,0.2);
+            border-radius: 12px;
+            width: 92%;
+            max-width: 440px;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 32px 28px 28px;
+            position: relative;
+            transform: scale(0.92) translateY(20px);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+            opacity: 0;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .account-overlay.active .account-modal {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+
+        .account-modal::-webkit-scrollbar {
+            width: 4px;
+        }
+        .account-modal::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .account-modal::-webkit-scrollbar-thumb {
+            background: rgba(255,170,85,0.3);
+            border-radius: 4px;
+        }
+
+        .account-close {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: rgba(0,0,0,0.3);
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            color: #888;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .account-close:hover {
+            background: rgba(255,170,85,0.2);
+            color: #ffaa55;
+        }
+
+        .account-title {
+            font-family: monospace;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #ffaa55;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .account-title i {
+            font-size: 0.9rem;
+        }
+
+        .account-sub {
+            font-family: monospace;
+            font-size: 0.45rem;
+            color: #666;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        /* ===== 账户头像 ===== */
+        .account-avatar-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+            padding: 12px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .account-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: #2a2a3a;
+            border: 2px solid rgba(255,170,85,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+            font-family: monospace;
+            font-weight: bold;
+            font-size: 18px;
+            color: #ffaa55;
+        }
+
+        .account-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .account-avatar.default {
+            background: #1a1a2e;
+            color: #ffaa55;
+            font-size: 14px;
+            letter-spacing: 1px;
+            border-color: rgba(255,170,85,0.2);
+        }
+
+        .account-avatar-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .account-avatar-info .name {
+            font-family: monospace;
+            font-size: 0.75rem;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .account-avatar-info .email {
+            font-family: monospace;
+            font-size: 0.5rem;
+            color: #666;
+            margin-top: 2px;
+            word-break: break-all;
+        }
+
+        .account-avatar-info .status {
+            font-family: monospace;
+            font-size: 0.4rem;
+            color: #444;
+            margin-top: 2px;
+        }
+
+        .account-avatar-actions {
+            display: flex;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+
+        .account-avatar-actions button {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.4rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            background: rgba(255,170,85,0.1);
+            color: #ffaa55;
+            border: 1px solid rgba(255,170,85,0.15);
+        }
+
+        .account-avatar-actions button:hover {
+            background: rgba(255,170,85,0.25);
+        }
+
+        .account-avatar-actions button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        /* ===== 账户信息行 ===== */
+        .account-info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .account-info-row .label {
+            font-family: monospace;
+            font-size: 0.5rem;
+            color: #666;
+        }
+
+        .account-info-row .value {
+            font-family: monospace;
+            font-size: 0.55rem;
+            color: #ccc;
+            word-break: break-all;
+            text-align: right;
+            max-width: 60%;
+        }
+
+        .account-info-row .value.guest {
+            color: #888;
+        }
+
+        /* ===== 账户操作按钮 ===== */
+        .account-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            flex-wrap: wrap;
+        }
+
+        .account-actions button {
+            flex: 1;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .account-actions .btn-switch {
+            background: rgba(255,170,85,0.12);
+            border: 1px solid rgba(255,170,85,0.2);
+            color: #ffaa55;
+        }
+
+        .account-actions .btn-switch:hover {
+            background: rgba(255,170,85,0.25);
+        }
+
+        .account-actions .btn-logout {
+            background: rgba(255,60,60,0.1);
+            border: 1px solid rgba(255,60,60,0.2);
+            color: #ff6666;
+        }
+
+        .account-actions .btn-logout:hover {
+            background: rgba(255,60,60,0.2);
+        }
+
+        .account-actions .btn-guest-switch {
+            background: rgba(68,170,255,0.1);
+            border: 1px solid rgba(68,170,255,0.2);
+            color: #44aaff;
+        }
+
+        .account-actions .btn-guest-switch:hover {
+            background: rgba(68,170,255,0.2);
+        }
+
+        .account-actions button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        /* ===== Toast ===== */
+        .toast {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(20,20,35,0.92);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,170,85,0.2);
+            border-radius: 8px;
+            padding: 12px 24px;
+            color: #ffd966;
+            font-family: monospace;
+            font-size: 0.7rem;
+            z-index: 1000;
+            white-space: nowrap;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .toast.visible {
+            opacity: 1;
+        }
+
+        /* ===== 响应式 ===== */
+        @media (min-width: 1400px) {
+            .main-container { padding: 60px 100px; }
+            .left-panel { width: 320px; }
+            .menu-scroll { max-height: 420px; }
+            .menu-btn { padding: 14px 28px; font-size: 1.1rem; }
+            .logo-text { font-size: 2rem; }
+            .logo-img { width: 80px; height: 80px; }
+            .logo-fallback { width: 80px; height: 80px; font-size: 44px; }
+        }
+
+        @media (min-width: 1024px) and (max-width: 1399px) {
+            .main-container { padding: 50px 60px; }
+            .left-panel { width: 280px; }
+            .menu-scroll { max-height: 380px; }
+        }
+
+        @media (min-width: 800px) and (max-width: 1023px) {
+            .main-container { padding: 40px 40px; }
+            .left-panel { width: 250px; }
+            .menu-scroll { max-height: 340px; }
+            .menu-btn { padding: 10px 18px; font-size: 0.9rem; }
+            .logo-text { font-size: 1.5rem; }
+            .logo-img { width: 56px; height: 56px; }
+            .logo-fallback { width: 56px; height: 56px; font-size: 32px; }
+        }
+
+        @media (min-width: 600px) and (max-width: 799px) {
+            .main-container { padding: 30px 30px; }
+            .left-panel { width: 220px; }
+            .menu-scroll { max-height: 300px; }
+            .menu-btn { padding: 8px 16px; font-size: 0.85rem; }
+            .logo-text { font-size: 1.3rem; }
+            .logo-img { width: 50px; height: 50px; }
+            .logo-fallback { width: 50px; height: 50px; font-size: 28px; }
+            .version-badge { font-size: 0.6rem; bottom: 15px; right: 15px; }
+        }
+
+        @media (max-width: 599px) {
+            .main-container {
+                padding: 30px 20px;
+                align-items: center;
+                justify-content: flex-start;
+            }
+            .left-panel {
+                width: 100%;
+                max-width: 300px;
+                text-align: left;
+                margin-bottom: 20px;
+            }
+            .logo-area {
+                justify-content: center;
+                margin-bottom: 20px;
+            }
+            .logo-text { font-size: 1.2rem; }
+            .logo-img { width: 44px; height: 44px; }
+            .logo-fallback { width: 44px; height: 44px; font-size: 24px; }
+            .menu-scroll { max-height: 280px; }
+            .menu-btn {
+                text-align: center;
+                white-space: normal;
+                padding: 10px 14px;
+                font-size: 0.8rem;
+                gap: 10px;
+            }
+            .menu-btn i { font-size: 0.85rem; width: 18px; }
+            .menu-buttons { gap: 10px; padding-bottom: 10px; }
+            .version-badge { font-size: 0.55rem; bottom: 15px; right: 15px; }
+            .account-modal { padding: 24px 16px 20px; }
+            .account-avatar { width: 48px; height: 48px; font-size: 14px; }
+            .account-avatar-actions button { font-size: 0.35rem; padding: 2px 6px; }
+            .account-actions { flex-direction: column; }
+            .about-modal { width: 95%; }
+            .about-content { font-size: 0.65rem; }
+        }
+
+        @media (max-width: 380px) {
+            .main-container { padding: 20px 14px; }
+            .left-panel { max-width: 260px; }
+            .menu-btn { font-size: 0.7rem; padding: 8px 12px; }
+            .logo-text { font-size: 1rem; }
+            .logo-img { width: 38px; height: 38px; }
+            .about-content { font-size: 0.6rem; }
+        }
+
+        @media (max-height: 600px) {
+            .main-container { padding: 25px 40px; }
+            .logo-area { margin-bottom: 16px; }
+            .logo-img { width: 44px; height: 44px; }
+            .logo-text { font-size: 1.2rem; }
+            .menu-scroll { max-height: 220px; }
+            .menu-btn { padding: 6px 14px; font-size: 0.75rem; gap: 8px; }
+            .menu-buttons { gap: 6px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== 动态背景 ===== -->
+    <div class="dynamic-bg"></div>
+    <div class="dynamic-glow"></div>
+    <div class="dynamic-scroll"></div>
+
+    <!-- ===== Toast ===== -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ================================================================ -->
+    <!--  关于弹窗（开源学习项目版）                                      -->
+    <!-- ================================================================ -->
+    <div class="about-overlay" id="aboutOverlay">
+        <div class="about-modal">
+            <div class="about-header">
+                <h3><i class="fas fa-info-circle" style="margin-right:8px;"></i>关于 DS-MOD★</h3>
+                <button class="about-close" id="aboutCloseBtn"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="about-content">
+
+                <!-- ===== 项目定位 ===== -->
+                <p><strong>DS-MOD★</strong><br>一个<strong style="color:#ffaa55;">免费开源</strong>的 2D 沙盒模组工坊项目，由 <strong style="color:#ffaa55;">DeepSeek AI</strong> 与<strong style="color:#ffaa55;">独立开发者</strong>共同开源、辅助开发。</p>
+
+                <p>本项目<strong>仅供学习、研究和交流使用</strong>，严禁用于任何商业目的或违法用途。</p>
+
+                <!-- ===== 技术栈与致谢 ===== -->
+                <div style="margin:16px 0; padding:14px; background:rgba(255,170,85,0.05); border:1px solid rgba(255,170,85,0.15); border-radius:8px;">
+                    <p style="color:#ffaa55; font-weight:bold; margin-bottom:10px;">
+                        <i class="fas fa-heart" style="margin-right:6px;"></i>技术栈与致谢
+                    </p>
+
+                    <p style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+                        <i class="fab fa-github" style="font-size:1.1rem; color:#fff; width:20px;"></i>
+                        <span><strong>GitHub</strong> — 代码托管与数据存储</span>
+                    </p>
+
+                    <p style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+                        <i class="fab fa-html5" style="font-size:1.1rem; color:#e34f26; width:20px;"></i>
+                        <span><strong>HTML5</strong> — 网页结构与标准</span>
+                    </p>
+
+                    <p style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+                        <i class="fab fa-js" style="font-size:1.1rem; color:#f7df1e; width:20px;"></i>
+                        <span><strong>JavaScript</strong> — 核心交互语言</span>
+                    </p>
+
+                    <p style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-cloud" style="font-size:1.1rem; color:#44aaff; width:20px;"></i>
+                        <span><strong>jsDelivr</strong> — CDN 加速服务</span>
+                    </p>
+
+                    <p style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-file-zipper" style="font-size:1.1rem; color:#ffaa55; width:20px;"></i>
+                        <span><strong>JSZip</strong> — ZIP 压缩与解压库</span>
+                    </p>
+
+                    <p style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+                        <img src="https://api.iconify.design/logos/deepseek.svg" style="width:20px; height:20px; object-fit:contain;" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+                        <i class="fas fa-brain" style="font-size:1.1rem; color:#ffaa55; width:20px; display:none;"></i>
+                        <span><strong>DeepSeek AI</strong> — AI 辅助开发与共同开源</span>
+                    </p>
+
+                    <p style="margin-bottom:0; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-code" style="font-size:1.1rem; color:#888; width:20px;"></i>
+                        <span><strong>独立开发者</strong> — 项目构思、测试与维护</span>
+                    </p>
+                </div>
+
+                <!-- ===== 开源协议说明 ===== -->
+                <div class="warning" style="margin-top:16px;">
+                    <i class="fas fa-balance-scale" style="margin-right:6px;"></i>
+                    <strong>开源协议说明</strong><br>
+                    本项目采用<strong>「仅供学习交流」</strong>的许可模式。您可以自由地：
+                    <br>• 共享 — 复制、发行本作品
+                    <br>• 演绎 — 修改、转换或以本作品为基础进行创作
+                    <br><br>
+                    <strong>惟须遵守下列条件：</strong>
+                    <br>• <strong>署名</strong> — 必须给出适当的署名，提供指向本许可协议的链接
+                    <br>• <strong>非商业性使用</strong> — 不得将本作品用于商业目的
+                    <br>• <strong>相同方式共享</strong> — 基于本作品的创作必须使用相同许可
+                    <br>• <strong>无附加限制</strong> — 不得添加法律术语或技术措施限制他人
+                </div>
+
+                <!-- ===== 使用条例（25条） ===== -->
+                <p style="color:#ffaa55; font-weight:bold; margin-top:18px; margin-bottom:10px;">
+                    <i class="fas fa-scroll" style="margin-right:6px;"></i>使用条例（共 25 条）
+                </p>
+
+                <div style="font-size:0.65rem; line-height:1.7; color:#999;">
+                    <p><strong style="color:#ccc;">一、基本使用</strong></p>
+                    <p>1. 本项目为免费开源软件，仅供个人学习、研究和非商业交流使用。</p>
+                    <p>2. 使用本软件即表示您已阅读、理解并同意本条款的全部内容。</p>
+                    <p>3. 如果您不同意本条款，请立即停止使用并删除本软件。</p>
+
+                    <p style="margin-top:10px;"><strong style="color:#ccc;">二、禁止行为</strong></p>
+                    <p>4. 禁止将本软件用于任何商业目的，包括但不限于销售、租赁、付费服务等。</p>
+                    <p>5. 禁止将本软件用于任何违法、违规或侵害他人权益的活动。</p>
+                    <p>6. 禁止未经授权复制、分发、传播本软件或其修改版本以获取商业利益。</p>
+                    <p>7. 禁止移除、篡改本软件中的版权声明、许可声明或作者标识。</p>
+                    <p>8. 禁止使用本软件上传、传播任何不良模组，包括但不限于暴力、色情、仇恨言论等。</p>
+                    <p>9. 禁止利用本软件进行任何形式的网络攻击、数据窃取或恶意破坏。</p>
+                    <p>10. 禁止冒充原开发者或贡献者，发布虚假信息或误导他人。</p>
+
+                    <p style="margin-top:10px;"><strong style="color:#ccc;">三、用户责任</strong></p>
+                    <p>11. 用户需自行承担使用本软件所产生的全部风险。</p>
+                    <p>12. 用户需自行负责其上传的模组内容，确保不侵犯任何第三方的知识产权。</p>
+                    <p>13. 用户需妥善保管自己的账号信息，因账号泄露导致的损失由用户自行承担。</p>
+                    <p>14. 用户不得利用本软件的漏洞进行任何非法或不当操作。</p>
+                    <p>15. 用户发现任何安全漏洞或问题，应及时向开发者报告，不得恶意利用。</p>
+
+                    <p style="margin-top:10px;"><strong style="color:#ccc;">四、知识产权</strong></p>
+                    <p>16. 本软件的原始代码、设计、文档等知识产权归原开发者与贡献者所有。</p>
+                    <p>17. 用户上传的模组，其版权归用户所有，但用户授予本平台展示、分发和推广的权利。</p>
+                    <p>18. 未经原开发者明确许可，不得将本软件用于任何形式的商业背书或推广。</p>
+                    <p>19. 本软件中引用的第三方库、图标、CDN 等，其知识产权归各自作者所有。</p>
+
+                    <p style="margin-top:10px;"><strong style="color:#ccc;">五、免责声明</strong></p>
+                    <p>20. 本软件按「原样」提供，不提供任何明示或暗示的保证。</p>
+                    <p>21. 开发者不对因使用本软件而产生的任何直接或间接损失承担责任。</p>
+                    <p>22. 开发者不对用户上传的模组内容负责，亦不对其质量、安全性或兼容性做任何担保。</p>
+                    <p>23. 开发者保留随时修改、暂停或终止本软件服务的权利，无需事先通知。</p>
+
+                    <p style="margin-top:10px;"><strong style="color:#ccc;">六、协议变更与解释</strong></p>
+                    <p>24. 开发者保留随时修改本条款的权利，修改后的条款将在本页面公布。</p>
+                    <p>25. 本条款的最终解释权归原开发者所有，如有争议，以开发者解释为准。</p>
+                </div>
+
+                <!-- ===== 免责声明 ===== -->
+                <div class="warning" style="margin-top:16px;">
+                    <i class="fas fa-exclamation-triangle" style="margin-right:6px;"></i>
+                    <strong>免责声明</strong><br>
+                    未经授权的复制、分发或商业使用严格禁止。用户需自行承担违反本政策所带来的任何后果。
+                </div>
+
+                <!-- ===== 底部信息 ===== -->
+                <p style="margin-top:16px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.05); color:#666; font-size:0.6rem; text-align:center;">
+                    <i class="fab fa-github" style="margin-right:4px;"></i>
+                    DS-MOD★ 开源学习项目 · 由 DeepSeek AI 与独立开发者共同开源
+                    <br><span style="font-size:0.5rem;color:#444;">最后更新：2026年</span>
+                </p>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 主容器 ===== -->
+    <div class="main-container" id="mainContainer">
+        <div class="left-panel">
+            <!-- Logo -->
+            <div class="logo-area">
+                <img class="logo-img" id="logoImg" src="images/logos.png" alt="DS-MOD★" onerror="this.style.display='none'; document.getElementById('defaultLogo').style.display='flex'">
+                <div class="logo-fallback" id="defaultLogo" style="display:none;">📦</div>
+                <div>
+                    <div class="logo-text">DS-<span>MOD</span>★</div>
+                    <span class="user-badge" id="userBadge"><i class="fas fa-user icon"></i><span id="userNameDisplay">加载中...</span></span>
+                </div>
+            </div>
+
+            <!-- 菜单 -->
+            <div class="menu-scroll" id="menuScroll">
+                <div class="menu-buttons">
+                    <button class="menu-btn" id="startGameBtn"><i class="fas fa-play"></i> 开始游戏</button>
+                    <button class="menu-btn" id="modsManageBtn"><i class="fas fa-cubes"></i> 模组管理</button>
+                    <button class="menu-btn" id="settingsBtn"><i class="fas fa-sliders-h"></i> 设置</button>
+                    <button class="menu-btn" id="helpBtn"><i class="fas fa-book"></i> 教程</button>
+                    <button class="menu-btn" id="aboutBtn"><i class="fas fa-info-circle"></i> 关于</button>
+                    <!-- 创意工坊（带小红点） -->
+                    <button class="menu-btn" id="workshopBtn">
+                        <i class="fas fa-store"></i> 创意工坊
+                        <span class="notification-badge" id="notifBadge" style="display:none;">
+                            <span class="badge-dot">●</span>
+                            <span class="badge-count" id="notifCount">0</span>
+                        </span>
+                    </button>
+                    <!-- 个人账户（替换排行榜） -->
+                    <button class="menu-btn" id="accountBtn"><i class="fas fa-user-cog"></i> 个人账户</button>
+                    <button class="menu-btn future"><i class="fas fa-globe"></i> 联机模式</button>
+                    <button class="menu-btn future"><i class="fas fa-trophy"></i> 成就系统</button>
+                    <div style="height: 10px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="version-badge"><i class="fas fa-code-branch" style="margin-right:4px;"></i>版本号：V1.0 正式版</div>
+
+    <!-- ================================================================ -->
+    <!--  个人账户弹窗                                                    -->
+    <!-- ================================================================ -->
+    <div class="account-overlay" id="accountOverlay">
+        <div class="account-modal">
+            <button class="account-close" id="accountClose"><i class="fas fa-times"></i></button>
+
+            <div class="account-title"><i class="fas fa-user-cog"></i> 个人账户</div>
+            <div class="account-sub" id="accountSub">管理您的账户信息</div>
+
+            <!-- 头像 -->
+            <div class="account-avatar-section">
+                <div class="account-avatar default" id="accountAvatar">DS</div>
+                <div class="account-avatar-info">
+                    <div class="name" id="accountName">加载中...</div>
+                    <div class="email" id="accountEmail">加载中...</div>
+                    <div class="status" id="accountStatus">● 已登录</div>
+                </div>
+                <div class="account-avatar-actions">
+                    <button id="accountUploadAvatarBtn" title="上传头像"><i class="fas fa-upload"></i> 头像</button>
+                    <input type="file" id="accountAvatarInput" accept="image/*" style="display:none;">
+                </div>
+            </div>
+
+            <!-- 账户信息 -->
+            <div class="account-info-row">
+                <span class="label"><i class="fas fa-user" style="margin-right:4px;"></i>账户名字</span>
+                <span class="value" id="accountDisplayName">-</span>
+            </div>
+            <div class="account-info-row">
+                <span class="label"><i class="fas fa-envelope" style="margin-right:4px;"></i>邮箱</span>
+                <span class="value" id="accountDisplayEmail">-</span>
+            </div>
+            <div class="account-info-row">
+                <span class="label"><i class="fas fa-calendar" style="margin-right:4px;"></i>注册时间</span>
+                <span class="value" id="accountCreatedAt">-</span>
+            </div>
+            <div class="account-info-row">
+                <span class="label"><i class="fas fa-sign-in-alt" style="margin-right:4px;"></i>登录次数</span>
+                <span class="value" id="accountLoginCount">-</span>
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="account-actions" id="accountActions">
+                <!-- 由 JS 动态生成 -->
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!--  JavaScript                                                     -->
+    <!-- ================================================================ -->
+    <script>
+        (function() {
+            'use strict';
+
+            // ============================================================
+            //  GitHub 配置
+            // ============================================================
+            var GITHUB_OWNER = 'FOXBOT-CING32';
+            var GITHUB_REPO = 'dsmod-workshop';
+            var GITHUB_TOKEN = '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';
+            var GITHUB_API = 'https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents';
+
+            // ============================================================
+            //  音效
+            // ============================================================
+            var menuAudio = null;
+
+            function playMenuSound() {
+                try {
+                    if (!menuAudio) {
+                        menuAudio = new Audio();
+                        menuAudio.src = "sound/spawnmenu.mp3";
+                        menuAudio.volume = 0.4;
+                    }
+                    menuAudio.currentTime = 0;
+                    menuAudio.play().catch(function(e) {});
+                } catch (e) {}
+            }
+
+            // ============================================================
+            //  Toast
+            // ============================================================
+            var toastEl = document.getElementById('toast');
+            var toastTimer = null;
+
+            function showToast(msg) {
+                toastEl.textContent = msg;
+                toastEl.classList.add('visible');
+                clearTimeout(toastTimer);
+                toastTimer = setTimeout(function() {
+                    toastEl.classList.remove('visible');
+                }, 3000);
+            }
+
+            // ============================================================
+            //  用户工具函数
+            // ============================================================
+            function getCurrentUser() {
+                return {
+                    email: localStorage.getItem('dsmod_user_email') || null,
+                    nickname: localStorage.getItem('dsmod_user_nickname') || null,
+                    isGuest: localStorage.getItem('dsmod_is_guest') === 'true',
+                    loggedIn: localStorage.getItem('dsmod_logged_in') === 'true'
+                };
+            }
+
+            function getToday() {
+                return new Date().toISOString().split('T')[0];
+            }
+
+            function generateAvatarFileName(email) {
+                var clean = email.replace(/[^a-zA-Z0-9]/g, '_');
+                return 'user_' + clean + '.png';
+            }
+
+            // ============================================================
+            //  GitHub 用户数据操作
+            // ============================================================
+            function loadUsersFromGitHub() {
+                var url = GITHUB_API + '/users.json';
+                return fetch(url, {
+                    headers: {
+                        'Authorization': 'token ' + GITHUB_TOKEN,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                })
+                .then(function(res) {
+                    if (res.status === 404) {
+                        return { users: {} };
+                    }
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    return res.json();
+                })
+                .then(function(data) {
+                    if (data && data.content) {
+                        try {
+                            var decoded = decodeURIComponent(escape(atob(data.content)));
+                            return JSON.parse(decoded);
+                        } catch (e) {
+                            return { users: {} };
+                        }
+                    }
+                    return { users: {} };
+                })
+                .catch(function() {
+                    return { users: {} };
+                });
+            }
+
+            function saveUsersToGitHub(usersData) {
+                var url = GITHUB_API + '/users.json';
+                var jsonString = JSON.stringify(usersData, null, 2);
+                var base64 = btoa(unescape(encodeURIComponent(jsonString)));
+
+                return fetch(url, {
+                    headers: {
+                        'Authorization': 'token ' + GITHUB_TOKEN,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                })
+                .then(function(res) {
+                    if (res.status === 200) {
+                        return res.json();
+                    } else {
+                        return null;
+                    }
+                })
+                .then(function(existing) {
+                    var sha = existing ? existing.sha : null;
+                    var body = {
+                        message: '更新用户数据',
+                        content: base64,
+                        branch: 'main'
+                    };
+                    if (sha) body.sha = sha;
+
+                    return fetch(url, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': 'token ' + GITHUB_TOKEN,
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/vnd.github.v3+json'
+                        },
+                        body: JSON.stringify(body)
+                    });
+                })
+                .then(function(res) {
+                    if (!res.ok) throw new Error('保存失败');
+                    return res.json();
+                });
+            }
+
+            // ============================================================
+            //  上传文件到 GitHub（头像）
+            // ============================================================
+            function uploadAvatarToGitHub(file, fileName) {
+                return new Promise(function(resolve, reject) {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        var base64 = e.target.result.split(',')[1];
+                        var url = GITHUB_API + '/avatars/' + encodeURIComponent(fileName);
+
+                        // 检查文件是否已存在
+                        fetch(url, {
+                            headers: {
+                                'Authorization': 'token ' + GITHUB_TOKEN,
+                                'Accept': 'application/vnd.github.v3+json'
+                            }
+                        })
+                        .then(function(res) {
+                            return res.json().then(function(data) {
+                                return { status: res.status, data: data };
+                            });
+                        })
+                        .then(function(result) {
+                            var sha = null;
+                            if (result.status === 200 && result.data && result.data.sha) {
+                                sha = result.data.sha;
+                            }
+
+                            var body = {
+                                message: '上传头像: ' + fileName,
+                                content: base64,
+                                branch: 'main'
+                            };
+                            if (sha) body.sha = sha;
+
+                            return fetch(url, {
+                                method: 'PUT',
+                                headers: {
+                                    'Authorization': 'token ' + GITHUB_TOKEN,
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/vnd.github.v3+json'
+                                },
+                                body: JSON.stringify(body)
+                            });
+                        })
+                        .then(function(res) {
+                            if (!res.ok) {
+                                return res.text().then(function(text) {
+                                    var errorMsg = '上传失败: ' + res.status;
+                                    try {
+                                        var json = JSON.parse(text);
+                                        if (json.message) errorMsg = json.message;
+                                    } catch (e) {}
+                                    throw new Error(errorMsg);
+                                });
+                            }
+                            return res.json();
+                        })
+                        .then(function(data) {
+                            resolve(data);
+                        })
+                        .catch(function(err) {
+                            reject(err);
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            // ============================================================
+            //  加载头像
+            // ============================================================
+            function loadAvatarFromGitHub(email, callback) {
+                var fileName = generateAvatarFileName(email);
+                var url = GITHUB_API + '/avatars/' + encodeURIComponent(fileName);
+
+                fetch(url, {
+                    headers: {
+                        'Authorization': 'token ' + GITHUB_TOKEN,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                })
+                .then(function(res) {
+                    if (res.status === 200) {
+                        return res.json();
+                    } else {
+                        return null;
+                    }
+                })
+                .then(function(data) {
+                    if (data && data.content) {
+                        var base64 = data.content;
+                        var imageUrl = 'data:image/png;base64,' + base64;
+                        if (callback) callback(imageUrl);
+                        return imageUrl;
+                    }
+                    if (callback) callback(null);
+                    return null;
+                })
+                .catch(function() {
+                    if (callback) callback(null);
+                });
+            }
+
+            // ============================================================
+            //  显示头像到界面
+            // ============================================================
+            function displayAvatar(imageUrl, elementId) {
+                var el = document.getElementById(elementId || 'accountAvatar');
+                if (!el) return;
+
+                if (imageUrl) {
+                    el.innerHTML = '<img src="' + imageUrl + '" alt="头像">';
+                    el.className = 'account-avatar';
+                } else {
+                    el.textContent = 'DS';
+                    el.className = 'account-avatar default';
+                }
+            }
+
+            // ============================================================
+            //  加载用户完整数据（包括头像）
+            // ============================================================
+            function loadUserFullData() {
+                var user = getCurrentUser();
+                if (!user.loggedIn || user.isGuest || !user.email) return;
+
+                var email = user.email;
+
+                // 1. 先检查 localStorage 缓存
+                var cachedAvatar = localStorage.getItem('avatar_' + email);
+                if (cachedAvatar && cachedAvatar !== 'null' && cachedAvatar !== 'undefined') {
+                    displayAvatar(cachedAvatar, 'accountAvatar');
+                }
+
+                // 2. 从 GitHub 加载最新数据
+                loadUsersFromGitHub().then(function(data) {
+                    var users = data.users || {};
+                    if (users[email]) {
+                        // 更新账户信息
+                        var userData = users[email];
+                        if (userData.nickname) {
+                            localStorage.setItem('dsmod_user_nickname', userData.nickname);
+                        }
+
+                        // 如果头像存在，加载头像
+                        if (userData.avatar) {
+                            // 头像数据直接存在 users.json 中（base64 字符串）
+                            var avatarData = userData.avatar;
+                            localStorage.setItem('avatar_' + email, avatarData);
+                            displayAvatar(avatarData, 'accountAvatar');
+                        } else {
+                            // 尝试从 avatars/ 文件夹加载
+                            loadAvatarFromGitHub(email, function(imageUrl) {
+                                if (imageUrl) {
+                                    localStorage.setItem('avatar_' + email, imageUrl);
+                                    displayAvatar(imageUrl, 'accountAvatar');
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+
+            // ============================================================
+            //  保存头像到 GitHub
+            // ============================================================
+            function saveAvatarToGitHub(file) {
+                var user = getCurrentUser();
+                if (!user.loggedIn || user.isGuest || !user.email) {
+                    showToast('⚠️ 请先登录邮箱');
+                    return;
+                }
+
+                var email = user.email;
+                var fileName = generateAvatarFileName(email);
+
+                showToast('📤 正在上传头像...');
+
+                uploadAvatarToGitHub(file, fileName)
+                    .then(function() {
+                        // 读取文件为 base64 保存到 users.json
+                        return new Promise(function(resolve, reject) {
+                            var reader = new FileReader();
+                            reader.onload = function(e) {
+                                var base64 = e.target.result;
+                                resolve(base64);
+                            };
+                            reader.onerror = function() {
+                                reject(new Error('读取文件失败'));
+                            };
+                            reader.readAsDataURL(file);
+                        });
+                    })
+                    .then(function(base64Data) {
+                        // 更新 users.json
+                        return loadUsersFromGitHub().then(function(data) {
+                            var users = data.users || {};
+                            if (users[email]) {
+                                users[email].avatar = base64Data;
+                            } else {
+                                // 如果用户不存在（理论上不应该发生）
+                                users[email] = {
+                                    email: email,
+                                    nickname: user.nickname || email.split('@')[0],
+                                    avatar: base64Data,
+                                    password: '',
+                                    createdAt: new Date().toISOString(),
+                                    lastLogin: new Date().toISOString(),
+                                    loginCount: 1
+                                };
+                            }
+                            return saveUsersToGitHub({ users: users });
+                        });
+                    })
+                    .then(function() {
+                        // 保存到 localStorage 缓存
+                        var reader = new FileReader();
+                        reader.onload = function(e) {
+                            var base64 = e.target.result;
+                            localStorage.setItem('avatar_' + email, base64);
+                            displayAvatar(base64, 'accountAvatar');
+                            showToast('✅ 头像已更新！');
+                        };
+                        reader.readAsDataURL(file);
+                    })
+                    .catch(function(err) {
+                        console.error('[Avatar] 上传失败:', err);
+                        showToast('❌ 头像上传失败: ' + err.message);
+                    });
+            }
+
+            // ============================================================
+            //  通知系统（小红点）
+            // ============================================================
+            function loadNotifications() {
+                var email = localStorage.getItem('dsmod_user_email');
+                if (!email || email === 'guest') return Promise.resolve({ unread: 0, items: [] });
+
+                var url = GITHUB_API + '/notifications.json';
+                return fetch(url, {
+                    headers: {
+                        'Authorization': 'token ' + GITHUB_TOKEN,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                })
+                .then(function(res) {
+                    if (res.status === 404) {
+                        return { notifications: {} };
+                    }
+                    if (!res.ok) return { notifications: {} };
+                    return res.json();
+                })
+                .then(function(data) {
+                    if (data && data.content) {
+                        try {
+                            var decoded = decodeURIComponent(escape(atob(data.content)));
+                            var parsed = JSON.parse(decoded);
+                            var userNotifs = parsed[email] || { unread: 0, items: [] };
+                            return userNotifs;
+                        } catch (e) {
+                            return { unread: 0, items: [] };
+                        }
+                    }
+                    return { unread: 0, items: [] };
+                })
+                .catch(function() {
+                    return { unread: 0, items: [] };
+                });
+            }
+
+            function markNotificationsRead() {
+                var email = localStorage.getItem('dsmod_user_email');
+                if (!email || email === 'guest') return Promise.resolve();
+
+                var url = GITHUB_API + '/notifications.json';
+                return fetch(url, {
+                    headers: {
+                        'Authorization': 'token ' + GITHUB_TOKEN,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                })
+                .then(function(res) {
+                    if (res.status === 404) return null;
+                    if (!res.ok) return null;
+                    return res.json();
+                })
+                .then(function(existing) {
+                    var allNotifs = {};
+                    var sha = null;
+
+                    if (existing && existing.content) {
+                        try {
+                            var decoded = decodeURIComponent(escape(atob(existing.content)));
+                            allNotifs = JSON.parse(decoded);
+                            sha = existing.sha;
+                        } catch (e) {
+                            allNotifs = {};
+                        }
+                    }
+
+                    if (allNotifs[email]) {
+                        allNotifs[email].unread = 0;
+                        allNotifs[email].items.forEach(function(item) {
+                            item.read = true;
+                        });
+                    }
+
+                    var jsonString = JSON.stringify(allNotifs, null, 2);
+                    var base64 = btoa(unescape(encodeURIComponent(jsonString)));
+                    var body = {
+                        message: '标记通知已读',
+                        content: base64,
+                        branch: 'main'
+                    };
+                    if (sha) body.sha = sha;
+
+                    return fetch(url, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': 'token ' + GITHUB_TOKEN,
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/vnd.github.v3+json'
+                        },
+                        body: JSON.stringify(body)
+                    });
+                })
+                .catch(function() {});
+            }
+
+            function updateNotificationBadge() {
+                var badge = document.getElementById('notifBadge');
+                var countEl = document.getElementById('notifCount');
+                var user = getCurrentUser();
+
+                if (!user.loggedIn || user.isGuest || !user.email) {
+                    badge.style.display = 'none';
+                    return;
+                }
+
+                loadNotifications().then(function(notifs) {
+                    var count = notifs.unread || 0;
+                    if (count > 0) {
+                        badge.style.display = 'inline-flex';
+                        if (count > 99) {
+                            countEl.textContent = '99+';
+                            countEl.classList.add('max');
+                        } else {
+                            countEl.textContent = count;
+                            countEl.classList.remove('max');
+                        }
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                });
+            }
+
+            // ============================================================
+            //  登录检查
+            // ============================================================
+            function checkLogin() {
+                var user = getCurrentUser();
+                if (!user.loggedIn) {
+                    showToast('⚠️ 请先登录');
+                    setTimeout(function() {
+                        window.location.href = 'index.html';
+                    }, 1000);
+                    return false;
+                }
+                return true;
+            }
+
+            function updateUserBadge() {
+                var user = getCurrentUser();
+                var display = document.getElementById('userNameDisplay');
+                if (user.loggedIn && user.nickname) {
+                    display.textContent = user.nickname;
+                } else {
+                    display.textContent = '未登录';
+                }
+            }
+
+            // ============================================================
+            //  个人账户弹窗
+            // ============================================================
+            var accountData = null;
+
+            function openAccountModal() {
+                playMenuSound();
+                var user = getCurrentUser();
+                if (!user.loggedIn) {
+                    showToast('⚠️ 请先登录');
+                    return;
+                }
+
+                var overlay = document.getElementById('accountOverlay');
+                overlay.classList.add('active');
+
+                // 加载用户数据
+                loadUsersFromGitHub().then(function(data) {
+                    var users = data.users || {};
+                    var email = user.email;
+                    var userData = null;
+
+                    if (email && users[email]) {
+                        userData = users[email];
+                        accountData = userData;
+                        // 如果用户有头像，显示
+                        if (userData.avatar) {
+                            displayAvatar(userData.avatar, 'accountAvatar');
+                        } else {
+                            // 尝试从 avatars/ 加载
+                            loadAvatarFromGitHub(email, function(imageUrl) {
+                                if (imageUrl) {
+                                    localStorage.setItem('avatar_' + email, imageUrl);
+                                    displayAvatar(imageUrl, 'accountAvatar');
+                                }
+                            });
+                        }
+                    } else if (user.isGuest) {
+                        userData = {
+                            nickname: user.nickname || '游客',
+                            email: email || 'guest',
+                            createdAt: '游客账户',
+                            loginCount: 0,
+                            avatarId: null,
+                            isGuest: true
+                        };
+                        accountData = userData;
+                    } else {
+                        userData = {
+                            nickname: user.nickname || '未知',
+                            email: email || '未知',
+                            createdAt: '未知',
+                            loginCount: 0,
+                            avatarId: null,
+                            isGuest: true
+                        };
+                        accountData = userData;
+                    }
+
+                    renderAccountModal(userData);
+                });
+            }
+
+            function renderAccountModal(userData) {
+                var isGuest = userData.isGuest || localStorage.getItem('dsmod_is_guest') === 'true';
+
+                // 头像已经通过 displayAvatar 显示了
+                // 信息
+                document.getElementById('accountName').textContent = isGuest ? (userData.nickname || '游客') : (userData
+                    .nickname || '未命名');
+                document.getElementById('accountEmail').textContent = isGuest ? '游客模式' : (userData.email || '无邮箱');
+                document.getElementById('accountStatus').textContent = isGuest ? '● 游客模式（部分功能受限）' : '● 已登录';
+                document.getElementById('accountStatus').style.color = isGuest ? '#888' : '#44dd88';
+
+                document.getElementById('accountDisplayName').textContent = isGuest ? (userData.nickname || '游客') : (userData
+                    .nickname || '未命名');
+                document.getElementById('accountDisplayName').className = 'value' + (isGuest ? ' guest' : '');
+
+                document.getElementById('accountDisplayEmail').textContent = isGuest ? '游客模式' : (userData.email || '无邮箱');
+                document.getElementById('accountDisplayEmail').className = 'value' + (isGuest ? ' guest' : '');
+
+                document.getElementById('accountCreatedAt').textContent = isGuest ? '游客账户' : (userData.createdAt ? new Date(
+                    userData.createdAt).toLocaleDateString() : '未知');
+                document.getElementById('accountCreatedAt').className = 'value' + (isGuest ? ' guest' : '');
+
+                document.getElementById('accountLoginCount').textContent = isGuest ? '-' : (userData.loginCount || 0);
+                document.getElementById('accountLoginCount').className = 'value' + (isGuest ? ' guest' : '');
+
+                // 操作按钮
+                var actions = document.getElementById('accountActions');
+                actions.innerHTML = '';
+
+                if (isGuest) {
+                    actions.innerHTML = `
+                        <button class="btn-guest-switch" id="accountSwitchToEmail"><i class="fas fa-envelope"></i> 切换到邮箱登录</button>
+                        <button class="btn-logout" id="accountLogout"><i class="fas fa-sign-out-alt"></i> 退出</button>
+                    `;
+                    document.getElementById('accountSwitchToEmail').addEventListener('click', function() {
+                        playMenuSound();
+                        document.getElementById('accountOverlay').classList.remove('active');
+                        showToast('📧 请使用邮箱登录');
+                        setTimeout(function() {
+                            window.location.href = 'index.html';
+                        }, 800);
+                    });
+                } else {
+                    actions.innerHTML = `
+                        <button class="btn-switch" id="accountChangeName"><i class="fas fa-edit"></i> 修改名字</button>
+                        <button class="btn-switch" id="accountChangePassword"><i class="fas fa-key"></i> 修改密码</button>
+                        <button class="btn-guest-switch" id="accountSwitchToGuest"><i class="fas fa-user-secret"></i> 切换游客</button>
+                        <button class="btn-logout" id="accountLogout"><i class="fas fa-sign-out-alt"></i> 退出</button>
+                    `;
+
+                    document.getElementById('accountChangeName').addEventListener('click', function() {
+                        playMenuSound();
+                        var newName = prompt('请输入新的账户名字：', userData.nickname || '');
+                        if (newName && newName.trim() !== '') {
+                            var trimmed = newName.trim();
+                            loadUsersFromGitHub().then(function(data) {
+                                var users = data.users || {};
+                                var email = localStorage.getItem('dsmod_user_email');
+                                if (email && users[email]) {
+                                    users[email].nickname = trimmed;
+                                    localStorage.setItem('dsmod_user_nickname', trimmed);
+                                    return saveUsersToGitHub({ users: users });
+                                }
+                                return Promise.reject('用户不存在');
+                            })
+                            .then(function() {
+                                showToast('✅ 名字已更新为: ' + trimmed);
+                                document.getElementById('accountName').textContent = trimmed;
+                                document.getElementById('accountDisplayName').textContent = trimmed;
+                                updateUserBadge();
+                            })
+                            .catch(function(err) {
+                                showToast('❌ 更新失败: ' + err.message);
+                            });
+                        }
+                    });
+
+                    document.getElementById('accountChangePassword').addEventListener('click', function() {
+                        playMenuSound();
+                        var newPwd = prompt('请输入新密码（留空则清除密码）：', '');
+                        if (newPwd !== null) {
+                            var pwd = newPwd.trim();
+                            loadUsersFromGitHub().then(function(data) {
+                                var users = data.users || {};
+                                var email = localStorage.getItem('dsmod_user_email');
+                                if (email && users[email]) {
+                                    users[email].password = pwd;
+                                    return saveUsersToGitHub({ users: users });
+                                }
+                                return Promise.reject('用户不存在');
+                            })
+                            .then(function() {
+                                if (pwd) {
+                                    showToast('✅ 密码已设置');
+                                } else {
+                                    showToast('✅ 密码已清除');
+                                }
+                            })
+                            .catch(function(err) {
+                                showToast('❌ 更新失败: ' + err.message);
+                            });
+                        }
+                    });
+
+                    document.getElementById('accountSwitchToGuest').addEventListener('click', function() {
+                        playMenuSound();
+                        if (confirm('切换到游客模式将退出当前账户，确定吗？')) {
+                            localStorage.removeItem('dsmod_logged_in');
+                            localStorage.removeItem('dsmod_is_guest');
+                            localStorage.removeItem('dsmod_user_email');
+                            localStorage.removeItem('dsmod_user_nickname');
+                            localStorage.removeItem('dsmod_login_time');
+                            document.getElementById('accountOverlay').classList.remove('active');
+                            showToast('👋 已退出，切换到游客模式');
+                            setTimeout(function() {
+                                window.location.href = 'index.html';
+                            }, 800);
+                        }
+                    });
+                }
+
+                // 退出按钮（通用）
+                var logoutBtn = document.getElementById('accountLogout');
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', function() {
+                        playMenuSound();
+                        if (confirm('确定要退出登录吗？')) {
+                            localStorage.removeItem('dsmod_logged_in');
+                            localStorage.removeItem('dsmod_is_guest');
+                            localStorage.removeItem('dsmod_user_email');
+                            localStorage.removeItem('dsmod_user_nickname');
+                            localStorage.removeItem('dsmod_login_time');
+                            document.getElementById('accountOverlay').classList.remove('active');
+                            showToast('👋 已退出登录');
+                            setTimeout(function() {
+                                window.location.href = 'index.html';
+                            }, 800);
+                        }
+                    });
+                }
+
+                // 头像上传
+                var uploadBtn = document.getElementById('accountUploadAvatarBtn');
+                var fileInput = document.getElementById('accountAvatarInput');
+                if (isGuest) {
+                    uploadBtn.disabled = true;
+                    uploadBtn.title = '游客无法上传头像';
+                } else {
+                    uploadBtn.disabled = false;
+                    uploadBtn.onclick = function() {
+                        playMenuSound();
+                        fileInput.click();
+                    };
+                    fileInput.onchange = function(e) {
+                        var file = e.target.files[0];
+                        if (!file) return;
+                        // 检查文件大小（最大 2MB）
+                        if (file.size > 2 * 1024 * 1024) {
+                            showToast('❌ 头像大小不能超过 2MB');
+                            fileInput.value = '';
+                            return;
+                        }
+                        saveAvatarToGitHub(file);
+                        fileInput.value = '';
+                    };
+                }
+            }
+
+            // ============================================================
+            //  关闭个人账户
+            // ============================================================
+            document.getElementById('accountClose').addEventListener('click', function() {
+                playMenuSound();
+                document.getElementById('accountOverlay').classList.remove('active');
+            });
+
+            document.getElementById('accountOverlay').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                }
+            });
+
+            // ============================================================
+            //  关于弹窗
+            // ============================================================
+            document.getElementById('aboutBtn').addEventListener('click', function() {
+                playMenuSound();
+                document.getElementById('aboutOverlay').classList.add('active');
+            });
+
+            document.getElementById('aboutCloseBtn').addEventListener('click', function() {
+                playMenuSound();
+                document.getElementById('aboutOverlay').classList.remove('active');
+            });
+
+            document.getElementById('aboutOverlay').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                }
+            });
+
+            // ============================================================
+            //  页面跳转
+            // ============================================================
+            function goTo(page) {
+                if (page === 'workshop.html') {
+                    markNotificationsRead();
+                }
+                window.location.href = page;
+            }
+
+            // ============================================================
+            //  事件绑定（含音效）
+            // ============================================================
+            document.getElementById('startGameBtn').addEventListener('click', function() {
+                playMenuSound();
+                if (!checkLogin()) return;
+                window.location.href = 'Loading.html';
+            });
+
+            document.getElementById('modsManageBtn').addEventListener('click', function() {
+                playMenuSound();
+                if (!checkLogin()) return;
+                window.location.href = 'mods.html';
+            });
+
+            document.getElementById('settingsBtn').addEventListener('click', function() {
+                playMenuSound();
+                if (!checkLogin()) return;
+                window.location.href = 'settings.html';
+            });
+
+            document.getElementById('helpBtn').addEventListener('click', function() {
+                playMenuSound();
+                if (!checkLogin()) return;
+                window.location.href = 'help.html';
+            });
+
+            document.getElementById('workshopBtn').addEventListener('click', function() {
+                playMenuSound();
+                if (!checkLogin()) return;
+                markNotificationsRead();
+                document.getElementById('notifBadge').style.display = 'none';
+                window.location.href = 'workshop.html';
+            });
+
+            document.getElementById('accountBtn').addEventListener('click', function() {
+                playMenuSound();
+                if (!checkLogin()) return;
+                openAccountModal();
+            });
+
+            // ============================================================
+            //  启动
+            // ============================================================
+            var user = getCurrentUser();
+
+            if (!user.loggedIn) {
+                showToast('⚠️ 请先登录');
+                setTimeout(function() {
+                    window.location.href = 'index.html';
+                }, 1200);
+            } else {
+                updateUserBadge();
+                // 加载用户完整数据（包括头像）
+                loadUserFullData();
+                // 更新小红点
+                updateNotificationBadge();
+                // 每30秒刷新一次小红点
+                setInterval(updateNotificationBadge, 30000);
+                console.log('[Menu] 当前用户:', user.nickname, user.isGuest ? '(游客)' : '(邮箱用户)');
+            }
+
+        })();
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, shrink-to-fit=no">
+    <title>模组管理 - DS-MOD★</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: 'Segoe UI', system-ui, -apple-system, 'Roboto', sans-serif;
+            background: #0a0a1a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dynamic-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460, #1a1a2e);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            z-index: -2;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 0%; }
+            25% { background-position: 100% 0%; }
+            50% { background-position: 100% 100%; }
+            75% { background-position: 0% 100%; }
+            100% { background-position: 0% 0%; }
+        }
+
+        .overlay {
+            position: relative;
+            width: 95%;
+            max-width: 1400px;
+            height: 85vh;
+            max-height: 85vh;
+            background: rgba(30, 30, 40, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+            overflow: hidden;
+            display: flex;
+            flex-direction: row;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        .category-sidebar {
+            width: 200px;
+            background: rgba(0,0,0,0.5);
+            border-right: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 16px;
+            gap: 8px;
+            flex-shrink: 0;
+            overflow-y: auto;
+        }
+
+        .category-sidebar::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .category-sidebar::-webkit-scrollbar-track {
+            background: #2a2a2e;
+        }
+
+        .category-sidebar::-webkit-scrollbar-thumb {
+            background: #ffaa55;
+            border-radius: 4px;
+        }
+
+        .category-btn {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 0px;
+            padding: 10px 12px;
+            color: #ccc;
+            font-family: monospace;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            width: 100%;
+        }
+
+        .category-btn:hover, .category-btn:active {
+            background: rgba(255,170,85,0.3);
+            color: #ffaa55;
+            border-color: #ffaa55;
+            transform: translateX(4px);
+        }
+
+        .category-btn.active {
+            background: rgba(255,170,85,0.4);
+            color: #ffaa55;
+            border-color: #ffaa55;
+        }
+
+        .divider {
+            height: 1px;
+            background: rgba(255,255,255,0.15);
+            margin: 12px 0;
+        }
+
+        .tool-btn {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 0px;
+            padding: 10px 12px;
+            color: #ccc;
+            font-family: monospace;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            width: 100%;
+        }
+
+        .tool-btn:hover, .tool-btn:active {
+            background: rgba(255,170,85,0.3);
+            color: #ffaa55;
+            border-color: #ffaa55;
+            transform: translateX(4px);
+        }
+
+        .tool-btn.delete-mode.active {
+            background: rgba(200,70,70,0.5);
+            color: #ff8888;
+            border-color: #ff8888;
+        }
+
+        .back-btn {
+            background: rgba(100,70,50,0.6);
+            border: 1px solid rgba(255,170,85,0.5);
+            border-radius: 0px;
+            padding: 10px 12px;
+            color: #ffaa88;
+            font-family: monospace;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .back-btn:hover, .back-btn:active {
+            background: rgba(255,170,85,0.5);
+            color: white;
+            border-color: #ffaa55;
+            transform: translateX(4px);
+        }
+
+        .mods-grid-area {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .mods-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+        }
+
+        .mod-card {
+            position: relative;
+            width: 100%;
+            background: rgba(20,20,30,0.8);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 0px;
+            cursor: pointer;
+            transition: all 0.2s;
+            overflow: hidden;
+        }
+
+        .mod-card-inner {
+            position: relative;
+            width: 100%;
+            padding-bottom: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mod-card-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mod-card:hover, .mod-card:active {
+            transform: scale(1.02);
+            border-color: #ffaa55;
+            box-shadow: 0 0 15px rgba(255,170,85,0.3);
+        }
+
+        .mod-card-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.7;
+        }
+
+        .mod-card-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(60, 60, 80, 0.9);
+            font-size: 36px;
+            color: #888;
+            font-family: monospace;
+        }
+
+        .mod-card-music {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(60, 60, 80, 0.9);
+            font-size: 36px;
+            color: #ffaa55;
+            font-family: monospace;
+        }
+
+        .mod-card-name {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.7);
+            text-align: center;
+            padding: 4px;
+            font-size: 0.65rem;
+            font-family: monospace;
+            color: white;
+            font-weight: bold;
+            z-index: 2;
+        }
+
+        .mod-card.delete-mode-card {
+            border-color: #ff6666;
+            box-shadow: 0 0 10px rgba(255,0,0,0.3);
+        }
+
+        .delete-hint {
+            position: absolute;
+            top: 3px;
+            right: 3px;
+            background: rgba(255,0,0,0.8);
+            color: white;
+            font-size: 10px;
+            padding: 2px 5px;
+            border-radius: 0px;
+            z-index: 10;
+            font-family: monospace;
+        }
+
+        .empty-mods {
+            color: #888;
+            text-align: center;
+            font-family: monospace;
+            font-size: 0.9rem;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            white-space: nowrap;
+        }
+
+        .mods-grid-area::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .mods-grid-area::-webkit-scrollbar-track {
+            background: #2a2a2e;
+            border-radius: 4px;
+        }
+
+        .mods-grid-area::-webkit-scrollbar-thumb {
+            background: #ffaa55;
+            border-radius: 4px;
+        }
+
+        .confirm-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.2s ease;
+        }
+
+        .confirm-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .confirm-box {
+            background: #2a2a35;
+            border: 1px solid rgba(255,170,85,0.4);
+            border-radius: 0px;
+            padding: 24px 30px 20px 30px;
+            max-width: 420px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+        }
+
+        .confirm-title {
+            color: #ffaa55;
+            font-family: monospace;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .confirm-message {
+            color: #ccc;
+            font-family: monospace;
+            font-size: 0.75rem;
+            line-height: 1.5;
+            margin-bottom: 16px;
+            word-break: break-all;
+        }
+
+        .confirm-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .confirm-btn {
+            padding: 8px 20px;
+            font-family: monospace;
+            font-size: 0.75rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 0px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .confirm-btn:hover, .confirm-btn:active {
+            transform: scale(1.02);
+        }
+
+        .confirm-btn.cancel {
+            background: rgba(100,100,120,0.4);
+            color: #aaa;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+
+        .confirm-btn.cancel:hover {
+            background: rgba(100,100,120,0.6);
+            color: #ccc;
+        }
+
+        .confirm-btn.replace {
+            background: rgba(255,170,85,0.3);
+            color: #ffaa55;
+            border: 1px solid rgba(255,170,85,0.4);
+        }
+
+        .confirm-btn.replace:hover {
+            background: rgba(255,170,85,0.5);
+        }
+
+        .confirm-btn.skip {
+            background: rgba(60,60,80,0.4);
+            color: #888;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .confirm-btn.skip:hover {
+            background: rgba(60,60,80,0.6);
+            color: #aaa;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: #ffd966;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            z-index: 1000;
+            font-family: monospace;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 900px) {
+            .mods-grid { gap: 10px; }
+            .mod-card-name { font-size: 0.6rem; padding: 3px; }
+            .mod-card-placeholder { font-size: 30px; }
+            .mod-card-music { font-size: 30px; }
+        }
+
+        @media (max-width: 800px) {
+            .category-sidebar { width: 160px; }
+            .category-btn { padding: 8px 10px; font-size: 0.7rem; }
+            .tool-btn { padding: 8px 10px; font-size: 0.7rem; }
+            .back-btn { padding: 8px 10px; font-size: 0.7rem; }
+        }
+
+        @media (max-width: 700px) {
+            .mods-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+
+        @media (max-width: 600px) {
+            .mods-grid { grid-template-columns: repeat(3, 1fr); }
+            .category-sidebar { width: 140px; }
+            .category-btn { padding: 6px 8px; font-size: 0.65rem; }
+            .tool-btn { padding: 6px 8px; font-size: 0.65rem; }
+            .back-btn { padding: 6px 8px; font-size: 0.65rem; }
+        }
+
+        @media (max-width: 450px) {
+            .mods-grid { grid-template-columns: repeat(2, 1fr); }
+            .category-sidebar { width: 120px; }
+        }
+
+        @media (max-width: 350px) {
+            .mods-grid { grid-template-columns: repeat(1, 1fr); }
+        }
+
+        @media (max-height: 600px) {
+            .overlay { height: 90vh; }
+            .category-sidebar { padding: 15px 16px; }
+            .category-btn { padding: 6px 8px; }
+            .tool-btn { padding: 6px 8px; }
+            .back-btn { padding: 6px 8px; }
+        }
+    </style>
+</head>
+<body>
+<div class="dynamic-bg"></div>
+
+<div class="overlay">
+    <div class="category-sidebar">
+        <button class="category-btn" data-category="prop">📦 物体类</button>
+        <button class="category-btn" data-category="creature">🐉 生物类</button>
+        <button class="category-btn" data-category="vehicle">🚗 车辆类</button>
+        <button class="category-btn" data-category="weapon">🔫 武器类</button>
+        <button class="category-btn" data-category="test">⚙️ 测试类</button>
+        <button class="category-btn" data-category="other">🎵 特殊类</button>
+        
+        <div class="divider"></div>
+        
+        <button class="tool-btn" id="importBtn">📦 导入ZIP</button>
+        <button class="tool-btn" id="saveBtn">💾 保存</button>
+        <button class="tool-btn" id="deleteModeBtn">🗑️ 删除模式</button>
+        <button class="tool-btn" id="undoBtn">↩️ 撤回</button>
+        
+        <div class="divider"></div>
+        
+        <button class="back-btn" id="backBtn">← 返回主菜单</button>
+    </div>
+
+    <div class="mods-grid-area" id="modsGridArea">
+        <div class="mods-grid" id="modsGrid">
+            <div class="empty-mods">⚠️ 暂无模组，请点击「导入ZIP」</div>
+        </div>
+    </div>
+</div>
+
+<div class="confirm-overlay" id="confirmOverlay">
+    <div class="confirm-box">
+        <div class="confirm-title" id="confirmTitle">⚠️ 检测到同名模组</div>
+        <div class="confirm-message" id="confirmMessage">模组 "xxx" 已存在，是否替换？</div>
+        <div class="confirm-actions">
+            <button class="confirm-btn skip" id="confirmSkip">⏭️ 跳过</button>
+            <button class="confirm-btn cancel" id="confirmCancel">❌ 取消全部</button>
+            <button class="confirm-btn replace" id="confirmReplace">✅ 替换</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        let currentCategory = 'prop';
+        let modsInternal = {};
+        let deleteMode = false;
+        let lastDeletedItem = null;
+        let imageCache = new Map();
+        let db = null;
+
+        const categoryOrder = ['prop', 'creature', 'vehicle', 'weapon', 'test', 'other'];
+
+        let menuAudio = null;
+        
+        function playMenuSound() {
+            try {
+                if(!menuAudio) {
+                    menuAudio = new Audio();
+                    menuAudio.src = "sound/spawnmenu.mp3";
+                    menuAudio.volume = 0.4;
+                }
+                menuAudio.currentTime = 0;
+                menuAudio.play().catch(e => {});
+            } catch(e) {}
+        }
+
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2000);
+        }
+
+        function showConfirm(title, message) {
+            return new Promise((resolve, reject) => {
+                const overlay = document.getElementById('confirmOverlay');
+                const titleEl = document.getElementById('confirmTitle');
+                const msgEl = document.getElementById('confirmMessage');
+                const skipBtn = document.getElementById('confirmSkip');
+                const cancelBtn = document.getElementById('confirmCancel');
+                const replaceBtn = document.getElementById('confirmReplace');
+
+                titleEl.textContent = title || '⚠️ 检测到同名模组';
+                msgEl.textContent = message || '模组已存在，是否替换？';
+
+                overlay.classList.add('active');
+
+                const newSkip = skipBtn.cloneNode(true);
+                const newCancel = cancelBtn.cloneNode(true);
+                const newReplace = replaceBtn.cloneNode(true);
+                skipBtn.parentNode.replaceChild(newSkip, skipBtn);
+                cancelBtn.parentNode.replaceChild(newCancel, cancelBtn);
+                replaceBtn.parentNode.replaceChild(newReplace, replaceBtn);
+
+                newSkip.onclick = () => {
+                    overlay.classList.remove('active');
+                    resolve('skip');
+                };
+                newCancel.onclick = () => {
+                    overlay.classList.remove('active');
+                    resolve('cancel');
+                };
+                newReplace.onclick = () => {
+                    overlay.classList.remove('active');
+                    resolve('replace');
+                };
+
+                overlay.onclick = (e) => {
+                    if (e.target === overlay) {
+                        overlay.classList.remove('active');
+                        resolve('cancel');
+                    }
+                };
+            });
+        }
+
+        const DB_NAME = 'DSMOD_V2_DB';
+        const STORE_NAME = 'files';
+        
+        function initIndexedDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, 1);
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => {
+                    db = request.result;
+                    resolve(db);
+                };
+                request.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains(STORE_NAME)) {
+                        db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+                    }
+                };
+            });
+        }
+
+        async function saveFileToDB(id, blob, type) {
+            if (!db) await initIndexedDB();
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction([STORE_NAME], 'readwrite');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.put({ id: id, data: blob, type: type, timestamp: Date.now() });
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function loadFileFromDB(id) {
+            if (!db) await initIndexedDB();
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction([STORE_NAME], 'readonly');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.get(id);
+                request.onsuccess = () => {
+                    if (request.result) {
+                        const blob = request.result.data;
+                        const url = URL.createObjectURL(blob);
+                        resolve({ url, blob, type: request.result.type });
+                    } else {
+                        resolve(null);
+                    }
+                };
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function deleteFileFromDB(id) {
+            if (!db) await initIndexedDB();
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction([STORE_NAME], 'readwrite');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.delete(id);
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        function loadModsData() {
+            try {
+                const saved = localStorage.getItem('DSMOD_mods');
+                if (saved) {
+                    modsInternal = JSON.parse(saved);
+                    for (let cat of categoryOrder) {
+                        if (!modsInternal[cat]) modsInternal[cat] = [];
+                    }
+                    return true;
+                } else {
+                    for (let cat of categoryOrder) {
+                        modsInternal[cat] = [];
+                    }
+                }
+            } catch(e) {}
+            return false;
+        }
+
+        async function saveModsToLocal() {
+            try {
+                const toSave = {};
+                for (let cat of categoryOrder) {
+                    toSave[cat] = modsInternal[cat].map(item => {
+                        const copy = { ...item };
+                        if (copy.imageUrl && copy.imageUrl.startsWith('blob:')) delete copy.imageUrl;
+                        if (copy.spawnSound && copy.spawnSound.startsWith('blob:')) delete copy.spawnSound;
+                        if (copy.chaseSound && copy.chaseSound.startsWith('blob:')) delete copy.chaseSound;
+                        if (copy.collideSound && copy.collideSound.startsWith('blob:')) delete copy.collideSound;
+                        if (copy.file) delete copy.file;
+                        return copy;
+                    });
+                }
+                localStorage.setItem('DSMOD_mods', JSON.stringify(toSave));
+                showToast('💾 已保存');
+                playMenuSound();
+            } catch(e) {}
+        }
+
+        async function getImageUrl(item) {
+            if (item.type === 'music') return null;
+            
+            if (item.imageUrl && (item.imageUrl.startsWith('http://') || item.imageUrl.startsWith('https://') || item.imageUrl.startsWith('blob:'))) {
+                return item.imageUrl;
+            }
+            
+            if (item.imageId) {
+                if (imageCache.has(item.imageId)) {
+                    return imageCache.get(item.imageId);
+                }
+                const result = await loadFileFromDB(item.imageId);
+                if (result) {
+                    imageCache.set(item.imageId, result.url);
+                    return result.url;
+                }
+            }
+            
+            if (item.weaponData) {
+                if (item.weaponData.iconImage && !item.weaponData.iconImage.startsWith('http')) {
+                    const result = await loadFileFromDB(item.weaponData.iconImage);
+                    if (result) {
+                        imageCache.set(item.weaponData.iconImage, result.url);
+                        return result.url;
+                    }
+                }
+                if (item.weaponData.weaponImage && !item.weaponData.weaponImage.startsWith('http')) {
+                    const result = await loadFileFromDB(item.weaponData.weaponImage);
+                    if (result) {
+                        imageCache.set(item.weaponData.weaponImage, result.url);
+                        return result.url;
+                    }
+                }
+            }
+            
+            return null;
+        }
+
+        function parseLuaWeapon(text, filename) {
+            try {
+                const luaData = {};
+                const lines = text.split('\n');
+                let inFunction = false;
+                let funcName = '';
+                let funcBody = '';
+                
+                for (let line of lines) {
+                    const trimmed = line.trim();
+                    
+                    if (trimmed.startsWith('--')) continue;
+                    if (trimmed === '') continue;
+                    
+                    const funcMatch = trimmed.match(/^function\s+(\w+)\(/);
+                    if (funcMatch) {
+                        inFunction = true;
+                        funcName = funcMatch[1];
+                        funcBody = '';
+                        continue;
+                    }
+                    
+                    if (inFunction && trimmed === 'end') {
+                        inFunction = false;
+                        luaData[funcName] = funcBody.trim();
+                        continue;
+                    }
+                    
+                    if (inFunction) {
+                        funcBody += line + '\n';
+                        continue;
+                    }
+                    
+                    const cleanLine = trimmed.replace(/,\s*$/, '');
+                    
+                    const assignMatch = cleanLine.match(/^(\w+)\s*=\s*(.+)$/);
+                    if (assignMatch) {
+                        let key = assignMatch[1];
+                        let value = assignMatch[2].trim();
+                        
+                        const commentIdx = value.indexOf('--');
+                        if (commentIdx > -1) {
+                            value = value.substring(0, commentIdx).trim();
+                        }
+                        
+                        if (value === 'null' || value === 'nil') {
+                            luaData[key] = null;
+                        } else if (value === 'true') {
+                            luaData[key] = true;
+                        } else if (value === 'false') {
+                            luaData[key] = false;
+                        } else if (value.startsWith('"') && value.endsWith('"')) {
+                            luaData[key] = value.slice(1, -1);
+                        } else if (value.startsWith("'") && value.endsWith("'")) {
+                            luaData[key] = value.slice(1, -1);
+                        } else if (!isNaN(parseFloat(value)) && isFinite(value)) {
+                            luaData[key] = parseFloat(value);
+                        } else {
+                            luaData[key] = value;
+                        }
+                    }
+                }
+                
+                if (!luaData.NAME) {
+                    console.warn('⚠️ Lua 武器缺少 NAME:', filename);
+                    return null;
+                }
+                if (!luaData.CATEGORY || luaData.CATEGORY !== 'weapon') {
+                    console.warn('⚠️ Lua 武器 CATEGORY 不是 weapon:', filename);
+                    return null;
+                }
+                if (!luaData.TYPE || (luaData.TYPE !== 'melee' && luaData.TYPE !== 'ranged')) {
+                    console.warn('⚠️ 未知武器类型:', luaData.TYPE, filename);
+                    return null;
+                }
+                
+                const weaponItem = {
+                    name: luaData.NAME,
+                    category: luaData.CATEGORY,
+                    region: luaData.REGION || 'custom',
+                    type: luaData.TYPE,
+                    iconEmoji: luaData.ICON_EMOJI || null,
+                    iconImage: luaData.ICON_IMAGE || null,
+                    damage: luaData.DAMAGE || 20,
+                    attackSpeed: luaData.ATTACK_SPEED || 0.5,
+                    radius: luaData.RADIUS || 20,
+                    weaponScale: luaData.WEAPON_SCALE || 1.0,
+                    bulletScale: luaData.BULLET_SCALE || 1.0,
+                    trailScale: luaData.TRAIL_SCALE || 1.0,
+                    muzzleScale: luaData.MUZZLE_SCALE || 1.0,
+                    meleeRange: luaData.MELEE_RANGE || 90,
+                    swingAngle: luaData.SWING_ANGLE || 180,
+                    rangedRange: luaData.RANGED_RANGE || 500,
+                    maxAmmo: luaData.MAX_AMMO || 30,
+                    reserveAmmo: luaData.RESERVE_AMMO || 90,
+                    reloadTime: luaData.RELOAD_TIME || 2.0,
+                    bulletSpeed: luaData.BULLET_SPEED || 600,
+                    spread: luaData.SPREAD || 0.03,
+                    bulletLife: luaData.BULLET_LIFE || 2.0,
+                    bulletType: luaData.BULLET_TYPE || '-',
+                    trailType: luaData.TRAIL_TYPE || '-',
+                    hitEffect: luaData.HIT_EFFECT || 1,
+                    swingEffect: luaData.SWING_EFFECT || 1,
+                    muzzleEffect: luaData.MUZZLE_EFFECT || 1,
+                    weaponImage: luaData.WEAPON_IMAGE || null,
+                    trailImage: luaData.TRAIL_IMAGE || null,
+                    hitEffectImage: luaData.HIT_EFFECT_IMAGE || null,
+                    bulletImage: luaData.BULLET_IMAGE || null,
+                    muzzleImage: luaData.MUZZLE_IMAGE || null,
+                    swingImage: luaData.SWING_IMAGE || null,
+                    swingSound: luaData.SWING_SOUND || null,
+                    hitSound: luaData.HIT_SOUND || null,
+                    drawSound: luaData.DRAW_SOUND || null,
+                    shootSound: luaData.SHOOT_SOUND || null,
+                    reloadSound: luaData.RELOAD_SOUND || null,
+                    _functions: {
+                        OnSwing: luaData.OnSwing || null,
+                        OnHit: luaData.OnHit || null,
+                        OnEquip: luaData.OnEquip || null,
+                        OnShoot: luaData.OnShoot || null,
+                        OnReload: luaData.OnReload || null,
+                        CreateBullet: luaData.CreateBullet || null,
+                        OnRender: luaData.OnRender || null,
+                    },
+                    _script: text,
+                    _filename: filename,
+                };
+                
+                console.log('✅ 解析武器模组:', weaponItem.name, '类型:', weaponItem.type);
+                return weaponItem;
+            } catch(e) {
+                console.error('❌ 解析 Lua 武器失败:', filename, e);
+                return null;
+            }
+        }
+
+        function findDuplicateMod(name, category) {
+            const list = modsInternal[category] || [];
+            return list.find(item => item.name === name);
+        }
+
+        async function renderModsGrid() {
+            const grid = document.getElementById('modsGrid');
+            const mods = modsInternal[currentCategory] || [];
+            
+            if (!grid) return;
+            
+            if (mods.length === 0) {
+                grid.innerHTML = '<div class="empty-mods">⚠️ 暂无模组，请点击「导入ZIP」</div>';
+                return;
+            }
+            
+            grid.innerHTML = '';
+            
+            for (let i = 0; i < mods.length; i++) {
+                const mod = mods[i];
+                const isMusic = (mod.type === 'music');
+                const isWeapon = (mod.isWeapon || mod.category === 'weapon' || mod.type === 'melee' || mod.type === 'ranged');
+                
+                const card = document.createElement('div');
+                card.className = 'mod-card';
+                if (deleteMode) card.classList.add('delete-mode-card');
+                
+                const inner = document.createElement('div');
+                inner.className = 'mod-card-inner';
+                
+                const content = document.createElement('div');
+                content.className = 'mod-card-content';
+                
+                let imgUrl = null;
+                let displayEmoji = null;
+                
+                if (isWeapon) {
+                    if (mod.weaponData && mod.weaponData.iconImage) {
+                        const iconResult = await loadFileFromDB(mod.weaponData.iconImage);
+                        if (iconResult) {
+                            imgUrl = iconResult.url;
+                        }
+                    }
+                    if (!imgUrl && mod.weaponData && mod.weaponData.weaponImage) {
+                        const weaponResult = await loadFileFromDB(mod.weaponData.weaponImage);
+                        if (weaponResult) {
+                            imgUrl = weaponResult.url;
+                        }
+                    }
+                    if (!imgUrl && mod.imageUrl) {
+                        imgUrl = mod.imageUrl;
+                    }
+                    if (!imgUrl && mod.emoji) {
+                        displayEmoji = mod.emoji;
+                    }
+                    if (!imgUrl && mod.weaponData && mod.weaponData.iconEmoji) {
+                        displayEmoji = mod.weaponData.iconEmoji;
+                    }
+                    if (!imgUrl && !displayEmoji) {
+                        displayEmoji = mod.type === 'melee' ? '🗡️' : '🔫';
+                    }
+                } else {
+                    if (mod.imageUrl && (mod.imageUrl.startsWith('http://') || mod.imageUrl.startsWith('https://') || mod.imageUrl.startsWith('blob:'))) {
+                        imgUrl = mod.imageUrl;
+                    } else if (mod.imageId) {
+                        if (imageCache.has(mod.imageId)) {
+                            imgUrl = imageCache.get(mod.imageId);
+                        } else {
+                            const result = await loadFileFromDB(mod.imageId);
+                            if (result) {
+                                imageCache.set(mod.imageId, result.url);
+                                imgUrl = result.url;
+                            }
+                        }
+                    } else if (mod.image) {
+                        const result = await loadFileFromDB(mod.image);
+                        if (result) {
+                            imgUrl = result.url;
+                        }
+                    }
+                    if (!imgUrl && mod.emoji) {
+                        displayEmoji = mod.emoji;
+                    }
+                }
+                
+                if (isMusic) {
+                    const musicIcon = document.createElement('div');
+                    musicIcon.className = 'mod-card-music';
+                    musicIcon.textContent = '🎵';
+                    content.appendChild(musicIcon);
+                } else if (imgUrl) {
+                    const bgDiv = document.createElement('div');
+                    bgDiv.className = 'mod-card-bg';
+                    bgDiv.style.backgroundImage = `url(${imgUrl})`;
+                    content.appendChild(bgDiv);
+                } else if (displayEmoji) {
+                    const placeholder = document.createElement('div');
+                    placeholder.className = 'mod-card-placeholder';
+                    placeholder.textContent = displayEmoji;
+                    content.appendChild(placeholder);
+                } else {
+                    const placeholder = document.createElement('div');
+                    placeholder.className = 'mod-card-placeholder';
+                    placeholder.textContent = '?';
+                    content.appendChild(placeholder);
+                }
+                
+                if (deleteMode) {
+                    const deleteHint = document.createElement('div');
+                    deleteHint.className = 'delete-hint';
+                    deleteHint.textContent = '✕';
+                    content.appendChild(deleteHint);
+                }
+                
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'mod-card-name';
+                let displayName = mod.name || '未知模组';
+                if (isWeapon && mod.type) {
+                    const typeLabel = mod.type === 'melee' ? '近战' : '远程';
+                    displayName = displayName + ' [' + typeLabel + ']';
+                }
+                nameDiv.textContent = displayName;
+                content.appendChild(nameDiv);
+                
+                inner.appendChild(content);
+                card.appendChild(inner);
+                
+                card.onclick = async (e) => {
+                    e.stopPropagation();
+                    playMenuSound();
+                    
+                    if (deleteMode) {
+                        if (confirm(`确定删除模组「${mod.name}」吗？`)) {
+                            await deleteModItem(currentCategory, i);
+                        }
+                    } else {
+                        if (isMusic) {
+                            showToast(`🎵 音乐模组「${mod.name}」\n请在游戏中使用`);
+                        } else if (isWeapon) {
+                            const typeLabel = mod.type === 'melee' ? '近战' : '远程';
+                            showToast(`🔫 武器模组「${mod.name}」\n类型: ${typeLabel}\n已在游戏中解锁`);
+                        } else {
+                            showToast(`「${mod.name}」\n已在游戏中解锁，打开游戏即可使用`);
+                        }
+                    }
+                };
+                
+                grid.appendChild(card);
+            }
+        }
+
+        async function deleteModItem(category, index) {
+            const item = modsInternal[category][index];
+            if (!item) return;
+            
+            playMenuSound();
+            lastDeletedItem = { category: category, item: JSON.parse(JSON.stringify(item)), index: index };
+            
+            if (item.imageId) await deleteFileFromDB(item.imageId);
+            if (item.spawnSoundId) await deleteFileFromDB(item.spawnSoundId);
+            if (item.chaseSoundId) await deleteFileFromDB(item.chaseSoundId);
+            if (item.collideSoundId) await deleteFileFromDB(item.collideSoundId);
+            if (item.fileId) await deleteFileFromDB(item.fileId);
+            
+            if (item.weaponData) {
+                if (item.weaponData.iconImage) await deleteFileFromDB(item.weaponData.iconImage);
+                if (item.weaponData.weaponImage) await deleteFileFromDB(item.weaponData.weaponImage);
+                if (item.weaponData.bulletImageId) await deleteFileFromDB(item.weaponData.bulletImageId);
+                if (item.weaponData.trailImageId) await deleteFileFromDB(item.weaponData.trailImageId);
+                if (item.weaponData.muzzleImageId) await deleteFileFromDB(item.weaponData.muzzleImageId);
+                if (item.weaponData.hitImageId) await deleteFileFromDB(item.weaponData.hitImageId);
+                if (item.weaponData.swingImageId) await deleteFileFromDB(item.weaponData.swingImageId);
+                if (item.weaponData.swingSoundId) await deleteFileFromDB(item.weaponData.swingSoundId);
+                if (item.weaponData.hitSoundId) await deleteFileFromDB(item.weaponData.hitSoundId);
+                if (item.weaponData.drawSoundId) await deleteFileFromDB(item.weaponData.drawSoundId);
+                if (item.weaponData.shootSoundId) await deleteFileFromDB(item.weaponData.shootSoundId);
+                if (item.weaponData.reloadSoundId) await deleteFileFromDB(item.weaponData.reloadSoundId);
+            }
+            
+            modsInternal[category].splice(index, 1);
+            await saveModsToLocal();
+            await renderModsGrid();
+            showToast(`🗑️ 已删除 ${item.name}`);
+        }
+
+        async function undoDelete() {
+            if (!lastDeletedItem) {
+                showToast('无记录');
+                return;
+            }
+            playMenuSound();
+            const { category, item } = lastDeletedItem;
+            modsInternal[category].push(item);
+            lastDeletedItem = null;
+            await saveModsToLocal();
+            await renderModsGrid();
+            showToast(`↩️ 已恢复`);
+        }
+
+        function toggleDeleteMode() {
+            playMenuSound();
+            deleteMode = !deleteMode;
+            const btn = document.getElementById('deleteModeBtn');
+            if (btn) {
+                if (deleteMode) {
+                    btn.classList.add('active');
+                    showToast('🗑️ 删除模式已开启，点击模组可删除');
+                } else {
+                    btn.classList.remove('active');
+                    showToast('删除模式已关闭');
+                }
+            }
+            renderModsGrid();
+        }
+
+        function selectZipFile() {
+            return new Promise((resolve) => {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.zip,application/zip,application/x-zip-compressed';
+                input.style.display = 'none';
+                document.body.appendChild(input);
+                
+                input.onchange = (e) => {
+                    const file = e.target.files[0];
+                    input.remove();
+                    resolve(file || null);
+                };
+                
+                input.click();
+            });
+        }
+
+        async function saveImageToDB(fileName, imageMap) {
+            const blob = imageMap.get(fileName) || imageMap.get(fileName.split('/').pop());
+            if (!blob) return null;
+            const id = `img_${Date.now()}_${Math.random()}`;
+            await saveFileToDB(id, blob, 'image');
+            return id;
+        }
+
+        async function saveSoundToDB(fileName, audioMap) {
+            const blob = audioMap.get(fileName) || audioMap.get(fileName.split('/').pop());
+            if (!blob) return null;
+            const id = `snd_${Date.now()}_${Math.random()}`;
+            await saveFileToDB(id, blob, 'audio');
+            return id;
+        }
+
+        async function importMod() {
+            playMenuSound();
+            showToast('📁 请选择 ZIP 模组包');
+            const zipFile = await selectZipFile();
+            if (!zipFile) {
+                showToast('❌ 未选择');
+                return;
+            }
+            
+            if (!zipFile.name.toLowerCase().endsWith('.zip')) {
+                showToast('❌ 请选择 .zip 格式的文件');
+                return;
+            }
+            
+            showToast('📦 正在解压...');
+            
+            try {
+                const zip = await JSZip.loadAsync(zipFile);
+                let loadedCount = 0;
+                let skippedCount = 0;
+                let modsFound = [];
+                let imageMap = new Map();
+                let audioMap = new Map();
+                
+                const IMAGE_EXTS = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'apng', 'svg', 'bmp', 'ico', 'tiff'];
+                const AUDIO_EXTS = ['mp3', 'wav', 'ogg', 'm4a', 'aac', 'flac', 'wma', 'aiff', 'opus'];
+                
+                for (let [filename, file] of Object.entries(zip.files)) {
+                    if (file.dir) continue;
+                    
+                    const ext = filename.split('.').pop().toLowerCase();
+                    const nameOnly = filename.split('/').pop();
+                    
+                    if (IMAGE_EXTS.includes(ext)) {
+                        const blob = await file.async('blob');
+                        imageMap.set(nameOnly, blob);
+                        imageMap.set(filename, blob);
+                    }
+                    else if (AUDIO_EXTS.includes(ext)) {
+                        const blob = await file.async('blob');
+                        audioMap.set(nameOnly, blob);
+                        audioMap.set(filename, blob);
+                    }
+                    else if (ext === 'mods') {
+                        const text = await file.async('text');
+                        try {
+                            const cfg = JSON.parse(text);
+                            cfg._filename = nameOnly;
+                            modsFound.push({ type: 'mods', data: cfg });
+                        } catch(e) {
+                            console.warn('⚠️ 解析 JSON 失败:', filename);
+                        }
+                    }
+                    else if (ext === 'lua') {
+                        const text = await file.async('text');
+                        const weapon = parseLuaWeapon(text, nameOnly);
+                        if (weapon) {
+                            modsFound.push({ type: 'lua', data: weapon });
+                        } else {
+                            console.warn('⚠️ 无效的 Lua 武器模组:', filename);
+                        }
+                    }
+                }
+                
+                for (let entry of modsFound) {
+                    if (entry.type === 'mods') {
+                        const cfg = entry.data;
+                        if (!cfg.name) continue;
+                        
+                        if (cfg.type === 'music') {
+                            let musicItem = null;
+                            if (cfg.musicUrl && (cfg.musicUrl.startsWith('http://') || cfg.musicUrl.startsWith('https://'))) {
+                                musicItem = { name: cfg.name, type: 'music', musicUrl: cfg.musicUrl };
+                            } else if (cfg.musicUrl) {
+                                const blob = audioMap.get(cfg.musicUrl) || audioMap.get(cfg.musicUrl.split('/').pop());
+                                if (blob) {
+                                    const fileId = `music_${Date.now()}_${Math.random()}_${cfg.name}`;
+                                    await saveFileToDB(fileId, blob, 'audio');
+                                    musicItem = { name: cfg.name, type: 'music', fileId: fileId };
+                                }
+                            }
+                            if (musicItem) {
+                                const existing = findDuplicateMod(musicItem.name, 'other');
+                                if (existing) {
+                                    const action = await showConfirm(
+                                        '⚠️ 同名音乐模组',
+                                        `模组 "${musicItem.name}" 已存在，是否替换？`
+                                    );
+                                    if (action === 'cancel') {
+                                        showToast('❌ 已取消导入');
+                                        return;
+                                    } else if (action === 'skip') {
+                                        skippedCount++;
+                                        continue;
+                                    } else {
+                                        const idx = modsInternal.other.indexOf(existing);
+                                        if (idx !== -1) {
+                                            if (existing.fileId) await deleteFileFromDB(existing.fileId);
+                                            modsInternal.other.splice(idx, 1);
+                                        }
+                                    }
+                                }
+                                modsInternal.other.push(musicItem);
+                                loadedCount++;
+                            }
+                            continue;
+                        }
+                        
+                        if (!cfg.category || !categoryOrder.includes(cfg.category)) continue;
+                        
+                        const existing = findDuplicateMod(cfg.name, cfg.category);
+                        if (existing) {
+                            const action = await showConfirm(
+                                '⚠️ 同名模组',
+                                `模组 "${cfg.name}" 已存在（分类: ${cfg.category}），是否替换？`
+                            );
+                            if (action === 'cancel') {
+                                showToast('❌ 已取消导入');
+                                return;
+                            } else if (action === 'skip') {
+                                skippedCount++;
+                                continue;
+                            } else {
+                                const idx = modsInternal[cfg.category].indexOf(existing);
+                                if (idx !== -1) {
+                                    if (existing.imageId) await deleteFileFromDB(existing.imageId);
+                                    if (existing.spawnSoundId) await deleteFileFromDB(existing.spawnSoundId);
+                                    if (existing.chaseSoundId) await deleteFileFromDB(existing.chaseSoundId);
+                                    if (existing.collideSoundId) await deleteFileFromDB(existing.collideSoundId);
+                                    modsInternal[cfg.category].splice(idx, 1);
+                                }
+                            }
+                        }
+                        
+                        let imageId = null;
+                        if (cfg.image && !cfg.image.startsWith('http')) {
+                            const blob = imageMap.get(cfg.image) || imageMap.get(cfg.image.split('/').pop());
+                            if (blob) {
+                                imageId = `img_${Date.now()}_${Math.random()}`;
+                                await saveFileToDB(imageId, blob, 'image');
+                            }
+                        }
+                        
+                        let spawnSoundId = null, chaseSoundId = null, collideSoundId = null;
+                        
+                        if (cfg.spawnSound && !cfg.spawnSound.startsWith('http')) {
+                            const blob = audioMap.get(cfg.spawnSound) || audioMap.get(cfg.spawnSound.split('/').pop());
+                            if (blob) {
+                                spawnSoundId = `snd_${Date.now()}_${Math.random()}`;
+                                await saveFileToDB(spawnSoundId, blob, 'audio');
+                            }
+                        }
+                        if (cfg.chaseSound && !cfg.chaseSound.startsWith('http')) {
+                            const blob = audioMap.get(cfg.chaseSound) || audioMap.get(cfg.chaseSound.split('/').pop());
+                            if (blob) {
+                                chaseSoundId = `snd_${Date.now()}_${Math.random()}`;
+                                await saveFileToDB(chaseSoundId, blob, 'audio');
+                            }
+                        }
+                        if (cfg.collideSound && !cfg.collideSound.startsWith('http')) {
+                            const blob = audioMap.get(cfg.collideSound) || audioMap.get(cfg.collideSound.split('/').pop());
+                            if (blob) {
+                                collideSoundId = `snd_${Date.now()}_${Math.random()}`;
+                                await saveFileToDB(collideSoundId, blob, 'audio');
+                            }
+                        }
+                        
+                        const newItem = {
+                            name: cfg.name,
+                            category: cfg.category,
+                            radius: cfg.radius || 24,
+                            scale: cfg.scale || 1.0,
+                            damage: cfg.damage || (cfg.category === 'creature' ? 5 : null),
+                            attackSpeed: cfg.attackSpeed || 0.5,
+                            effectId: cfg.effectId || 5,
+                            effectSpeed: cfg.effectSpeed || 1.0,
+                            ai: cfg.ai || 0,
+                            aiSpeed: cfg.aiSpeed || 1.0,
+                            imageUrl: (cfg.image && cfg.image.startsWith('http')) ? cfg.image : null,
+                            imageId: imageId,
+                            spawnSound: (cfg.spawnSound && cfg.spawnSound.startsWith('http')) ? cfg.spawnSound : null,
+                            spawnSoundId: spawnSoundId,
+                            chaseSound: (cfg.chaseSound && cfg.chaseSound.startsWith('http')) ? cfg.chaseSound : null,
+                            chaseSoundId: chaseSoundId,
+                            collideSound: (cfg.collideSound && cfg.collideSound.startsWith('http')) ? cfg.collideSound : null,
+                            collideSoundId: collideSoundId,
+                            bubbleText: cfg.bubbleText || null,
+                            emoji: cfg.emoji || null,
+                            region: cfg.region || null,
+                            script: cfg.script || null
+                        };
+                        
+                        if (imageId) {
+                            const result = await loadFileFromDB(imageId);
+                            if (result) {
+                                newItem.imageUrl = result.url;
+                                imageCache.set(imageId, result.url);
+                            }
+                        }
+                        
+                        modsInternal[cfg.category].push(newItem);
+                        loadedCount++;
+                    }
+                    else if (entry.type === 'lua') {
+                        const weapon = entry.data;
+                        
+                        const existing = findDuplicateMod(weapon.name, 'weapon');
+                        if (existing) {
+                            const action = await showConfirm(
+                                '⚠️ 同名武器模组',
+                                `武器 "${weapon.name}" 已存在，是否替换？`
+                            );
+                            if (action === 'cancel') {
+                                showToast('❌ 已取消导入');
+                                return;
+                            } else if (action === 'skip') {
+                                skippedCount++;
+                                continue;
+                            } else {
+                                const idx = modsInternal.weapon.indexOf(existing);
+                                if (idx !== -1) {
+                                    if (existing.weaponData) {
+                                        if (existing.weaponData.iconImage) await deleteFileFromDB(existing.weaponData.iconImage);
+                                        if (existing.weaponData.weaponImage) await deleteFileFromDB(existing.weaponData.weaponImage);
+                                        if (existing.weaponData.bulletImageId) await deleteFileFromDB(existing.weaponData.bulletImageId);
+                                        if (existing.weaponData.trailImageId) await deleteFileFromDB(existing.weaponData.trailImageId);
+                                        if (existing.weaponData.muzzleImageId) await deleteFileFromDB(existing.weaponData.muzzleImageId);
+                                        if (existing.weaponData.hitImageId) await deleteFileFromDB(existing.weaponData.hitImageId);
+                                        if (existing.weaponData.swingImageId) await deleteFileFromDB(existing.weaponData.swingImageId);
+                                    }
+                                    modsInternal.weapon.splice(idx, 1);
+                                }
+                            }
+                        }
+                        
+                        const weaponEntry = {
+                            name: weapon.name,
+                            category: 'weapon',
+                            type: weapon.type,
+                            region: 'custom',
+                            isWeapon: true,
+                            _filename: weapon._filename,
+                            emoji: weapon.iconEmoji || (weapon.type === 'melee' ? '🗡️' : '🔫'),
+                            weaponData: {}
+                        };
+                        
+                        for (let key in weapon) {
+                            if (key === '_functions' || key === '_script' || key === '_filename') {
+                                weaponEntry[key] = weapon[key];
+                            } else {
+                                weaponEntry.weaponData[key] = weapon[key];
+                            }
+                        }
+                        
+                        // ===== 关键修复：确保缩放字段存在于顶层 =====
+                        const scaleFields = ['weaponScale', 'bulletScale', 'trailScale', 'muzzleScale', 'hitScale'];
+                        for (let field of scaleFields) {
+                            if (weapon[field] !== undefined && weapon[field] !== null) {
+                                weaponEntry[field] = weapon[field];
+                                weaponEntry.weaponData[field] = weapon[field];
+                            }
+                        }
+                        
+                        // ===== 确保特效字段存在 =====
+                        const effectFields = ['bulletType', 'trailType', 'hitEffect', 'swingEffect', 'muzzleEffect'];
+                        for (let field of effectFields) {
+                            if (weapon[field] !== undefined && weapon[field] !== null) {
+                                weaponEntry.weaponData[field] = weapon[field];
+                            }
+                        }
+                        
+                        // ICON_IMAGE
+                        if (weapon.iconImage && !weapon.iconImage.startsWith('http') && !weapon.iconImage.startsWith('null')) {
+                            const id = await saveImageToDB(weapon.iconImage, imageMap);
+                            if (id) {
+                                weaponEntry.weaponData.iconImage = id;
+                            }
+                        }
+                        
+                        // WEAPON_IMAGE
+                        if (weapon.weaponImage && !weapon.weaponImage.startsWith('http') && !weapon.weaponImage.startsWith('null')) {
+                            const id = await saveImageToDB(weapon.weaponImage, imageMap);
+                            if (id) {
+                                weaponEntry.weaponData.weaponImage = id;
+                            }
+                        }
+                        
+                        // BULLET_IMAGE
+                        if (weapon.bulletImage && !weapon.bulletImage.startsWith('http') && !weapon.bulletImage.startsWith('null')) {
+                            const id = await saveImageToDB(weapon.bulletImage, imageMap);
+                            if (id) {
+                                weaponEntry.weaponData.bulletImageId = id;
+                                weaponEntry.weaponData.BULLET_IMAGE = weapon.bulletImage;
+                            }
+                        }
+                        
+                        // TRAIL_IMAGE
+                        if (weapon.trailImage && !weapon.trailImage.startsWith('http') && !weapon.trailImage.startsWith('null')) {
+                            const id = await saveImageToDB(weapon.trailImage, imageMap);
+                            if (id) {
+                                weaponEntry.weaponData.trailImageId = id;
+                                weaponEntry.weaponData.TRAIL_IMAGE = weapon.trailImage;
+                            }
+                        }
+                        
+                        // MUZZLE_IMAGE
+                        if (weapon.muzzleImage && !weapon.muzzleImage.startsWith('http') && !weapon.muzzleImage.startsWith('null')) {
+                            const id = await saveImageToDB(weapon.muzzleImage, imageMap);
+                            if (id) {
+                                weaponEntry.weaponData.muzzleImageId = id;
+                                weaponEntry.weaponData.MUZZLE_IMAGE = weapon.muzzleImage;
+                            }
+                        }
+                        
+                        // HIT_EFFECT_IMAGE
+                        if (weapon.hitEffectImage && !weapon.hitEffectImage.startsWith('http') && !weapon.hitEffectImage.startsWith('null')) {
+                            const id = await saveImageToDB(weapon.hitEffectImage, imageMap);
+                            if (id) {
+                                weaponEntry.weaponData.hitImageId = id;
+                                weaponEntry.weaponData.HIT_IMAGE = weapon.hitEffectImage;
+                            }
+                        }
+                        
+                        // SWING_IMAGE
+                        if (weapon.swingImage && !weapon.swingImage.startsWith('http') && !weapon.swingImage.startsWith('null')) {
+                            const id = await saveImageToDB(weapon.swingImage, imageMap);
+                            if (id) {
+                                weaponEntry.weaponData.swingImageId = id;
+                                weaponEntry.weaponData.SWING_IMAGE = weapon.swingImage;
+                            }
+                        }
+                        
+                        // 音效
+                        const soundFieldMap = {
+                            swingSound: 'swingSoundId',
+                            hitSound: 'hitSoundId',
+                            drawSound: 'drawSoundId',
+                            shootSound: 'shootSoundId',
+                            reloadSound: 'reloadSoundId'
+                        };
+                        
+                        for (let [field, idField] of Object.entries(soundFieldMap)) {
+                            if (weapon[field] && !weapon[field].startsWith('http') && !weapon[field].startsWith('null')) {
+                                const id = await saveSoundToDB(weapon[field], audioMap);
+                                if (id) {
+                                    weaponEntry.weaponData[idField] = id;
+                                }
+                            }
+                        }
+                        
+                        if (weaponEntry.weaponData.iconImage) {
+                            const result = await loadFileFromDB(weaponEntry.weaponData.iconImage);
+                            if (result) {
+                                weaponEntry.imageUrl = result.url;
+                                imageCache.set(weaponEntry.weaponData.iconImage, result.url);
+                            }
+                        } else if (weaponEntry.weaponData.weaponImage) {
+                            const result = await loadFileFromDB(weaponEntry.weaponData.weaponImage);
+                            if (result) {
+                                weaponEntry.imageUrl = result.url;
+                                imageCache.set(weaponEntry.weaponData.weaponImage, result.url);
+                            }
+                        }
+                        
+                        modsInternal.weapon.push(weaponEntry);
+                        loadedCount++;
+                        console.log('✅ 导入武器模组:', weapon.name, '类型:', weapon.type);
+                    }
+                }
+                
+                if (loadedCount === 0 && skippedCount === 0 && audioMap.size > 0) {
+                    let hasModsOrLua = false;
+                    for (let entry of modsFound) {
+                        if (entry.type === 'mods' || entry.type === 'lua') {
+                            hasModsOrLua = true;
+                            break;
+                        }
+                    }
+                    if (!hasModsOrLua) {
+                        for (let [name, blob] of audioMap) {
+                            const musicName = name.replace(/\.[^/.]+$/, "");
+                            const existing = findDuplicateMod(musicName, 'other');
+                            if (existing) {
+                                const action = await showConfirm(
+                                    '⚠️ 同名音乐模组',
+                                    `音乐 "${musicName}" 已存在，是否替换？`
+                                );
+                                if (action === 'cancel') {
+                                    showToast('❌ 已取消导入');
+                                    return;
+                                } else if (action === 'skip') {
+                                    skippedCount++;
+                                    continue;
+                                } else {
+                                    const idx = modsInternal.other.indexOf(existing);
+                                    if (idx !== -1) {
+                                        if (existing.fileId) await deleteFileFromDB(existing.fileId);
+                                        modsInternal.other.splice(idx, 1);
+                                    }
+                                }
+                            }
+                            const fileId = `music_${Date.now()}_${Math.random()}`;
+                            await saveFileToDB(fileId, blob, 'audio');
+                            modsInternal.other.push({
+                                name: musicName,
+                                type: 'music',
+                                fileId: fileId
+                            });
+                            loadedCount++;
+                        }
+                    }
+                }
+                
+                await saveModsToLocal();
+                await renderModsGrid();
+                
+                if (loadedCount > 0 && skippedCount > 0) {
+                    showToast(`✅ 导入: ${loadedCount} 个，⏭️ 跳过: ${skippedCount} 个`);
+                } else if (loadedCount > 0) {
+                    showToast(`✅ 导入完成: ${loadedCount} 个模组`);
+                } else if (skippedCount > 0) {
+                    showToast(`⏭️ 已跳过 ${skippedCount} 个同名模组`);
+                } else {
+                    showToast('⚠️ 未找到有效的模组文件');
+                }
+                
+            } catch(e) {
+                console.error(e);
+                showToast('❌ ZIP 解压失败');
+            }
+        }
+
+        async function switchCategory(category) {
+            currentCategory = category;
+            
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                if (btn.getAttribute('data-category') === category) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            await renderModsGrid();
+        }
+
+        async function init() {
+            await initIndexedDB();
+            loadModsData();
+            
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.onclick = () => {
+                    playMenuSound();
+                    switchCategory(btn.getAttribute('data-category'));
+                };
+            });
+            
+            document.getElementById('importBtn').onclick = () => importMod();
+            document.getElementById('saveBtn').onclick = () => saveModsToLocal();
+            document.getElementById('deleteModeBtn').onclick = () => toggleDeleteMode();
+            document.getElementById('undoBtn').onclick = () => undoDelete();
+            
+            document.getElementById('backBtn').onclick = () => {
+                playMenuSound();
+                window.location.href = 'menu.html';
+            };
+            
+            await switchCategory('prop');
+        }
+        
+        init();
+    })();
+</script>
+</body>
+</html>

@@ -1,0 +1,1843 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, shrink-to-fit=no">
+    <title>登录 - DS-MOD★</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ===== 全局重置 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #0a0a1a;
+            color: #fff;
+            position: fixed;
+            top: 0;
+            left: 0;
+            touch-action: manipulation;
+        }
+
+        /* ===== 动态背景 ===== */
+        .dynamic-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460, #1a1a2e);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            z-index: -2;
+        }
+
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 0%;
+            }
+            25% {
+                background-position: 100% 0%;
+            }
+            50% {
+                background-position: 100% 100%;
+            }
+            75% {
+                background-position: 0% 100%;
+            }
+            100% {
+                background-position: 0% 0%;
+            }
+        }
+
+        .dynamic-glow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(255, 200, 100, 0.06) 0%, rgba(0, 0, 0, 0.3) 100%);
+            pointer-events: none;
+            z-index: -1;
+            animation: glowPulse 8s ease infinite;
+        }
+
+        @keyframes glowPulse {
+            0% {
+                opacity: 0.3;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.6;
+                transform: scale(1.05);
+            }
+            100% {
+                opacity: 0.3;
+                transform: scale(1);
+            }
+        }
+
+        /* ===== 粒子背景 ===== */
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* ===== 全屏登录容器 ===== */
+        .login-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .login-wrapper::-webkit-scrollbar {
+            display: none;
+        }
+        .login-wrapper {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 420px;
+            background: rgba(20, 20, 35, 0.92);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 170, 85, 0.2);
+            border-radius: 16px;
+            padding: 40px 36px 32px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease;
+            animation: cardFloat 6s ease-in-out infinite;
+            max-height: 95vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .login-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .login-container:hover {
+            transform: translateY(-4px) scale(1.005);
+            box-shadow: 0 40px 100px rgba(255, 170, 85, 0.08);
+        }
+
+        @keyframes cardFloat {
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-6px);
+            }
+        }
+
+        /* ===== Logo ===== */
+        .logo-area {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .logo-img {
+            width: 72px;
+            height: 72px;
+            object-fit: cover;
+            margin: 0 auto 12px;
+            display: block;
+            background: rgba(255, 170, 85, 0.1);
+            border: 2px solid rgba(255, 170, 85, 0.2);
+            border-radius: 16px;
+            padding: 0;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .logo-img:hover {
+            transform: scale(1.05) rotate(-2deg);
+            box-shadow: 0 0 40px rgba(255, 170, 85, 0.15);
+        }
+
+        .logo-fallback {
+            width: 72px;
+            height: 72px;
+            background: rgba(255, 170, 85, 0.15);
+            border: 2px solid rgba(255, 170, 85, 0.3);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            font-size: 28px;
+            font-weight: 900;
+            color: #ffaa55;
+            font-family: monospace;
+            letter-spacing: 2px;
+        }
+
+        .logo-text {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #fff;
+            font-family: monospace;
+            letter-spacing: 3px;
+        }
+
+        .logo-text span {
+            color: #ffaa55;
+        }
+
+        .logo-sub {
+            font-size: 0.55rem;
+            color: #666;
+            font-family: monospace;
+            margin-top: 4px;
+            letter-spacing: 2px;
+        }
+
+        .logo-sub .highlight {
+            color: #ffaa55;
+        }
+
+        /* ===== 表单 ===== */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.6rem;
+            color: #888;
+            font-family: monospace;
+            margin-bottom: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            transition: border-color 0.3s, box-shadow 0.3s, transform 0.2s;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: #ffaa55;
+            box-shadow: 0 0 0 3px rgba(255, 170, 85, 0.15);
+            transform: scale(1.01);
+        }
+
+        .input-wrapper .icon-left {
+            padding: 0 12px 0 14px;
+            color: #555;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .input-wrapper input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 12px 14px 12px 0;
+            color: #eee;
+            font-family: monospace;
+            font-size: 0.85rem;
+            outline: none;
+            width: 100%;
+            min-width: 0;
+        }
+
+        .input-wrapper input::placeholder {
+            color: #444;
+            font-size: 0.7rem;
+        }
+
+        .input-wrapper .toggle-password {
+            background: none;
+            border: none;
+            color: #555;
+            padding: 0 14px 0 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: color 0.2s;
+            flex-shrink: 0;
+        }
+
+        .input-wrapper .toggle-password:hover {
+            color: #ffaa55;
+        }
+
+        /* ===== 密码错误动态提示 ===== */
+        .password-error {
+            color: #ff4444;
+            font-size: 0.5rem;
+            font-family: monospace;
+            margin-top: 4px;
+            display: none;
+            align-items: center;
+            gap: 4px;
+            animation: shake 0.5s ease;
+        }
+
+        .password-error.visible {
+            display: flex;
+        }
+
+        .input-wrapper.error {
+            border-color: #ff4444 !important;
+            box-shadow: 0 0 0 3px rgba(255, 68, 68, 0.15) !important;
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes shake {
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+            15% {
+                transform: translateX(-8px);
+            }
+            30% {
+                transform: translateX(8px);
+            }
+            45% {
+                transform: translateX(-6px);
+            }
+            60% {
+                transform: translateX(6px);
+            }
+            80% {
+                transform: translateX(-3px);
+            }
+        }
+
+        /* ===== 按钮 ===== */
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 170, 85, 0.2);
+            border: 1px solid rgba(255, 170, 85, 0.3);
+            color: #ffaa55;
+            font-family: monospace;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 1px;
+            margin-top: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-login::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 170, 85, 0.2);
+            transition: width 0.6s, height 0.6s, top 0.6s, left 0.6s;
+        }
+
+        .btn-login:active::after {
+            width: 300px;
+            height: 300px;
+            top: -100px;
+            left: -100px;
+        }
+
+        .btn-login:hover {
+            background: rgba(255, 170, 85, 0.35);
+            transform: scale(1.01);
+        }
+
+        .btn-login:active {
+            transform: scale(0.97);
+        }
+
+        .btn-login:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ===== 分隔线 ===== */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin: 18px 0;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.1), transparent);
+        }
+
+        .divider span {
+            color: #555;
+            font-family: monospace;
+            font-size: 0.55rem;
+            letter-spacing: 1px;
+            flex-shrink: 0;
+        }
+
+        /* ===== 游客按钮 ===== */
+        .btn-guest {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            color: #888;
+            font-family: monospace;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-guest::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            transition: width 0.6s, height 0.6s, top 0.6s, left 0.6s;
+        }
+
+        .btn-guest:active::after {
+            width: 300px;
+            height: 300px;
+            top: -100px;
+            left: -100px;
+        }
+
+        .btn-guest:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.15);
+            color: #ccc;
+        }
+
+        .btn-guest:active {
+            transform: scale(0.97);
+        }
+
+        /* ================================================================ */
+        /*  ★ 底部链接（修复：服务条款 + 已有账号登录 同时显示）          */
+        /* ================================================================ */
+        .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 8px 16px;
+            margin-top: 18px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            font-size: 0.55rem;
+            font-family: monospace;
+            color: #555;
+        }
+
+        .footer-links a {
+            color: #44aaff;
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.2s;
+            font-weight: bold;
+        }
+
+        .footer-links a:hover {
+            color: #88ccff;
+            text-decoration: underline;
+        }
+
+        .footer-links .separator {
+            color: #333;
+        }
+
+        /* ===== 状态文字 ===== */
+        .status-text {
+            text-align: center;
+            font-size: 0.55rem;
+            color: #555;
+            font-family: monospace;
+            margin-top: 4px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            min-height: 24px;
+        }
+
+        .status-text.success {
+            color: #88dd88;
+        }
+        .status-text.error {
+            color: #ff6644;
+        }
+
+        /* ===== 邮箱错误提示 ===== */
+        .form-error {
+            color: #ff6644;
+            font-size: 0.5rem;
+            font-family: monospace;
+            margin-top: 4px;
+            display: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .form-error.visible {
+            display: block;
+            animation: shake 0.4s ease;
+        }
+
+        /* ===== Toast ===== */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            pointer-events: none;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .toast {
+            background: rgba(20, 20, 35, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 170, 85, 0.2);
+            border-radius: 10px;
+            padding: 12px 18px;
+            color: #ffd966;
+            font-family: monospace;
+            font-size: 0.7rem;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(-20px) scale(0.95);
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            margin-bottom: 8px;
+        }
+
+        .toast.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .toast.success {
+            border-color: rgba(80, 255, 80, 0.2);
+            color: #88dd88;
+        }
+        .toast.error {
+            border-color: rgba(255, 80, 80, 0.3);
+            color: #ff8888;
+        }
+        .toast.warning {
+            border-color: rgba(255, 200, 50, 0.2);
+            color: #ffcc44;
+        }
+
+        .toast i {
+            margin-right: 8px;
+        }
+
+        /* ================================================================ */
+        /*  服务条款弹窗                                                    */
+        /* ================================================================ */
+        .terms-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.3s ease;
+            padding: 20px;
+        }
+
+        .terms-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .terms-modal {
+            background: linear-gradient(145deg, #1a1a2e, #252540);
+            border: 1px solid rgba(255, 170, 85, 0.25);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 520px;
+            max-height: 85vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 0;
+            transform: scale(0.9) translateY(30px);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+            opacity: 0;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 170, 85, 0.3) transparent;
+        }
+
+        .terms-modal::-webkit-scrollbar {
+            width: 4px;
+        }
+        .terms-modal::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .terms-modal::-webkit-scrollbar-thumb {
+            background: rgba(255, 170, 85, 0.3);
+            border-radius: 4px;
+        }
+
+        .terms-overlay.active .terms-modal {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+
+        .terms-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(255, 170, 85, 0.15);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: #1a1a2e;
+            z-index: 5;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .terms-header h2 {
+            color: #ffaa55;
+            font-family: monospace;
+            font-size: 0.9rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .terms-header h2 i {
+            margin-right: 8px;
+        }
+
+        .terms-close {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            color: #888;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .terms-close:hover {
+            background: rgba(255, 170, 85, 0.2);
+            color: #ffaa55;
+            border-color: rgba(255, 170, 85, 0.3);
+        }
+
+        .terms-body {
+            padding: 20px 24px;
+            color: #ccc;
+            font-family: monospace;
+            font-size: 0.7rem;
+            line-height: 1.8;
+        }
+
+        .terms-body .section-title {
+            color: #ffaa55;
+            font-weight: bold;
+            font-size: 0.75rem;
+            margin-top: 14px;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .terms-body .section-title:first-child {
+            margin-top: 0;
+        }
+
+        .terms-body p {
+            margin-bottom: 6px;
+            color: #999;
+        }
+
+        .terms-body .warning-text {
+            color: #ff8844;
+            border-left: 2px solid #ff8844;
+            padding-left: 12px;
+            margin: 8px 0;
+        }
+
+        .terms-body .danger-text {
+            color: #ff4444;
+            border-left: 2px solid #ff4444;
+            padding-left: 12px;
+            margin: 8px 0;
+            background: rgba(255, 68, 68, 0.05);
+        }
+
+        .terms-body .highlight {
+            color: #ffaa55;
+        }
+
+        /* ================================================================ */
+        /*  登录弹窗（已有账号）                                            */
+        /* ================================================================ */
+        .login-popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.3s ease;
+            padding: 20px;
+        }
+
+        .login-popup-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .login-popup-box {
+            background: linear-gradient(145deg, #1a1a2e, #252540);
+            border: 1px solid rgba(255, 170, 85, 0.25);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 400px;
+            padding: 32px 28px 28px;
+            transform: scale(0.9) translateY(30px);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+            opacity: 0;
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .login-popup-box::-webkit-scrollbar {
+            display: none;
+        }
+
+        .login-popup-overlay.active .login-popup-box {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+
+        .login-popup-close {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            color: #888;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-popup-close:hover {
+            background: rgba(255, 170, 85, 0.2);
+            color: #ffaa55;
+        }
+
+        .login-popup-title {
+            font-family: monospace;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #ffaa55;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .login-popup-title i {
+            font-size: 0.85rem;
+        }
+
+        .login-popup-sub {
+            font-family: monospace;
+            font-size: 0.45rem;
+            color: #666;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .login-popup-box .form-group {
+            margin-bottom: 14px;
+        }
+
+        .login-popup-box .btn-login {
+            margin-top: 0;
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 28px 20px 24px;
+                max-height: 98vh;
+            }
+            .logo-img {
+                width: 56px;
+                height: 56px;
+            }
+            .logo-fallback {
+                width: 56px;
+                height: 56px;
+                font-size: 22px;
+            }
+            .logo-text {
+                font-size: 1.3rem;
+            }
+            .input-wrapper input {
+                font-size: 0.75rem;
+                padding: 10px 12px 10px 0;
+            }
+            .btn-login {
+                font-size: 0.75rem;
+                padding: 12px;
+            }
+            .login-wrapper {
+                padding: 12px;
+            }
+            .login-popup-box {
+                padding: 24px 20px 20px;
+                max-height: 95vh;
+            }
+            .terms-modal {
+                max-width: 95%;
+            }
+            .terms-body {
+                padding: 16px 18px;
+                font-size: 0.6rem;
+            }
+            .footer-links {
+                font-size: 0.5rem;
+                gap: 6px 12px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .login-container {
+                padding: 20px 14px 18px;
+            }
+            .logo-text {
+                font-size: 1.1rem;
+            }
+            .logo-img {
+                width: 48px;
+                height: 48px;
+            }
+            .logo-fallback {
+                width: 48px;
+                height: 48px;
+                font-size: 18px;
+            }
+            .input-wrapper input {
+                font-size: 0.7rem;
+                padding: 8px 10px 8px 0;
+            }
+            .footer-links {
+                font-size: 0.45rem;
+                gap: 4px 8px;
+            }
+        }
+
+        @media (max-height: 600px) {
+            .login-container {
+                padding: 20px 24px 16px;
+            }
+            .logo-area {
+                margin-bottom: 14px;
+            }
+            .logo-img {
+                width: 48px;
+                height: 48px;
+            }
+            .logo-fallback {
+                width: 48px;
+                height: 48px;
+                font-size: 18px;
+            }
+            .logo-text {
+                font-size: 1.2rem;
+            }
+            .form-group {
+                margin-bottom: 10px;
+            }
+            .input-wrapper input {
+                padding: 8px 12px 8px 0;
+                font-size: 0.75rem;
+            }
+            .btn-login {
+                padding: 10px;
+                font-size: 0.75rem;
+            }
+            .divider {
+                margin: 12px 0;
+            }
+            .btn-guest {
+                padding: 8px;
+                font-size: 0.7rem;
+            }
+            .footer-links {
+                margin-top: 12px;
+                padding-top: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== 动态背景 ===== -->
+    <div class="dynamic-bg"></div>
+    <div class="dynamic-glow"></div>
+
+    <!-- ===== 粒子画布 ===== -->
+    <canvas id="particles-canvas"></canvas>
+
+    <!-- ===== Toast 容器 ===== -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ================================================================ -->
+    <!--  服务条款弹窗                                                    -->
+    <!-- ================================================================ -->
+    <div class="terms-overlay" id="termsOverlay">
+        <div class="terms-modal">
+            <div class="terms-header">
+                <h2><i class="fas fa-file-contract"></i>服务条款与安全协议</h2>
+                <button class="terms-close" id="termsClose"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="terms-body">
+                <span class="section-title">1. 用户责任</span>
+                <p>您承诺对使用 DS-MOD 平台的所有行为承担全部责任。您同意不利用本平台进行任何违法、侵权或恶意活动，包括但不限于传播恶意软件、发布虚假信息、侵犯他人知识产权等。</p>
+
+                <span class="section-title">2. 数据隐私</span>
+                <p>我们重视您的隐私。您的邮箱地址仅用于登录验证和账号恢复，不会向任何第三方出售或共享。您的账户数据（包括模组上传记录、评论等）将存储在 GitHub 仓库中，仅用于平台功能。</p>
+
+                <span class="section-title">3. 内容规范</span>
+                <p>您上传的模组、评论及其他内容必须符合以下规范：不包含暴力、色情、仇恨言论或任何违反当地法律的内容。我们保留删除违规内容及封禁账户的权利。</p>
+
+                <span class="section-title">4. 版权声明</span>
+                <p>您在 DS-MOD 上传的模组，版权归您所有。但您授予平台展示、分发及推广您模组的权利。严禁盗用他人作品，违者将承担相应法律责任。</p>
+
+                <span class="section-title">5. 免责声明</span>
+                <p class="warning-text">DS-MOD 是一个非商业性、由社区驱动的模组分享平台。我们不对模组的质量、安全性或兼容性做任何担保。使用模组所产生的任何风险由您自行承担。</p>
+
+                <span class="section-title">6. 账号安全与防盗</span>
+                <p class="danger-text">
+                    <i class="fas fa-exclamation-triangle" style="margin-right:6px;"></i>
+                    <strong>防盗号警告：</strong>您的账号安全至关重要！
+                </p>
+                <p>• <span class="highlight">邮箱 + 密码</span> 是您账号的唯一凭证，请勿泄露给任何人。</p>
+                <p>• 您的 <span class="highlight">账户名字</span> 只是显示名称，<strong style="color:#ff4444;">不能用于登录</strong>，也无法盗取您的账号。</p>
+                <p>• 平台采用 <span class="highlight">DSMOD·ID Guard</span> 三重防护：<strong>邮箱识别 + 名字识别 + 名字唯一性</strong>，即使有人使用您的名字，也无法获取您的模组或账号。</p>
+                <p>• 建议您设置 <span class="highlight">强密码</span>（至少8位，包含字母和数字），并定期更换。</p>
+                <p>• 如发现账号异常，请立即联系平台管理员。</p>
+                <p class="warning-text" style="margin-top:8px;">
+                    <i class="fas fa-shield-alt" style="margin-right:6px;"></i>
+                    警告：任何试图盗用他人账号的行为将被永久封禁，并可能追究法律责任。
+                </p>
+
+                <span class="section-title">7. 服务变更</span>
+                <p>我们保留随时修改或终止服务的权利，但我们会提前通过平台公告通知您。重要变更将直接发送到您的注册邮箱。</p>
+
+                <p style="margin-top:16px; color:#666; text-align:center; border-top:1px solid rgba(255,255,255,0.05); padding-top:12px;">
+                    <i class="fas fa-check-circle" style="color:#44dd88;margin-right:4px;"></i>
+                    使用本软件即表示您同意以上全部条款
+                    <br><span style="font-size:0.5rem;color:#444;">最后更新：2026年1月</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!--  登录弹窗（已有账号）                                            -->
+    <!-- ================================================================ -->
+    <div class="login-popup-overlay" id="loginPopupOverlay">
+        <div class="login-popup-box">
+            <button class="login-popup-close" id="loginPopupClose"><i class="fas fa-times"></i></button>
+            <div class="login-popup-title"><i class="fas fa-sign-in-alt"></i> 登录已有账号</div>
+            <div class="login-popup-sub">输入您的邮箱和密码登录</div>
+
+            <div class="form-group">
+                <label><i class="fas fa-envelope" style="margin-right:4px;"></i> 邮箱地址</label>
+                <div class="input-wrapper">
+                    <span class="icon-left"><i class="fas fa-user"></i></span>
+                    <input type="email" id="popupEmailInput" placeholder="请输入邮箱地址" autocomplete="email">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label><i class="fas fa-lock" style="margin-right:4px;"></i> 密码</label>
+                <div class="input-wrapper" id="popupPasswordWrapper">
+                    <span class="icon-left"><i class="fas fa-key"></i></span>
+                    <input type="password" id="popupPasswordInput" placeholder="请输入密码" autocomplete="current-password">
+                    <button class="toggle-password" id="popupTogglePassword" type="button">
+                        <i class="fas fa-eye" id="popupPasswordEye"></i>
+                    </button>
+                </div>
+                <div class="password-error" id="popupPasswordError">
+                    <i class="fas fa-exclamation-circle"></i> 密码错误，请重新输入
+                </div>
+            </div>
+
+            <button class="btn-login" id="popupLoginBtn"><i class="fas fa-sign-in-alt" style="margin-right:8px;"></i>登录</button>
+        </div>
+    </div>
+
+    <!-- ===== 登录卡片 ===== -->
+    <div class="login-wrapper">
+        <div class="login-container">
+
+            <!-- Logo -->
+            <div class="logo-area">
+                <img class="logo-img" id="logoImg" src="images/logos.png" alt="DS-MOD" onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='flex'">
+                <div class="logo-fallback" id="logoFallback" style="display:none;">DS</div>
+                <div class="logo-text">DS-<span>MOD</span></div>
+                <div class="logo-sub"><span class="highlight">DSMOD·ID Guard</span> 身份守卫系统</div>
+            </div>
+
+            <!-- 邮箱输入 -->
+            <div class="form-group">
+                <label><i class="fas fa-envelope" style="margin-right:4px;"></i> 邮箱地址</label>
+                <div class="input-wrapper">
+                    <span class="icon-left"><i class="fas fa-user"></i></span>
+                    <input type="email" id="emailInput" placeholder="请输入邮箱地址" autocomplete="email">
+                </div>
+                <div class="form-error" id="emailError">
+                    <i class="fas fa-exclamation-circle" style="margin-right:4px;"></i>请输入有效的邮箱地址
+                </div>
+            </div>
+
+            <!-- 密码输入 -->
+            <div class="form-group">
+                <label><i class="fas fa-lock" style="margin-right:4px;"></i> 密码 <span style="color:#444;font-weight:normal;">（可选）</span></label>
+                <div class="input-wrapper" id="mainPasswordWrapper">
+                    <span class="icon-left"><i class="fas fa-key"></i></span>
+                    <input type="password" id="passwordInput" placeholder="输入密码（可选）" autocomplete="new-password">
+                    <button class="toggle-password" id="togglePasswordBtn" type="button">
+                        <i class="fas fa-eye" id="passwordEye"></i>
+                    </button>
+                </div>
+                <div class="password-error" id="mainPasswordError">
+                    <i class="fas fa-exclamation-circle"></i> 密码错误，请重新输入
+                </div>
+            </div>
+
+            <!-- 状态提示 -->
+            <div class="status-text" id="statusText">请输入邮箱地址开始</div>
+
+            <!-- 登录按钮 -->
+            <button class="btn-login" id="loginBtn"><i class="fas fa-sign-in-alt" style="margin-right:8px;"></i>注册 / 登录</button>
+
+            <!-- 分隔线 -->
+            <div class="divider">
+                <span>或</span>
+            </div>
+
+            <!-- 游客登录 -->
+            <button class="btn-guest" id="guestBtn"><i class="fas fa-user-secret" style="margin-right:8px;"></i>游客登录</button>
+
+            <!-- ========================================================== -->
+            <!--  ★ 底部链接（服务条款 + 已有账号登录 同时显示）             -->
+            <!-- ========================================================== -->
+            <div class="footer-links">
+                <a id="termsLink"><i class="fas fa-file-contract" style="margin-right:4px;"></i>服务条款</a>
+                <span class="separator">|</span>
+                <span>已有账号？<a id="loginLink">那就登录吧</a></span>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!--  JavaScript                                                  -->
+    <!-- ============================================================ -->
+    <script>
+        (function() {
+            'use strict';
+
+            // ============================================================
+            //  GitHub 配置
+            // ============================================================
+            var GITHUB_OWNER = 'FOXBOT-CING32';
+            var GITHUB_REPO = 'dsmod-workshop';
+            var GITHUB_TOKEN = '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';
+            var GITHUB_API = 'https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents';
+
+            // ============================================================
+            //  DOM 引用
+            // ============================================================
+            var emailInput = document.getElementById('emailInput');
+            var passwordInput = document.getElementById('passwordInput');
+            var mainPasswordWrapper = document.getElementById('mainPasswordWrapper');
+            var mainPasswordError = document.getElementById('mainPasswordError');
+            var loginBtn = document.getElementById('loginBtn');
+            var guestBtn = document.getElementById('guestBtn');
+            var toastContainer = document.getElementById('toastContainer');
+            var emailError = document.getElementById('emailError');
+            var statusText = document.getElementById('statusText');
+            var togglePasswordBtn = document.getElementById('togglePasswordBtn');
+            var passwordEye = document.getElementById('passwordEye');
+            var loginLink = document.getElementById('loginLink');
+            var termsLink = document.getElementById('termsLink');
+            var termsOverlay = document.getElementById('termsOverlay');
+            var termsClose = document.getElementById('termsClose');
+            var loginPopupOverlay = document.getElementById('loginPopupOverlay');
+            var loginPopupClose = document.getElementById('loginPopupClose');
+            var popupEmailInput = document.getElementById('popupEmailInput');
+            var popupPasswordInput = document.getElementById('popupPasswordInput');
+            var popupPasswordWrapper = document.getElementById('popupPasswordWrapper');
+            var popupPasswordError = document.getElementById('popupPasswordError');
+            var popupLoginBtn = document.getElementById('popupLoginBtn');
+            var popupTogglePassword = document.getElementById('popupTogglePassword');
+            var popupPasswordEye = document.getElementById('popupPasswordEye');
+
+            // ============================================================
+            //  工具函数
+            // ============================================================
+            function isValidEmail(email) {
+                if (!email) return false;
+                var re = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
+                return re.test(email);
+            }
+
+            function generateGuestName() {
+                var num = String(Math.floor(100000 + Math.random() * 900000));
+                return '游客_' + num;
+            }
+
+            function getStoredGuestName() {
+                var name = localStorage.getItem('dsmod_guest_name');
+                if (name && name !== 'null' && name !== 'undefined') {
+                    return name;
+                }
+                return null;
+            }
+
+            function setStoredGuestName(name) {
+                localStorage.setItem('dsmod_guest_name', name);
+            }
+
+            // ============================================================
+            //  密码错误动态提示
+            // ============================================================
+            function showPasswordError(wrapper, errorEl) {
+                wrapper.classList.add('error');
+                errorEl.classList.add('visible');
+                setTimeout(function() {
+                    wrapper.classList.remove('error');
+                    errorEl.classList.remove('visible');
+                }, 3500);
+            }
+
+            function clearPasswordError(wrapper, errorEl) {
+                wrapper.classList.remove('error');
+                errorEl.classList.remove('visible');
+            }
+
+            // ============================================================
+            //  用户数据操作
+            // ============================================================
+            function loadUsersFromGitHub() {
+                var url = GITHUB_API + '/users.json';
+                return fetch(url, {
+                    headers: {
+                        'Authorization': 'token ' + GITHUB_TOKEN,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                })
+                .then(function(res) {
+                    if (res.status === 404) {
+                        return { users: {} };
+                    }
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    return res.json();
+                })
+                .then(function(data) {
+                    if (data && data.content) {
+                        try {
+                            var decoded = decodeURIComponent(escape(atob(data.content)));
+                            return JSON.parse(decoded);
+                        } catch (e) {
+                            return { users: {} };
+                        }
+                    }
+                    return { users: {} };
+                })
+                .catch(function() {
+                    return { users: {} };
+                });
+            }
+
+            function saveUsersToGitHub(usersData) {
+                var url = GITHUB_API + '/users.json';
+                var jsonString = JSON.stringify(usersData, null, 2);
+                var base64 = btoa(unescape(encodeURIComponent(jsonString)));
+
+                return fetch(url, {
+                    headers: {
+                        'Authorization': 'token ' + GITHUB_TOKEN,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                })
+                .then(function(res) {
+                    if (res.status === 200) {
+                        return res.json();
+                    } else {
+                        return null;
+                    }
+                })
+                .then(function(existing) {
+                    var sha = existing ? existing.sha : null;
+                    var body = {
+                        message: '更新用户数据',
+                        content: base64,
+                        branch: 'main'
+                    };
+                    if (sha) body.sha = sha;
+
+                    return fetch(url, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': 'token ' + GITHUB_TOKEN,
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/vnd.github.v3+json'
+                        },
+                        body: JSON.stringify(body)
+                    });
+                })
+                .then(function(res) {
+                    if (!res.ok) throw new Error('保存失败');
+                    return res.json();
+                });
+            }
+
+            // ============================================================
+            //  检查名字是否唯一
+            // ============================================================
+            function isNameUnique(name, excludeEmail) {
+                return loadUsersFromGitHub().then(function(data) {
+                    var users = data.users || {};
+                    for (var email in users) {
+                        if (email === excludeEmail) continue;
+                        if (users[email].nickname === name) {
+                            return false;
+                        }
+                    }
+                    return true;
+                });
+            }
+
+            // ============================================================
+            //  Toast 系统
+            // ============================================================
+            var toastTimer = null;
+            var toastTimeout = null;
+
+            function showToast(msg, type, duration) {
+                type = type || 'info';
+                duration = duration || 3500;
+
+                if (toastTimer) {
+                    clearTimeout(toastTimer);
+                    clearTimeout(toastTimeout);
+                    var oldToasts = toastContainer.querySelectorAll('.toast');
+                    oldToasts.forEach(function(el) { el.remove(); });
+                }
+
+                var toast = document.createElement('div');
+                toast.className = 'toast visible ' + type;
+
+                var icon = '<i class="fas fa-info-circle"></i>';
+                if (type === 'success') icon = '<i class="fas fa-check-circle"></i>';
+                else if (type === 'error') icon = '<i class="fas fa-exclamation-circle"></i>';
+                else if (type === 'warning') icon = '<i class="fas fa-exclamation-triangle"></i>';
+
+                toast.innerHTML = icon + ' ' + msg;
+                toastContainer.appendChild(toast);
+
+                toastTimeout = setTimeout(function() {
+                    toast.classList.remove('visible');
+                    toastTimer = setTimeout(function() {
+                        if (toast.parentNode) toast.remove();
+                    }, 400);
+                }, duration);
+            }
+
+            // ============================================================
+            //  状态文字
+            // ============================================================
+            function setStatus(msg, type) {
+                statusText.textContent = msg;
+                statusText.className = 'status-text';
+                if (type) {
+                    statusText.classList.add(type);
+                }
+            }
+
+            // ============================================================
+            //  邮箱验证
+            // ============================================================
+            function validateEmail() {
+                var email = emailInput.value.trim();
+                if (email && !isValidEmail(email)) {
+                    emailError.classList.add('visible');
+                    emailInput.style.borderColor = '#ff6644';
+                    return false;
+                }
+                emailError.classList.remove('visible');
+                emailInput.style.borderColor = '';
+                return true;
+            }
+
+            emailInput.addEventListener('input', function() {
+                validateEmail();
+                var email = emailInput.value.trim();
+                if (email && isValidEmail(email)) {
+                    setStatus('邮箱格式正确，可继续注册或登录', 'success');
+                } else if (email) {
+                    setStatus('邮箱格式错误，请重新输入', 'error');
+                } else {
+                    setStatus('请输入邮箱地址开始', '');
+                }
+            });
+
+            emailInput.addEventListener('blur', function() {
+                validateEmail();
+            });
+
+            // ============================================================
+            //  密码显示切换
+            // ============================================================
+            togglePasswordBtn.addEventListener('click', function() {
+                var type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                passwordEye.className = type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+            });
+
+            popupTogglePassword.addEventListener('click', function() {
+                var type = popupPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                popupPasswordInput.setAttribute('type', type);
+                popupPasswordEye.className = type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+            });
+
+            // ============================================================
+            //  粒子系统
+            // ============================================================
+            var canvas = document.getElementById('particles-canvas');
+            var ctx = canvas.getContext('2d');
+            var particles = [];
+            var animationId = null;
+
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.size = Math.random() * 2 + 0.5;
+                    this.speedX = (Math.random() - 0.5) * 0.5;
+                    this.speedY = (Math.random() - 0.5) * 0.5;
+                    this.opacity = Math.random() * 0.3 + 0.1;
+                }
+
+                update() {
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+                    if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+                    if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(255, 170, 85, ' + this.opacity + ')';
+                    ctx.fill();
+                }
+            }
+
+            function initParticles() {
+                particles = [];
+                var count = Math.min(60, Math.floor((canvas.width * canvas.height) / 15000));
+                for (var i = 0; i < count; i++) {
+                    particles.push(new Particle());
+                }
+            }
+
+            function animateParticles() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(function(p) {
+                    p.update();
+                    p.draw();
+                });
+                for (var i = 0; i < particles.length; i++) {
+                    for (var j = i + 1; j < particles.length; j++) {
+                        var dx = particles[i].x - particles[j].x;
+                        var dy = particles[i].y - particles[j].y;
+                        var dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < 150) {
+                            ctx.beginPath();
+                            ctx.moveTo(particles[i].x, particles[i].y);
+                            ctx.lineTo(particles[j].x, particles[j].y);
+                            ctx.strokeStyle = 'rgba(255, 170, 85, ' + (0.06 * (1 - dist / 150)) + ')';
+                            ctx.lineWidth = 0.5;
+                            ctx.stroke();
+                        }
+                    }
+                }
+                animationId = requestAnimationFrame(animateParticles);
+            }
+
+            initParticles();
+            animateParticles();
+
+            window.addEventListener('resize', function() {
+                resizeCanvas();
+                initParticles();
+            });
+
+            // ============================================================
+            //  服务条款弹窗
+            // ============================================================
+            termsLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                termsOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+
+            termsClose.addEventListener('click', function() {
+                termsOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+
+            termsOverlay.addEventListener('click', function(e) {
+                if (e.target === termsOverlay) {
+                    termsOverlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+
+            // ============================================================
+            //  🔐 登录/注册逻辑
+            // ============================================================
+            async function handleLogin() {
+                var email = emailInput.value.trim();
+                var password = passwordInput.value.trim();
+
+                if (!email) {
+                    showToast('请输入邮箱地址', 'error');
+                    emailInput.focus();
+                    return;
+                }
+                if (!isValidEmail(email)) {
+                    emailError.classList.add('visible');
+                    emailInput.style.borderColor = '#ff6644';
+                    showToast('请输入有效的邮箱地址', 'error');
+                    return;
+                }
+                emailError.classList.remove('visible');
+                emailInput.style.borderColor = '';
+
+                loginBtn.disabled = true;
+                loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right:8px;"></i>处理中...';
+
+                try {
+                    var userData = await loadUsersFromGitHub();
+                    var users = userData.users || {};
+
+                    if (users[email]) {
+                        var user = users[email];
+                        if (user.password && user.password !== '') {
+                            if (!password) {
+                                showToast('请输入密码', 'warning');
+                                loginBtn.disabled = false;
+                                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt" style="margin-right:8px;"></i>注册 / 登录';
+                                passwordInput.focus();
+                                return;
+                            }
+                            if (password !== user.password) {
+                                showPasswordError(mainPasswordWrapper, mainPasswordError);
+                                showToast('密码错误，请重试', 'error');
+                                loginBtn.disabled = false;
+                                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt" style="margin-right:8px;"></i>注册 / 登录';
+                                passwordInput.value = '';
+                                passwordInput.focus();
+                                return;
+                            }
+                        }
+
+                        user.lastLogin = new Date().toISOString();
+                        user.loginCount = (user.loginCount || 0) + 1;
+                        users[email] = user;
+                        await saveUsersToGitHub({ users: users });
+
+                        localStorage.setItem('dsmod_logged_in', 'true');
+                        localStorage.setItem('dsmod_is_guest', 'false');
+                        localStorage.setItem('dsmod_user_email', email);
+                        localStorage.setItem('dsmod_user_nickname', user.nickname);
+                        localStorage.setItem('dsmod_login_time', String(Date.now()));
+
+                        showToast('✅ 登录成功！欢迎回来 ' + user.nickname, 'success');
+                        setTimeout(function() {
+                            window.location.href = 'menu.html';
+                        }, 1200);
+
+                    } else {
+                        if (!password) {
+                            showToast('请设置密码（可选，但建议设置）', 'warning');
+                            loginBtn.disabled = false;
+                            loginBtn.innerHTML = '<i class="fas fa-sign-in-alt" style="margin-right:8px;"></i>注册 / 登录';
+                            passwordInput.focus();
+                            return;
+                        }
+
+                        var nickname = email.split('@')[0];
+                        var isUnique = await isNameUnique(nickname, null);
+                        if (!isUnique) {
+                            var counter = 1;
+                            var newNickname = nickname;
+                            while (!(await isNameUnique(newNickname, null))) {
+                                newNickname = nickname + '_' + counter;
+                                counter++;
+                            }
+                            nickname = newNickname;
+                        }
+
+                        var newUser = {
+                            email: email,
+                            nickname: nickname,
+                            password: password || '',
+                            avatarId: null,
+                            createdAt: new Date().toISOString(),
+                            lastLogin: new Date().toISOString(),
+                            loginCount: 1
+                        };
+
+                        users[email] = newUser;
+                        await saveUsersToGitHub({ users: users });
+
+                        localStorage.setItem('dsmod_logged_in', 'true');
+                        localStorage.setItem('dsmod_is_guest', 'false');
+                        localStorage.setItem('dsmod_user_email', email);
+                        localStorage.setItem('dsmod_user_nickname', nickname);
+                        localStorage.setItem('dsmod_login_time', String(Date.now()));
+
+                        showToast('✅ 注册成功！欢迎 ' + nickname, 'success');
+                        setTimeout(function() {
+                            window.location.href = 'menu.html';
+                        }, 1200);
+                    }
+
+                } catch (error) {
+                    console.error('[Login] 操作失败:', error);
+                    showToast('❌ 操作失败，请稍后重试', 'error');
+                }
+
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt" style="margin-right:8px;"></i>注册 / 登录';
+            }
+
+            // ============================================================
+            //  🎮 游客登录
+            // ============================================================
+            function handleGuestLogin() {
+                var guestName = getStoredGuestName();
+                if (!guestName) {
+                    guestName = generateGuestName();
+                    setStoredGuestName(guestName);
+                }
+
+                localStorage.setItem('dsmod_logged_in', 'true');
+                localStorage.setItem('dsmod_is_guest', 'true');
+                localStorage.setItem('dsmod_user_email', 'guest_' + Date.now());
+                localStorage.setItem('dsmod_user_nickname', guestName);
+                localStorage.setItem('dsmod_login_time', String(Date.now()));
+                localStorage.setItem('dsmod_guest_name', guestName);
+
+                showToast('游客模式：' + guestName, 'success');
+
+                setTimeout(function() {
+                    window.location.href = 'menu.html';
+                }, 1200);
+            }
+
+            // ============================================================
+            //  📧 已有账号登录弹窗
+            // ============================================================
+            function openLoginPopup() {
+                loginPopupOverlay.classList.add('active');
+                popupEmailInput.value = '';
+                popupPasswordInput.value = '';
+                clearPasswordError(popupPasswordWrapper, popupPasswordError);
+                setTimeout(function() {
+                    popupEmailInput.focus();
+                }, 200);
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeLoginPopup() {
+                loginPopupOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            loginLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                openLoginPopup();
+            });
+
+            loginPopupClose.addEventListener('click', function() {
+                closeLoginPopup();
+            });
+
+            loginPopupOverlay.addEventListener('click', function(e) {
+                if (e.target === loginPopupOverlay) {
+                    closeLoginPopup();
+                }
+            });
+
+            // 弹窗登录
+            async function handlePopupLogin() {
+                var email = popupEmailInput.value.trim();
+                var password = popupPasswordInput.value.trim();
+
+                if (!email || !isValidEmail(email)) {
+                    showToast('请输入有效的邮箱地址', 'error');
+                    return;
+                }
+                if (!password) {
+                    showToast('请输入密码', 'error');
+                    return;
+                }
+
+                popupLoginBtn.disabled = true;
+                popupLoginBtn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right:8px;"></i>登录中...';
+
+                try {
+                    var userData = await loadUsersFromGitHub();
+                    var users = userData.users || {};
+
+                    if (!users[email]) {
+                        showToast('该邮箱未注册', 'error');
+                        popupLoginBtn.disabled = false;
+                        popupLoginBtn.innerHTML = '<i class="fas fa-sign-in-alt" style="margin-right:8px;"></i>登录';
+                        return;
+                    }
+
+                    var user = users[email];
+                    if (user.password !== password) {
+                        showPasswordError(popupPasswordWrapper, popupPasswordError);
+                        showToast('密码错误，请重试', 'error');
+                        popupLoginBtn.disabled = false;
+                        popupLoginBtn.innerHTML = '<i class="fas fa-sign-in-alt" style="margin-right:8px;"></i>登录';
+                        popupPasswordInput.value = '';
+                        popupPasswordInput.focus();
+                        return;
+                    }
+
+                    user.lastLogin = new Date().toISOString();
+                    user.loginCount = (user.loginCount || 0) + 1;
+                    users[email] = user;
+                    await saveUsersToGitHub({ users: users });
+
+                    localStorage.setItem('dsmod_logged_in', 'true');
+                    localStorage.setItem('dsmod_is_guest', 'false');
+                    localStorage.setItem('dsmod_user_email', email);
+                    localStorage.setItem('dsmod_user_nickname', user.nickname);
+                    localStorage.setItem('dsmod_login_time', String(Date.now()));
+
+                    closeLoginPopup();
+                    showToast('✅ 登录成功！欢迎回来 ' + user.nickname, 'success');
+                    setTimeout(function() {
+                        window.location.href = 'menu.html';
+                    }, 1200);
+
+                } catch (error) {
+                    console.error('[Login] 弹窗登录失败:', error);
+                    showToast('❌ 登录失败，请稍后重试', 'error');
+                }
+
+                popupLoginBtn.disabled = false;
+                popupLoginBtn.innerHTML = '<i class="fas fa-sign-in-alt" style="margin-right:8px;"></i>登录';
+            }
+
+            popupLoginBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                handlePopupLogin();
+            });
+
+            popupPasswordInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    popupLoginBtn.click();
+                }
+            });
+
+            popupPasswordInput.addEventListener('input', function() {
+                clearPasswordError(popupPasswordWrapper, popupPasswordError);
+            });
+
+            passwordInput.addEventListener('input', function() {
+                clearPasswordError(mainPasswordWrapper, mainPasswordError);
+            });
+
+            // ============================================================
+            //  检查登录状态
+            // ============================================================
+            function checkLoginStatus() {
+                var loggedIn = localStorage.getItem('dsmod_logged_in');
+                var isGuest = localStorage.getItem('dsmod_is_guest');
+                var email = localStorage.getItem('dsmod_user_email');
+
+                if (loggedIn === 'true' && isGuest === 'false' && email && email !== 'guest') {
+                    showToast('已登录，自动跳转...', 'success', 1500);
+                    setTimeout(function() {
+                        window.location.href = 'menu.html';
+                    }, 1500);
+                    return true;
+                }
+
+                if (loggedIn === 'true' && isGuest === 'true') {
+                    var guestName = getStoredGuestName();
+                    if (guestName) {
+                        showToast('上次以游客身份游玩：' + guestName + '，点击「游客登录」继续', 'warning', 3000);
+                    } else {
+                        showToast('上次以游客身份游玩，点击「游客登录」继续', 'warning', 3000);
+                    }
+                    return false;
+                }
+
+                return false;
+            }
+
+            // ============================================================
+            //  事件绑定
+            // ============================================================
+            loginBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                handleLogin();
+            });
+
+            guestBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                handleGuestLogin();
+            });
+
+            emailInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (emailInput.value.trim() && isValidEmail(emailInput.value.trim())) {
+                        passwordInput.focus();
+                    } else {
+                        loginBtn.click();
+                    }
+                }
+            });
+
+            passwordInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    loginBtn.click();
+                }
+            });
+
+            emailInput.focus();
+
+            // ============================================================
+            //  启动
+            // ============================================================
+            var loggedIn = checkLoginStatus();
+            if (!loggedIn) {
+                setStatus('请输入邮箱地址开始', '');
+                console.log('[Login] DSMOD·ID Guard 已加载，等待用户操作');
+            }
+
+            console.log('[Login] 设备信息:');
+            console.log('  - 移动端:', /Android|iPhone|iPad|iPod|webOS|BlackBerry|Windows Phone|Mobi|tablet/i.test(navigator
+                .userAgent));
+            console.log('  - 屏幕:', window.innerWidth + 'x' + window.innerHeight);
+
+        })();
+    </script>
+
+</body>
+</html>

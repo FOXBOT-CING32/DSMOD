@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, shrink-to-fit=no">
+    <title>DS-MOD★ v1.1</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- ===== 游戏画布 ===== -->
+    <div class="game-container">
+        <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <!-- ===== PC 端按键布局（与移动端位置一致） ===== -->
+    <div class="pc-controls" id="pcControls">
+        <!-- WASD 正常布局 -->
+        <div class="pc-wasd" id="pcWasd">
+            <div class="key key-w" id="keyW">W</div>
+            <div class="key key-a" id="keyA">A</div>
+            <div class="key key-s" id="keyS">S</div>
+            <div class="key key-d" id="keyD">D</div>
+        </div>
+
+        <!-- 攻击键 LMB -->
+        <div class="pc-attack" id="pcAttack">LMB</div>
+
+        <!-- 切换武器 X -->
+        <div class="pc-switch" id="pcSwitch">X</div>
+
+        <!-- 换弹键 R -->
+        <div class="pc-reload" id="pcReload">R</div>
+
+        <!-- 菜单键 Q -->
+        <div class="pc-menu" id="pcMenu">Q</div>
+    </div>
+
+    <!-- ===== PC 端血条（完全移植移动端） ===== -->
+    <div class="pc-health-container" id="pcHealthContainer">
+        <div class="pc-health-panel">
+            <div class="pc-health-stats">
+                <span class="pc-health-label">LIFE</span>
+                <span class="pc-health-number" id="pcHealthValue">100</span>
+            </div>
+            <div class="pc-health-bar-container">
+                <div class="pc-health-fill" id="pcHealthFill" style="width:100%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 脚本加载 ===== -->
+    <script src="cfg/touch.js"></script>
+    <script src="data.js"></script>
+    <script src="ui.js"></script>
+    <script src="engine.js"></script>
+    <script src="pc/pc-control.js"></script>
+</body>
+</html>

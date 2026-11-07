@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>DS-MOD★ 加载中</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: 'Segoe UI', system-ui, -apple-system, 'Roboto', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 动态渐变背景 */
+        .dynamic-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460, #1a1a2e);
+            background-size: 400% 400%;
+            animation: gradientShift 12s ease infinite;
+            z-index: -2;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 0%; }
+            25% { background-position: 100% 0%; }
+            50% { background-position: 100% 100%; }
+            75% { background-position: 0% 100%; }
+            100% { background-position: 0% 0%; }
+        }
+
+        /* 动态光晕效果 */
+        .dynamic-bg::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(255,200,100,0.05) 0%, rgba(0,0,0,0.2) 100%);
+            pointer-events: none;
+            animation: pulse 4s ease infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+            100% { opacity: 0.3; }
+        }
+
+        /* 左上角区域 */
+        .top-left {
+            position: fixed;
+            top: 24px;
+            left: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        /* LOGO 容器 - 足够大，不裁剪 */
+        .logo-icon {
+            width: 56px;
+            height: 56px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 0px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.2);
+            overflow: visible;
+        }
+
+        /* 图片样式 - 完整显示，不被裁剪 */
+        .logo-img {
+            width: 52px;
+            height: 52px;
+            object-fit: contain;
+            display: block;
+        }
+
+        /* 备用图标样式 */
+        .logo-fallback {
+            width: 52px;
+            height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+        }
+
+        .app-title {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: white;
+            letter-spacing: 2px;
+            font-family: monospace;
+            text-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        /* 提示文字区域 */
+        .tips-area {
+            position: fixed;
+            top: 100px;
+            left: 24px;
+            right: 24px;
+            z-index: 10;
+        }
+
+        .tip-text {
+            font-size: 0.85rem;
+            color: #cccccc;
+            font-family: monospace;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(4px);
+            padding: 8px 16px;
+            border-radius: 30px;
+            display: inline-block;
+            border-left: 3px solid #ffffff;
+            transition: opacity 0.2s ease;
+            opacity: 1;
+            letter-spacing: 0.5px;
+        }
+
+        /* 右下角区域 - GMod 风格 */
+        .bottom-right {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            text-align: right;
+            z-index: 10;
+            min-width: 260px;
+        }
+
+        /* 进度条容器 - 灰色边框 */
+        .progress-container {
+            background: rgba(60, 60, 70, 0.8);
+            border-radius: 4px;
+            padding: 2px;
+            backdrop-filter: blur(4px);
+            border: 1px solid #888888;
+        }
+
+        /* 进度条 - 白色 */
+        .progress-bar {
+            width: 0%;
+            height: 10px;
+            background: #ffffff;
+            border-radius: 2px;
+            transition: width 0.3s ease-out;
+            box-shadow: 0 0 4px rgba(255,255,255,0.5);
+        }
+
+        /* 百分比文字 - 白色 */
+        .progress-text {
+            font-size: 1.1rem;
+            font-weight: normal;
+            color: #ffffff;
+            font-family: monospace;
+            margin-top: 8px;
+            text-shadow: 0 0 5px rgba(0,0,0,0.5);
+            letter-spacing: 1px;
+        }
+
+        /* 加载状态文字 - 浅灰色 */
+        .loading-status {
+            font-size: 0.7rem;
+            color: #aaaaaa;
+            font-family: monospace;
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* 黑屏过渡 */
+        .black-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .black-screen.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 600px) {
+            .top-left { 
+                top: 16px; 
+                left: 5px;
+                gap: 6px;
+            }
+            .logo-icon { width: 46px; height: 46px; }
+            .logo-img { width: 42px; height: 42px; }
+            .logo-fallback { width: 42px; height: 42px; font-size: 26px; }
+            .app-title { font-size: 1.2rem; }
+            .tips-area { top: 80px; left: 16px; right: 16px; }
+            .tip-text { font-size: 0.7rem; padding: 6px 12px; }
+            .bottom-right { bottom: 20px; right: 20px; min-width: 200px; }
+            .progress-text { font-size: 0.9rem; }
+            .progress-bar { height: 8px; }
+        }
+    </style>
+</head>
+<body>
+<div class="dynamic-bg"></div>
+
+<div class="top-left">
+    <div class="logo-icon">
+        <img class="logo-img" id="logoImg" src="images/logos.png" alt="DS-MOD★" onerror="this.style.display='none'; document.getElementById('defaultLogo').style.display='flex'">
+        <div class="logo-fallback" id="defaultLogo" style="display:none;">📦</div>
+    </div>
+    <div class="app-title">DS-MOD★</div>
+</div>
+
+<div class="tips-area">
+    <div class="tip-text" id="tipText">用普通模组模板做一个 Nextbot！</div>
+</div>
+
+<div class="bottom-right">
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <div class="progress-text" id="progressText">0%</div>
+    <div class="loading-status" id="loadingStatus">Initializing...</div>
+</div>
+
+<div class="black-screen" id="blackScreen"></div>
+
+<script>
+    (function() {
+        // 循环切换的提示文字列表
+        const tipsList = [
+            "💡 用普通模组模板做一个 Nextbot！",
+            "💡 ZIP 格式是最适合的模组格式！",
+            "💡 追逐音效会随距离越近越急促！",
+            "💡 体型调整 scale 可让怪物变大变小！",
+            "💡 effectId: 0 可以关闭所有特效！",
+            "💡 AI 3 追逐 / AI 7 环绕 / AI 10 闪现！",
+            "💡 越靠近玩家，脚步声越快越响！",
+            "💡 在 MODS 标签页可删除自定义模组！",
+            "💡 图片支持 GIF/APNG 动图！",
+            "💡 音效支持 MP3/WAV/OGG 格式！",
+            "💡 模组必须打包成 ZIP 格式！",
+            "💡 点击「导入ZIP」选择你的模组包！",
+            "💡 自由模组即将推出，敬请期待！"
+        ];
+
+        // 加载任务列表
+        const tasks = [
+            { name: 'Mounting Filesystem', weight: 6, delay: 600 },
+            { name: 'Loading Game DLLs', weight: 8, delay: 700 },
+            { name: 'Initializing Renderer', weight: 10, delay: 650 },
+            { name: 'Loading Materials', weight: 12, delay: 800 },
+            { name: 'Loading Models', weight: 12, delay: 750 },
+            { name: 'Loading Sounds', weight: 10, delay: 700 },
+            { name: 'Parsing Game Data', weight: 10, delay: 600 },
+            { name: 'Loading Addons', weight: 10, delay: 800 },
+            { name: 'Spawning Player', weight: 8, delay: 500 },
+            { name: 'Finalizing', weight: 4, delay: 400 }
+        ];
+
+        let currentProgress = 0;
+        let tipIndex = 0;
+        let tipInterval = null;
+        
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        const loadingStatus = document.getElementById('loadingStatus');
+        const blackScreen = document.getElementById('blackScreen');
+        const tipTextEl = document.getElementById('tipText');
+
+        const totalWeight = tasks.reduce((sum, task) => sum + task.weight, 0);
+        let accumulatedWeight = 0;
+
+        function updateProgress() {
+            const percent = (accumulatedWeight / totalWeight) * 100;
+            currentProgress = Math.min(100, percent);
+            progressBar.style.width = currentProgress + '%';
+            progressText.textContent = Math.floor(currentProgress) + '%';
+        }
+
+        function simulateWork(delay) {
+            return new Promise(resolve => setTimeout(resolve, delay));
+        }
+
+        function loadImage(url) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => resolve();
+                img.onerror = () => resolve();
+                img.src = url;
+                setTimeout(() => resolve(), 2000);
+            });
+        }
+
+        function loadModsData() {
+            return new Promise((resolve) => {
+                try {
+                    const saved = localStorage.getItem('DSMOD_mods');
+                    setTimeout(resolve, 500);
+                } catch(e) {
+                    resolve();
+                }
+            });
+        }
+
+        function startTipRotation() {
+            tipIndex = Math.floor(Math.random() * tipsList.length);
+            tipTextEl.textContent = tipsList[tipIndex];
+            tipTextEl.style.opacity = '1';
+            
+            setTimeout(() => {
+                tipInterval = setInterval(() => {
+                    tipTextEl.style.opacity = '0';
+                    
+                    setTimeout(() => {
+                        let newIndex;
+                        do {
+                            newIndex = Math.floor(Math.random() * tipsList.length);
+                        } while (newIndex === tipIndex && tipsList.length > 1);
+                        tipIndex = newIndex;
+                        
+                        tipTextEl.textContent = tipsList[tipIndex];
+                        tipTextEl.style.opacity = '1';
+                    }, 150);
+                }, 1000);
+            }, 1000);
+        }
+
+        async function runTasks() {
+            startTipRotation();
+            
+            for (let i = 0; i < tasks.length; i++) {
+                const task = tasks[i];
+                loadingStatus.textContent = task.name + '...';
+                
+                if (task.name === 'Loading Materials') {
+                    await loadImage('https://www.texturecan.com/issue/image/64/64/grass/1024/TextureCan-Grass-0001-1024.jpg');
+                } else if (task.name === 'Loading Addons') {
+                    await loadModsData();
+                } else {
+                    await simulateWork(task.delay);
+                }
+                
+                accumulatedWeight += task.weight;
+                updateProgress();
+            }
+            
+            loadingStatus.textContent = 'Ready, starting game...';
+            progressBar.style.width = '100%';
+            progressText.textContent = '100%';
+            
+            if (tipInterval) clearInterval(tipInterval);
+            
+            await simulateWork(1000);
+            
+            blackScreen.classList.add('active');
+            
+            setTimeout(() => {
+                window.location.href = 'map.html';
+            }, 400);
+        }
+        
+        runTasks();
+    })();
+</script>
+</body>
+</html>

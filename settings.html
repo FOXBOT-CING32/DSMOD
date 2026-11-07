@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, shrink-to-fit=no">
+    <title>设置 - DS-MOD★</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: 'Segoe UI', system-ui, -apple-system, 'Roboto', sans-serif;
+            position: relative;
+            overflow: hidden;
+            background: #0a0a1a;
+        }
+
+        .dynamic-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460, #1a1a2e);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            z-index: -2;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 0%; }
+            25% { background-position: 100% 0%; }
+            50% { background-position: 100% 100%; }
+            75% { background-position: 0% 100%; }
+            100% { background-position: 0% 0%; }
+        }
+
+        .dynamic-glow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(255,200,100,0.08) 0%, rgba(0,0,0,0.3) 100%);
+            pointer-events: none;
+            z-index: -1;
+            animation: glowPulse 8s ease infinite;
+        }
+
+        @keyframes glowPulse {
+            0% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.05); }
+            100% { opacity: 0.3; transform: scale(1); }
+        }
+
+        .settings-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 30px 40px;
+            overflow-y: auto;
+        }
+
+        .settings-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            flex-shrink: 0;
+        }
+
+        .settings-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .settings-title .icon {
+            font-size: 2rem;
+        }
+
+        .settings-title h1 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            font-family: monospace;
+            letter-spacing: 2px;
+        }
+
+        .settings-title h1 span {
+            color: #ffaa55;
+        }
+
+        .settings-title .beta {
+            background: rgba(255,170,85,0.2);
+            color: #ffaa55;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.55rem;
+            font-family: monospace;
+            border: 1px solid rgba(255,170,85,0.3);
+        }
+
+        .back-btn {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 0px;
+            padding: 10px 20px;
+            color: #ccc;
+            font-family: monospace;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover,
+        .back-btn:active {
+            background: rgba(255,170,85,0.3);
+            border-color: #ffaa55;
+            color: #ffaa55;
+        }
+
+        .settings-body {
+            flex: 1;
+            padding: 30px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+        }
+
+        .settings-body::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .settings-body::-webkit-scrollbar-track {
+            background: #2a2a2e;
+        }
+
+        .settings-body::-webkit-scrollbar-thumb {
+            background: #ffaa55;
+            border-radius: 4px;
+        }
+
+        .setting-card {
+            background: rgba(30, 30, 40, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0px;
+            padding: 20px 24px;
+            transition: all 0.2s;
+        }
+
+        .setting-card:hover {
+            border-color: rgba(255, 170, 85, 0.3);
+        }
+
+        .setting-card .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .setting-card .card-label {
+            color: #aaa;
+            font-family: monospace;
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .setting-card .card-value {
+            color: #ffaa55;
+            font-family: monospace;
+            font-size: 0.75rem;
+        }
+
+        .setting-card .card-desc {
+            color: #666;
+            font-family: monospace;
+            font-size: 0.6rem;
+            margin-bottom: 12px;
+        }
+
+        .player-preview {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-top: 8px;
+        }
+
+        .player-avatar {
+            width: 80px;
+            height: 80px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            font-size: 44px;
+        }
+
+        .player-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .player-info {
+            flex: 1;
+        }
+
+        .player-info .name {
+            color: white;
+            font-family: monospace;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .player-info .status {
+            color: #666;
+            font-family: monospace;
+            font-size: 0.6rem;
+            margin-top: 2px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .btn-setting {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 0px;
+            padding: 8px 18px;
+            color: #ccc;
+            font-family: monospace;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-setting:hover,
+        .btn-setting:active {
+            background: rgba(255, 170, 85, 0.3);
+            border-color: #ffaa55;
+            color: #ffaa55;
+        }
+
+        .btn-setting.primary {
+            background: rgba(255, 170, 85, 0.2);
+            border-color: rgba(255, 170, 85, 0.3);
+            color: #ffaa55;
+        }
+
+        .btn-setting.primary:hover {
+            background: rgba(255, 170, 85, 0.4);
+        }
+
+        .btn-setting.danger {
+            border-color: rgba(255, 80, 80, 0.3);
+            color: #ff6666;
+        }
+
+        .btn-setting.danger:hover {
+            background: rgba(255, 80, 80, 0.2);
+            border-color: #ff6666;
+        }
+
+        .setting-input {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 0px;
+            padding: 8px 14px;
+            color: #fff;
+            font-family: monospace;
+            font-size: 0.75rem;
+            width: 100%;
+            max-width: 300px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .setting-input:focus {
+            border-color: #ffaa55;
+        }
+
+        .setting-input::placeholder {
+            color: #555;
+        }
+
+        .emoji-input {
+            font-size: 28px;
+            text-align: center;
+            max-width: 80px;
+            padding: 6px 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 0px;
+            color: #fff;
+            outline: none;
+            transition: border-color 0.2s;
+            font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
+        }
+
+        .emoji-input:focus {
+            border-color: #ffaa55;
+        }
+
+        .file-input-hidden {
+            display: none;
+        }
+
+        .color-picker-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .color-picker-wrapper input[type="color"] {
+            width: 48px;
+            height: 40px;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 0px;
+            background: transparent;
+            cursor: pointer;
+            padding: 2px;
+        }
+
+        .color-picker-wrapper input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+
+        .color-picker-wrapper input[type="color"]::-webkit-color-swatch {
+            border: none;
+            border-radius: 0px;
+        }
+
+        .color-status {
+            color: #555;
+            font-family: monospace;
+            font-size: 0.5rem;
+        }
+
+        .settings-footer {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            flex-shrink: 0;
+        }
+
+        .settings-footer .version {
+            color: #444;
+            font-family: monospace;
+            font-size: 0.55rem;
+            letter-spacing: 1px;
+        }
+
+        .settings-footer .version span {
+            color: #ffaa55;
+        }
+
+        @media (max-width: 600px) {
+            .settings-container {
+                padding: 20px;
+            }
+            .settings-title h1 {
+                font-size: 1.1rem;
+            }
+            .settings-title .icon {
+                font-size: 1.5rem;
+            }
+            .setting-card {
+                padding: 14px 16px;
+            }
+            .player-avatar {
+                width: 60px;
+                height: 60px;
+                font-size: 32px;
+            }
+            .setting-input {
+                max-width: 100%;
+            }
+            .back-btn {
+                padding: 8px 14px;
+                font-size: 0.7rem;
+            }
+            .emoji-input {
+                font-size: 24px;
+                max-width: 60px;
+            }
+            .color-picker-wrapper input[type="color"] {
+                width: 40px;
+                height: 34px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .settings-container {
+                padding: 14px;
+            }
+            .settings-title h1 {
+                font-size: 0.9rem;
+            }
+            .btn-setting {
+                padding: 6px 12px;
+                font-size: 0.6rem;
+            }
+            .player-avatar {
+                width: 50px;
+                height: 50px;
+                font-size: 26px;
+            }
+            .emoji-input {
+                font-size: 20px;
+                max-width: 50px;
+            }
+            .color-picker-wrapper input[type="color"] {
+                width: 34px;
+                height: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dynamic-bg"></div>
+    <div class="dynamic-glow"></div>
+
+    <div class="settings-container">
+        <!-- 头部 -->
+        <div class="settings-header">
+            <div class="settings-title">
+                <span class="icon">⚙️</span>
+                <h1>DS-<span>MOD</span>★ <span class="beta">Beta 1.0</span></h1>
+            </div>
+            <button class="back-btn" id="backBtn">← 返回</button>
+        </div>
+
+        <!-- 设置主体 -->
+        <div class="settings-body">
+            <!-- ===== 自定义角色 ===== -->
+            <div class="setting-card">
+                <div class="card-header">
+                    <span class="card-label">🎭 自定义角色</span>
+                    <span class="card-value" id="avatarStatus">默认</span>
+                </div>
+                <div class="card-desc">支持所有图片格式 (PNG/JPG/GIF/WEBP/SVG/BMP/ICO/TIFF/APNG/AVIF/HEIC等)</div>
+                <div class="player-preview">
+                    <div class="player-avatar" id="playerPreview">😎</div>
+                    <div class="player-info">
+                        <div class="name" id="playerNameDisplay">玩家</div>
+                        <div class="status" id="playerStatus">当前: 默认角色</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.06);">
+                    <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:10px;">
+                        <span style="color:#888; font-family:monospace; font-size:0.6rem;">📝 Emoji 角色</span>
+                        <input class="emoji-input" id="emojiInput" type="text" maxlength="2" placeholder="😎" value="😎">
+                        <button class="btn-setting primary" id="saveEmojiBtn">💾 应用 Emoji</button>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                        <span style="color:#888; font-family:monospace; font-size:0.6rem;">🖼️ 本地图片</span>
+                        <button class="btn-setting primary" id="uploadAvatarBtn">📁 选择图片</button>
+                        <button class="btn-setting" id="resetAvatarBtn">↩️ 恢复默认</button>
+                        <input type="file" class="file-input-hidden" id="avatarInput" accept="image/*">
+                        <span style="color:#555; font-family:monospace; font-size:0.5rem;" id="fileStatus">未选择</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== 主角名字 + 名字颜色 ===== -->
+            <div class="setting-card">
+                <div class="card-header">
+                    <span class="card-label">✏️ 主角名字</span>
+                    <span class="card-value" id="nameStatus">已保存</span>
+                </div>
+                <div class="card-desc">设置主角在游戏中的显示名称和颜色</div>
+                <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:8px;">
+                    <input class="setting-input" id="playerNameInput" type="text" placeholder="输入主角名字..." maxlength="20" value="玩家">
+                    <button class="btn-setting primary" id="saveNameBtn">💾 保存名字</button>
+                </div>
+                <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:8px;">
+                    <span style="color:#888; font-family:monospace; font-size:0.6rem;">🎨 名字颜色</span>
+                    <input type="color" id="nameColorPicker" value="#ffffff">
+                    <button class="btn-setting primary" id="saveNameColorBtn">💾 应用颜色</button>
+                    <button class="btn-setting" id="resetNameColorBtn">↩️ 重置颜色</button>
+                    <span class="color-status" id="nameColorStatus">当前: #ffffff</span>
+                </div>
+            </div>
+
+            <!-- ===== 重置设置 ===== -->
+            <div class="setting-card">
+                <div class="card-header">
+                    <span class="card-label">🔄 重置设置</span>
+                    <span class="card-value">⚠️ 谨慎操作</span>
+                </div>
+                <div class="card-desc">将所有设置恢复为默认值</div>
+                <div class="btn-group">
+                    <button class="btn-setting danger" id="resetSettingsBtn">🗑️ 重置所有设置</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部 -->
+        <div class="settings-footer">
+            <div class="version">DS-MOD★ <span>Beta 1.0</span> · 设置页面</div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            let menuAudio = null;
+
+            function playMenuSound() {
+                try {
+                    if (!menuAudio) {
+                        menuAudio = new Audio();
+                        menuAudio.src = "sound/spawnmenu.mp3";
+                        menuAudio.volume = 0.4;
+                    }
+                    menuAudio.currentTime = 0;
+                    menuAudio.play().catch(e => {});
+                } catch (e) {}
+            }
+
+            function showToast(msg) {
+                const toast = document.createElement('div');
+                toast.style.position = 'fixed';
+                toast.style.bottom = '100px';
+                toast.style.left = '50%';
+                toast.style.transform = 'translateX(-50%)';
+                toast.style.background = '#333';
+                toast.style.color = '#ffd966';
+                toast.style.padding = '8px 16px';
+                toast.style.borderRadius = '20px';
+                toast.style.fontSize = '0.7rem';
+                toast.style.fontFamily = 'monospace';
+                toast.style.zIndex = '1000';
+                toast.style.whiteSpace = 'nowrap';
+                toast.textContent = msg;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 2500);
+            }
+
+            function loadSettings() {
+                try {
+                    const saved = localStorage.getItem('DSMOD_settings');
+                    if (saved) {
+                        return JSON.parse(saved);
+                    }
+                } catch (e) {}
+                return {
+                    playerName: '玩家',
+                    avatarData: '😎',
+                    avatarType: 'emoji',
+                    nameColor: '#ffffff'
+                };
+            }
+
+            function saveSettings(settings) {
+                try {
+                    localStorage.setItem('DSMOD_settings', JSON.stringify(settings));
+                } catch (e) {}
+            }
+
+            function syncToGame() {
+                if (window.ENGINE && window.ENGINE.refreshPlayerSettings) {
+                    window.ENGINE.refreshPlayerSettings();
+                }
+                if (window.ENGINE && window.ENGINE.redrawCanvas) {
+                    window.ENGINE.redrawCanvas();
+                }
+            }
+
+            var settings = loadSettings();
+
+            // DOM 引用
+            const playerPreview = document.getElementById('playerPreview');
+            const playerNameDisplay = document.getElementById('playerNameDisplay');
+            const playerNameInput = document.getElementById('playerNameInput');
+            const avatarStatus = document.getElementById('avatarStatus');
+            const playerStatus = document.getElementById('playerStatus');
+            const nameStatus = document.getElementById('nameStatus');
+            const emojiInput = document.getElementById('emojiInput');
+            const saveEmojiBtn = document.getElementById('saveEmojiBtn');
+            const uploadBtn = document.getElementById('uploadAvatarBtn');
+            const resetAvatarBtn = document.getElementById('resetAvatarBtn');
+            const avatarInput = document.getElementById('avatarInput');
+            const fileStatus = document.getElementById('fileStatus');
+            const saveNameBtn = document.getElementById('saveNameBtn');
+            const resetSettingsBtn = document.getElementById('resetSettingsBtn');
+            const backBtn = document.getElementById('backBtn');
+            const nameColorPicker = document.getElementById('nameColorPicker');
+            const saveNameColorBtn = document.getElementById('saveNameColorBtn');
+            const resetNameColorBtn = document.getElementById('resetNameColorBtn');
+            const nameColorStatus = document.getElementById('nameColorStatus');
+
+            const ALLOWED_EXTENSIONS = [
+                'png', 'jpg', 'jpeg', 'gif', 'webp', 'apng',
+                'svg', 'bmp', 'ico', 'tiff', 'tif', 'jfif',
+                'avif', 'heic', 'heif', 'jxl'
+            ];
+
+            const ALLOWED_MIME_TYPES = [
+                'image/png', 'image/jpeg', 'image/gif', 'image/webp',
+                'image/svg+xml', 'image/bmp', 'image/x-icon', 'image/tiff',
+                'image/apng', 'image/avif', 'image/heic', 'image/heif',
+                'image/jxl', 'image/jfif'
+            ];
+
+            function isImageFile(file) {
+                if (ALLOWED_MIME_TYPES.includes(file.type.toLowerCase())) return true;
+                const ext = file.name.split('.').pop().toLowerCase();
+                if (ALLOWED_EXTENSIONS.includes(ext)) return true;
+                if (file.type.startsWith('image/')) return true;
+                return false;
+            }
+
+            function updateUI() {
+                playerNameDisplay.textContent = settings.playerName || '玩家';
+                playerNameInput.value = settings.playerName || '玩家';
+
+                if (settings.nameColor) {
+                    nameColorPicker.value = settings.nameColor;
+                    nameColorStatus.textContent = '当前: ' + settings.nameColor;
+                } else {
+                    nameColorPicker.value = '#ffffff';
+                    nameColorStatus.textContent = '当前: #ffffff';
+                }
+
+                if (settings.avatarType === 'emoji') {
+                    const emoji = settings.avatarData || '😎';
+                    playerPreview.innerHTML = emoji;
+                    emojiInput.value = emoji;
+                    avatarStatus.textContent = 'Emoji';
+                    playerStatus.textContent = '当前: Emoji 角色';
+                    fileStatus.textContent = '未选择';
+                } else if (settings.avatarType === 'image' && settings.avatarData) {
+                    playerPreview.innerHTML = '<img src="' + settings.avatarData + '" alt="角色">';
+                    emojiInput.value = '😎';
+                    avatarStatus.textContent = '自定义图片';
+                    playerStatus.textContent = '当前: 自定义图片';
+                    fileStatus.textContent = '✅ 已加载';
+                }
+            }
+
+            // ===== Emoji =====
+            saveEmojiBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                playMenuSound();
+                let emoji = emojiInput.value.trim() || '😎';
+                const emojiRegex = /[\u{1F000}-\u{1FFFF}]|[\u2600-\u27BF]|[\u{1F300}-\u{1F5FF}]|[\u{1F600}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{1F700}-\u{1F77F}]|[\u{1F780}-\u{1F7FF}]|[\u{1F800}-\u{1F8FF}]|[\u{1F900}-\u{1F9FF}]|[\u{1FA00}-\u{1FA6F}]|[\u{1FA70}-\u{1FAFF}]/u;
+                const match = emoji.match(emojiRegex);
+                if (match) emoji = match[0];
+                else emoji = '😎';
+                settings.avatarData = emoji;
+                settings.avatarType = 'emoji';
+                saveSettings(settings);
+                updateUI();
+                syncToGame();
+                showToast('✅ Emoji 已应用: ' + emoji);
+            });
+
+            emojiInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') saveEmojiBtn.click();
+            });
+
+            // ===== 上传图片 =====
+            uploadBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                playMenuSound();
+                avatarInput.click();
+            });
+
+            avatarInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                if (!isImageFile(file)) {
+                    showToast('❌ 不支持的图片格式: ' + file.name.split('.').pop());
+                    avatarInput.value = '';
+                    return;
+                }
+                if (file.size > 10 * 1024 * 1024) {
+                    showToast('❌ 图片大小不能超过 10MB');
+                    avatarInput.value = '';
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const dataUrl = e.target.result;
+                    const testImg = new Image();
+                    testImg.onload = function() {
+                        settings.avatarData = dataUrl;
+                        settings.avatarType = 'image';
+                        saveSettings(settings);
+                        updateUI();
+                        syncToGame();
+                        showToast('✅ 角色图片已更新');
+                        playMenuSound();
+                        avatarInput.value = '';
+                    };
+                    testImg.onerror = function() {
+                        settings.avatarData = dataUrl;
+                        settings.avatarType = 'image';
+                        saveSettings(settings);
+                        updateUI();
+                        syncToGame();
+                        showToast('✅ 角色图片已保存');
+                        playMenuSound();
+                        avatarInput.value = '';
+                    };
+                    testImg.src = dataUrl;
+                };
+                reader.onerror = function() {
+                    showToast('❌ 读取图片失败');
+                    avatarInput.value = '';
+                };
+                reader.readAsDataURL(file);
+            });
+
+            // ===== 重置角色 =====
+            resetAvatarBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                playMenuSound();
+                settings.avatarData = '😎';
+                settings.avatarType = 'emoji';
+                saveSettings(settings);
+                updateUI();
+                syncToGame();
+                showToast('↩️ 已恢复默认角色');
+            });
+
+            // ===== 保存名字 =====
+            saveNameBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                playMenuSound();
+                const name = playerNameInput.value.trim() || '玩家';
+                settings.playerName = name;
+                saveSettings(settings);
+                updateUI();
+                syncToGame();
+                nameStatus.textContent = '✅ 已保存';
+                showToast('✅ 名字已保存: ' + name);
+                setTimeout(() => {
+                    nameStatus.textContent = '已保存';
+                }, 2000);
+            });
+
+            playerNameInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') saveNameBtn.click();
+            });
+
+            // ===== 保存名字颜色 =====
+            saveNameColorBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                playMenuSound();
+                const color = nameColorPicker.value;
+                settings.nameColor = color;
+                saveSettings(settings);
+                updateUI();
+                syncToGame();
+                nameColorStatus.textContent = '当前: ' + color;
+                showToast('✅ 名字颜色已应用');
+            });
+
+            // ===== 重置名字颜色 =====
+            resetNameColorBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                playMenuSound();
+                settings.nameColor = '#ffffff';
+                nameColorPicker.value = '#ffffff';
+                saveSettings(settings);
+                updateUI();
+                syncToGame();
+                nameColorStatus.textContent = '当前: #ffffff';
+                showToast('↩️ 名字颜色已重置');
+            });
+
+            // ===== 重置所有设置 =====
+            resetSettingsBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                playMenuSound();
+                if (confirm('确定要重置所有设置吗？此操作不可撤销！')) {
+                    settings = {
+                        playerName: '玩家',
+                        avatarData: '😎',
+                        avatarType: 'emoji',
+                        nameColor: '#ffffff'
+                    };
+                    saveSettings(settings);
+                    updateUI();
+                    syncToGame();
+                    showToast('🔄 所有设置已重置');
+                }
+            });
+
+            // ===== 返回主菜单 =====
+            backBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                playMenuSound();
+                window.location.href = 'menu.html';
+            });
+
+            // ===== 初始化 =====
+            updateUI();
+            console.log('[Settings] 设置页面已加载');
+
+            if (window.ENGINE && window.ENGINE.refreshPlayerSettings) {
+                setTimeout(function() {
+                    syncToGame();
+                }, 500);
+            }
+        })();
+    </script>
+</body>
+</html>

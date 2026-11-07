@@ -1,0 +1,4314 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, shrink-to-fit=no">
+    <title>创意工坊 - DS-MOD★</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ===== 全局重置 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #0a0a1a;
+            color: #fff;
+            position: fixed;
+            top: 0;
+            left: 0;
+            touch-action: manipulation;
+        }
+        .dynamic-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460, #1a1a2e);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            z-index: -2;
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 0%; }
+            25% { background-position: 100% 0%; }
+            50% { background-position: 100% 100%; }
+            75% { background-position: 0% 100%; }
+            100% { background-position: 0% 0%; }
+        }
+        .dynamic-glow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(255,200,100,0.06) 0%, rgba(0,0,0,0.3) 100%);
+            pointer-events: none;
+            z-index: -1;
+            animation: glowPulse 8s ease infinite;
+        }
+        @keyframes glowPulse {
+            0% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.05); }
+            100% { opacity: 0.3; transform: scale(1); }
+        }
+
+        /* ===== 顶部导航 ===== */
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 20;
+            background: rgba(10, 10, 26, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 8px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 48px;
+            min-height: 48px;
+            gap: 6px;
+        }
+        .top-bar .brand {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+        .top-bar .brand .logo-icon {
+            width: 24px;
+            height: 24px;
+            background: rgba(255, 170, 85, 0.15);
+            border: 1px solid rgba(255, 170, 85, 0.3);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffaa55;
+            font-size: 12px;
+        }
+        .top-bar .brand .title {
+            font-family: monospace;
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: #fff;
+            letter-spacing: 0.5px;
+        }
+        .top-bar .brand .title span { color: #ffaa55; }
+        .top-bar .brand .version-tag {
+            background: rgba(255, 170, 85, 0.15);
+            border: 1px solid rgba(255, 170, 85, 0.25);
+            padding: 1px 6px;
+            border-radius: 20px;
+            font-size: 0.35rem;
+            color: #ffaa55;
+            font-family: monospace;
+        }
+        .top-bar .center-group {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex: 1;
+            max-width: 420px;
+        }
+        .top-bar .center-group .search-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 4px 0 0 4px;
+            padding: 4px 10px;
+            color: #ddd;
+            font-family: monospace;
+            font-size: 0.6rem;
+            outline: none;
+            transition: border-color 0.2s, background 0.2s;
+            height: 28px;
+            min-width: 50px;
+            -webkit-appearance: none;
+        }
+        .top-bar .center-group .search-input:focus {
+            border-color: #ffaa55;
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .top-bar .center-group .search-input::placeholder { color: #444; }
+        .top-bar .center-group .search-btn {
+            background: rgba(255, 170, 85, 0.12);
+            border: 1px solid rgba(255, 170, 85, 0.2);
+            border-radius: 0 4px 4px 0;
+            padding: 4px 10px;
+            color: #ffaa55;
+            font-family: monospace;
+            font-size: 0.55rem;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s, transform 0.15s;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            touch-action: manipulation;
+        }
+        .top-bar .center-group .search-btn:hover {
+            background: rgba(255, 170, 85, 0.25);
+            border-color: rgba(255, 170, 85, 0.4);
+        }
+        .top-bar .center-group .search-btn:active { transform: scale(0.93); }
+        .top-bar .center-group .search-btn i { font-size: 0.6rem; }
+        .top-bar .actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+        .top-bar .actions .btn-refresh {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 4px;
+            padding: 4px 14px;
+            color: #aaa;
+            font-family: monospace;
+            font-size: 0.55rem;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.15s;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+            touch-action: manipulation;
+        }
+        .top-bar .actions .btn-refresh:hover {
+            background: rgba(255, 170, 85, 0.12);
+            border-color: rgba(255, 170, 85, 0.3);
+            color: #ffaa55;
+        }
+        .top-bar .actions .btn-refresh:active { transform: scale(0.93); }
+        .top-bar .actions .btn-refresh .badge-count {
+            background: rgba(255, 170, 85, 0.15);
+            color: #ffaa55;
+            border-radius: 50%;
+            padding: 0 5px;
+            font-size: 0.45rem;
+            min-width: 16px;
+            text-align: center;
+        }
+        .top-bar .actions .btn-refresh i { font-size: 0.6rem; }
+        .top-bar .actions .btn-refresh.spin i { animation: spin 0.8s ease-in-out; }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .top-bar .actions .btn-back {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 4px;
+            padding: 4px;
+            color: #aaa;
+            font-family: monospace;
+            font-size: 0.55rem;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.15s;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            touch-action: manipulation;
+        }
+        .top-bar .actions .btn-back:hover {
+            background: rgba(255, 170, 85, 0.12);
+            border-color: rgba(255, 170, 85, 0.3);
+            color: #ffaa55;
+        }
+        .top-bar .actions .btn-back:active { transform: scale(0.88); }
+        .top-bar .actions .btn-back i { font-size: 0.7rem; }
+
+        .main-content {
+            position: fixed;
+            top: 48px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: row;
+            overflow: hidden;
+        }
+
+        /* ===== 侧边栏 ===== */
+        .sidebar {
+            width: 150px;
+            min-width: 150px;
+            max-width: 150px;
+            background: rgba(20, 20, 35, 0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-right: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 8px 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            overflow-y: auto;
+            flex-shrink: 0;
+            height: 100%;
+            -webkit-overflow-scrolling: touch;
+        }
+        .sidebar::-webkit-scrollbar { width: 3px; }
+        .sidebar::-webkit-scrollbar-track { background: transparent; }
+        .sidebar::-webkit-scrollbar-thumb { background: rgba(255, 170, 85, 0.3); border-radius: 4px; }
+        .sidebar .sidebar-label {
+            font-size: 0.35rem;
+            color: #444;
+            font-family: monospace;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 3px 6px 2px 6px;
+        }
+        .sidebar .cat-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: transparent;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 6px;
+            color: #888;
+            font-family: monospace;
+            font-size: 0.55rem;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+            width: 100%;
+            text-align: left;
+            flex-shrink: 0;
+            touch-action: manipulation;
+        }
+        .sidebar .cat-btn i {
+            width: 12px;
+            font-size: 0.55rem;
+            color: #666;
+            transition: color 0.2s;
+        }
+        .sidebar .cat-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: #ccc;
+        }
+        .sidebar .cat-btn:hover i { color: #ffaa55; }
+        .sidebar .cat-btn.active {
+            background: rgba(255, 170, 85, 0.12);
+            color: #ffaa55;
+            border-left: 2px solid #ffaa55;
+        }
+        .sidebar .cat-btn.active i { color: #ffaa55; }
+        .sidebar .cat-btn .badge {
+            margin-left: auto;
+            background: rgba(255, 255, 255, 0.06);
+            padding: 1px 5px;
+            border-radius: 20px;
+            font-size: 0.4rem;
+            color: #555;
+        }
+        .sidebar .cat-btn.active .badge {
+            background: rgba(255, 170, 85, 0.15);
+            color: #ffaa55;
+        }
+        .sidebar .divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.06);
+            margin: 3px 4px;
+        }
+        .sidebar .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: transparent;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 6px;
+            color: #888;
+            font-family: monospace;
+            font-size: 0.55rem;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+            width: 100%;
+            text-align: left;
+            flex-shrink: 0;
+            touch-action: manipulation;
+        }
+        .sidebar .action-btn i {
+            width: 12px;
+            font-size: 0.6rem;
+            color: #666;
+            transition: color 0.2s;
+        }
+        .sidebar .action-btn:hover {
+            background: rgba(255, 170, 85, 0.12);
+            color: #ffaa55;
+        }
+        .sidebar .action-btn:hover i { color: #ffaa55; }
+        .sidebar .action-btn.primary { color: #ffaa55; }
+        .sidebar .action-btn.primary i { color: #ffaa55; }
+        .sidebar .action-btn.primary:hover { background: rgba(255, 170, 85, 0.2); }
+
+        /* ===== 内容区 ===== */
+        .content-area {
+            flex: 1;
+            padding: 10px 14px;
+            overflow-y: auto;
+            background: rgba(10, 10, 26, 0.3);
+            height: 100%;
+            min-width: 0;
+            -webkit-overflow-scrolling: touch;
+        }
+        .content-area::-webkit-scrollbar { display: none; }
+        .content-area { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            flex-wrap: wrap;
+        }
+        .category-header .cat-icon {
+            width: 26px;
+            height: 26px;
+            background: rgba(255, 170, 85, 0.1);
+            border: 1px solid rgba(255, 170, 85, 0.15);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffaa55;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+        .category-header .cat-info { flex: 1; min-width: 50px; }
+        .category-header .cat-info h2 {
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: #fff;
+            font-family: monospace;
+        }
+        .category-header .cat-info p {
+            font-size: 0.4rem;
+            color: #666;
+            font-family: monospace;
+            margin-top: 1px;
+        }
+        .category-header .cat-count {
+            background: rgba(255, 255, 255, 0.06);
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.45rem;
+            color: #888;
+            font-family: monospace;
+            white-space: nowrap;
+        }
+
+        /* ===== 模组网格 - PC端正方形 ===== */
+        .mod-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+        }
+        .mod-card {
+            position: relative;
+            width: 100%;
+            padding-bottom: 100%;
+            height: 0;
+            background: rgba(30, 30, 45, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 6px;
+            transition: background 0.2s, border-color 0.2s, transform 0.2s;
+            cursor: pointer;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+        .mod-card:hover {
+            border-color: rgba(255, 170, 85, 0.35);
+            background: rgba(40, 40, 60, 0.6);
+            transform: scale(1.02);
+        }
+        .mod-card:active { transform: scale(0.97); }
+        .mod-card .mod-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+            text-align: center;
+            z-index: 1;
+        }
+        .mod-card .mod-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.5;
+            z-index: 0;
+            transition: opacity 0.3s;
+        }
+        .mod-card .mod-bg.no-image {
+            background: #2a2a3a;
+            opacity: 1;
+        }
+        .mod-card .mod-bg.no-image i {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2.5rem;
+            opacity: 0.15;
+            color: #888;
+        }
+        .mod-card:hover .mod-bg { opacity: 0.7; }
+        .mod-card .mod-icon-wrap {
+            width: 32px;
+            height: 32px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #ffaa55;
+            margin-bottom: 3px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            overflow: hidden;
+            flex-shrink: 0;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+        .mod-card .mod-icon-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .mod-card .mod-icon-wrap i {
+            font-size: 14px;
+            color: #ffaa55;
+        }
+        .mod-card .mod-name {
+            font-size: 0.5rem;
+            font-weight: bold;
+            color: #fff;
+            font-family: monospace;
+            text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
+            max-width: 95%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            line-height: 1.2;
+        }
+        .mod-card .mod-author {
+            font-size: 0.32rem;
+            color: #ccc;
+            font-family: monospace;
+            margin-top: 1px;
+            text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
+            max-width: 90%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            justify-content: center;
+        }
+        .mod-card .mod-author .avatar-small {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid rgba(255,170,85,0.2);
+            flex-shrink: 0;
+            background: #2a2a3a;
+            display: inline-block;
+        }
+        .mod-card .mod-author .avatar-small.default {
+            font-size: 7px;
+            font-weight: bold;
+            color: #ffaa55;
+            font-family: monospace;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .mod-card .mod-desc {
+            font-size: 0.3rem;
+            color: #ddd;
+            font-family: monospace;
+            margin-top: 1px;
+            line-height: 1.2;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
+            max-width: 95%;
+        }
+        .mod-card .mod-meta {
+            margin-top: 1px;
+            font-size: 0.25rem;
+            color: #aaa;
+            font-family: monospace;
+            text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .mod-card .mod-meta i {
+            font-size: 0.25rem;
+            color: #ffaa55;
+        }
+        .mod-card .mod-status-badge {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            font-size: 0.5rem;
+            z-index: 5;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+        .mod-card .mod-status-badge i { font-size: 0.45rem; }
+        .mod-card .mod-status-badge.danger { color: #4488ff; }
+        .mod-card .mod-status-badge.warning { color: #44dd88; }
+        .mod-card .mod-status-badge.orange { color: #ff8844; }
+        .mod-card .mod-status-badge.gray { color: #888; }
+
+        .mod-card .mod-actions {
+            margin-top: 3px;
+            display: flex;
+            gap: 3px;
+            width: 80%;
+        }
+        .mod-card .mod-actions button {
+            flex: 1;
+            padding: 2px 4px;
+            border: none;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 0.3rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            color: #ffaa55;
+            border: 1px solid rgba(255, 170, 85, 0.15);
+            touch-action: manipulation;
+        }
+        .mod-card .mod-actions .btn-download:hover { background: rgba(255, 170, 85, 0.25); }
+        .mod-card .mod-actions .btn-download i { font-size: 0.25rem; }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 30px 16px;
+            color: #444;
+            font-family: monospace;
+        }
+        .empty-state i {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 6px;
+        }
+        .empty-state p {
+            font-size: 0.55rem;
+            color: #555;
+        }
+
+        /* ===== Toast ===== */
+        .toast-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            z-index: 200;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0.3s, opacity 0.3s;
+        }
+        .toast-container.visible {
+            visibility: visible;
+            opacity: 1;
+        }
+        .toast-container .toast-box {
+            background: rgba(20, 20, 35, 0.94);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 170, 85, 0.2);
+            border-radius: 10px;
+            padding: 12px 20px;
+            color: #ffd966;
+            font-family: monospace;
+            font-size: 0.6rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+            max-width: 380px;
+            width: 90%;
+            text-align: center;
+            transform: scale(0.92) translateY(10px);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: auto;
+            line-height: 1.5;
+        }
+        .toast-container.visible .toast-box { transform: scale(1) translateY(0); }
+        .toast-container .toast-box .toast-icon {
+            font-size: 1.6rem;
+            display: block;
+            margin-bottom: 3px;
+        }
+        .toast-container .toast-box .toast-msg { display: block; }
+        .toast-container .toast-box .toast-sub {
+            font-size: 0.4rem;
+            color: #666;
+            display: block;
+            margin-top: 2px;
+        }
+        .toast-container .toast-box.error {
+            border-color: rgba(255, 80, 80, 0.3);
+            color: #ff8888;
+        }
+        .toast-container .toast-box.success {
+            border-color: rgba(80, 255, 80, 0.2);
+            color: #88dd88;
+        }
+        .toast-container .toast-box.warning {
+            border-color: rgba(255, 200, 50, 0.2);
+            color: #ffcc44;
+        }
+
+        /* ===== 上传进度条 ===== */
+        .upload-progress {
+            display: none;
+            margin-top: 6px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            height: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+        .upload-progress.active { display: block; }
+        .upload-progress .bar {
+            height: 100%;
+            background: #ffaa55;
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+        .upload-progress .label {
+            font-size: 0.35rem;
+            color: #888;
+            font-family: monospace;
+            margin-top: 2px;
+            text-align: center;
+        }
+
+        /* ===== 检测弹窗 ===== */
+        .check-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 300;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.4s ease;
+        }
+        .check-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+        .check-box {
+            background: linear-gradient(145deg, #1a1a2e, #252540);
+            border: 1px solid rgba(255, 170, 85, 0.25);
+            border-radius: 12px;
+            padding: 30px 36px;
+            max-width: 460px;
+            width: 92%;
+            text-align: center;
+            transform: scale(0.9) translateY(20px);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease;
+            opacity: 0;
+        }
+        .check-overlay.active .check-box {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+        .check-box .check-icon {
+            font-size: 3rem;
+            color: #ffaa55;
+            margin-bottom: 12px;
+        }
+        .check-box .check-title {
+            font-family: monospace;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+        .check-box .check-desc {
+            font-family: monospace;
+            font-size: 0.65rem;
+            color: #888;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+        .check-box .check-items {
+            text-align: left;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+        }
+        .check-box .check-items .item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 4px 0;
+            font-family: monospace;
+            font-size: 0.55rem;
+            color: #aaa;
+        }
+        .check-box .check-items .item .status {
+            font-size: 0.8rem;
+            width: 20px;
+            text-align: center;
+        }
+        .check-box .check-items .item .status.pass { color: #44dd88; }
+        .check-box .check-items .item .status.fail { color: #ff6644; }
+        .check-box .check-items .item .status.warn { color: #ffcc44; }
+        .check-box .btn-check-start {
+            background: rgba(255, 170, 85, 0.2);
+            border: 1px solid rgba(255, 170, 85, 0.3);
+            border-radius: 6px;
+            padding: 10px 32px;
+            color: #ffaa55;
+            font-family: monospace;
+            font-size: 0.7rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+            touch-action: manipulation;
+        }
+        .check-box .btn-check-start:hover { background: rgba(255, 170, 85, 0.35); }
+
+        /* ================================================================
+           ★ 弹窗统一修复（移动端 + PC 端）
+           ================================================================ */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.3s ease;
+            padding: 16px;
+            overflow: hidden;
+        }
+        .modal-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .modal-box {
+            background: linear-gradient(145deg, #1a1a2e, #252540);
+            border: 1px solid rgba(255, 170, 85, 0.15);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 640px;
+            max-height: 85vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            position: relative;
+            transform: scale(0.92) translateY(20px);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+            opacity: 0;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 170, 85, 0.3) transparent;
+        }
+        .modal-box::-webkit-scrollbar {
+            width: 4px;
+        }
+        .modal-box::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .modal-box::-webkit-scrollbar-thumb {
+            background: rgba(255, 170, 85, 0.3);
+            border-radius: 4px;
+        }
+        .modal-overlay.active .modal-box {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+
+        .modal-close {
+            position: sticky;
+            top: 8px;
+            float: right;
+            margin: 8px 12px 0 0;
+            background: rgba(0, 0, 0, 0.4);
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            color: #888;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+            flex-shrink: 0;
+        }
+        .modal-close:hover {
+            background: rgba(255, 170, 85, 0.2);
+            color: #ffaa55;
+        }
+
+        /* ===== 详情弹窗 ===== */
+        .detail-content {
+            display: flex;
+            flex-direction: row;
+            padding: 0 16px 8px 16px;
+            min-height: 180px;
+            gap: 12px;
+        }
+        .detail-preview {
+            flex: 1;
+            min-height: 140px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        .detail-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .detail-preview .no-preview {
+            color: #333;
+            font-family: monospace;
+            font-size: 0.5rem;
+            text-align: center;
+        }
+        .detail-preview .no-preview i {
+            font-size: 1.8rem;
+            display: block;
+            margin-bottom: 4px;
+            color: #2a2a3a;
+        }
+        .detail-info {
+            flex: 1.2;
+            padding: 4px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-width: 140px;
+        }
+        .detail-info .mod-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+        .detail-info .mod-header .icon-big {
+            width: 30px;
+            height: 30px;
+            background: rgba(255, 170, 85, 0.1);
+            border: 1px solid rgba(255, 170, 85, 0.15);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #ffaa55;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        .detail-info .mod-header .icon-big img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .detail-info .mod-header .icon-big i {
+            font-size: 16px;
+            color: #ffaa55;
+        }
+        .detail-info .mod-header .title-group h2 {
+            font-family: monospace;
+            font-size: 0.7rem;
+            color: #fff;
+            font-weight: bold;
+        }
+        .detail-info .mod-header .title-group .sub-info {
+            font-family: monospace;
+            font-size: 0.35rem;
+            color: #555;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 1px;
+        }
+        .detail-info .mod-header .title-group .sub-info span {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+        .detail-info .mod-description {
+            font-family: monospace;
+            font-size: 0.45rem;
+            color: #999;
+            line-height: 1.4;
+            margin: 3px 0 4px 0;
+            flex: 1;
+            overflow-y: auto;
+            max-height: 60px;
+        }
+        .detail-info .mod-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 3px;
+            margin-bottom: 6px;
+        }
+        .detail-info .mod-stats .stat-item {
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 4px;
+            padding: 2px 4px;
+            text-align: center;
+        }
+        .detail-info .mod-stats .stat-item .num {
+            font-family: monospace;
+            font-size: 0.5rem;
+            font-weight: bold;
+            color: #ffaa55;
+        }
+        .detail-info .mod-stats .stat-item .label {
+            font-family: monospace;
+            font-size: 0.25rem;
+            color: #555;
+            display: block;
+            margin-top: 1px;
+        }
+        .detail-info .mod-actions-row {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        .detail-info .mod-actions-row button {
+            flex: 1;
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.45rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+            min-width: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            touch-action: manipulation;
+        }
+        .detail-info .mod-actions-row .btn-download-detail {
+            background: rgba(255, 170, 85, 0.2);
+            border: 1px solid rgba(255, 170, 85, 0.3);
+            color: #ffaa55;
+        }
+        .detail-info .mod-actions-row .btn-download-detail:hover { background: rgba(255, 170, 85, 0.35); }
+        .detail-info .mod-actions-row .btn-close-detail {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #888;
+            flex: 0.4;
+        }
+        .detail-info .mod-actions-row .btn-close-detail:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ccc;
+        }
+
+        /* ===== 评论区域 ===== */
+        .comments-section {
+            padding: 8px 16px 12px 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 0 0 12px 12px;
+        }
+        .comments-section .comments-title {
+            font-family: monospace;
+            font-size: 0.45rem;
+            color: #666;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .comments-section .comments-title i { color: #ffaa55; }
+        .comments-section .comment-input-row {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 4px;
+            flex-wrap: wrap;
+        }
+        .comments-section .comment-input-row input {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 3px;
+            padding: 4px 8px;
+            color: #ddd;
+            font-family: monospace;
+            font-size: 0.4rem;
+            outline: none;
+            transition: border-color 0.2s;
+            min-width: 80px;
+            -webkit-appearance: none;
+        }
+        .comments-section .comment-input-row input:focus { border-color: #ffaa55; }
+        .comments-section .comment-input-row input::placeholder { color: #444; }
+        .comments-section .comment-input-row .comment-tools {
+            display: flex;
+            gap: 3px;
+            flex-shrink: 0;
+        }
+        .comments-section .comment-input-row .comment-tools button {
+            padding: 3px 8px;
+            border: none;
+            border-radius: 3px;
+            background: rgba(255, 170, 85, 0.15);
+            color: #ffaa55;
+            font-family: monospace;
+            font-size: 0.35rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+            touch-action: manipulation;
+        }
+        .comments-section .comment-input-row .comment-tools button:hover { background: rgba(255, 170, 85, 0.3); }
+        .comments-section .comment-list {
+            max-height: 200px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .comments-section .comment-list::-webkit-scrollbar { width: 3px; }
+        .comments-section .comment-list::-webkit-scrollbar-thumb { background: rgba(255, 170, 85, 0.2); border-radius: 4px; }
+
+        /* ===== 评论项 ===== */
+        .comment-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 4px;
+            padding: 3px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 3px;
+            padding: 3px 4px;
+            cursor: default;
+            touch-action: manipulation;
+            flex-wrap: wrap;
+        }
+        .comment-item.own-comment {
+            border-left: 2px solid rgba(255, 170, 85, 0.3);
+            padding-left: 6px;
+        }
+        .comment-item .comment-avatar {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #2a2a3a;
+            border: 1px solid rgba(255,170,85,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+            font-family: monospace;
+            font-weight: bold;
+            font-size: 8px;
+            color: #ffaa55;
+        }
+        .comment-item .comment-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .comment-item .comment-avatar.default-avatar {
+            background: #1a1a2e;
+            color: #ffaa55;
+            font-size: 7px;
+            letter-spacing: 0.5px;
+            border-color: rgba(255,170,85,0.15);
+        }
+        .comment-item .comment-body {
+            flex: 1;
+            min-width: 0;
+        }
+        .comment-item .comment-body .comment-name {
+            font-family: monospace;
+            font-size: 0.35rem;
+            color: #ffaa55;
+            font-weight: bold;
+        }
+        .comment-item .comment-body .comment-text {
+            font-family: monospace;
+            font-size: 0.38rem;
+            color: #aaa;
+            word-break: break-all;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        .comment-item .comment-body .comment-actions {
+            display: flex;
+            gap: 6px;
+            margin-top: 2px;
+        }
+        .comment-item .comment-body .comment-actions button {
+            background: none;
+            border: none;
+            color: #666;
+            font-family: monospace;
+            font-size: 0.3rem;
+            cursor: pointer;
+            padding: 0;
+            transition: color 0.2s;
+            touch-action: manipulation;
+        }
+        .comment-item .comment-body .comment-actions button:hover {
+            color: #ffaa55;
+        }
+        .comment-item .comment-time {
+            font-family: monospace;
+            font-size: 0.28rem;
+            color: #444;
+            flex-shrink: 0;
+        }
+        .comment-item .delete-comment-btn {
+            background: none;
+            border: none;
+            color: #ff6644;
+            font-size: 0.3rem;
+            cursor: pointer;
+            padding: 0 4px;
+            opacity: 0.4;
+            transition: opacity 0.2s;
+            touch-action: manipulation;
+        }
+        .comment-item .delete-comment-btn:hover { opacity: 1; }
+
+        /* ===== 回复区域 ===== */
+        .reply-item {
+            margin-left: 28px;
+            padding-left: 12px;
+            border-left: 1px solid rgba(255,170,85,0.1);
+        }
+        .reply-item .comment-avatar {
+            width: 14px;
+            height: 14px;
+            font-size: 6px;
+        }
+        .reply-item .comment-body .comment-name {
+            font-size: 0.3rem;
+        }
+        .reply-item .comment-body .comment-text {
+            font-size: 0.33rem;
+        }
+        .reply-item .comment-body .comment-actions button {
+            font-size: 0.25rem;
+        }
+
+        .reply-to-author {
+            color: #ffaa55;
+            font-size: 0.3rem;
+            opacity: 0.6;
+            margin-right: 4px;
+        }
+
+        .reply-input-wrapper {
+            display: none;
+            margin-top: 4px;
+            gap: 4px;
+            align-items: center;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+        .reply-input-wrapper.active {
+            display: flex;
+        }
+        .reply-input-wrapper input {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 3px;
+            padding: 4px 8px;
+            color: #ddd;
+            font-family: monospace;
+            font-size: 0.35rem;
+            outline: none;
+            transition: border-color 0.2s;
+            min-width: 60px;
+            -webkit-appearance: none;
+        }
+        .reply-input-wrapper input:focus { border-color: #ffaa55; }
+        .reply-input-wrapper input::placeholder { color: #444; }
+        .reply-input-wrapper button {
+            padding: 3px 10px;
+            border: none;
+            border-radius: 3px;
+            background: rgba(255, 170, 85, 0.15);
+            color: #ffaa55;
+            font-family: monospace;
+            font-size: 0.3rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+            touch-action: manipulation;
+        }
+        .reply-input-wrapper button:hover { background: rgba(255, 170, 85, 0.3); }
+
+        .no-comments {
+            font-family: monospace;
+            font-size: 0.38rem;
+            color: #444;
+            text-align: center;
+            padding: 4px 0;
+        }
+
+        /* ================================================================
+           ★ 上传弹窗
+           ================================================================ */
+        .upload-modal-box {
+            background: linear-gradient(145deg, #1a1a2e, #252540);
+            border: 1px solid rgba(255, 170, 85, 0.2);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 440px;
+            max-height: 85vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 20px 24px 24px;
+            position: relative;
+            transform: scale(0.92) translateY(20px);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+            opacity: 0;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 170, 85, 0.3) transparent;
+        }
+        .upload-modal-box::-webkit-scrollbar {
+            width: 4px;
+        }
+        .upload-modal-box::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .upload-modal-box::-webkit-scrollbar-thumb {
+            background: rgba(255, 170, 85, 0.3);
+            border-radius: 4px;
+        }
+        .modal-overlay.active .upload-modal-box {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+
+        .upload-modal-box .modal-close {
+            position: sticky;
+            top: 0;
+            float: right;
+            margin: -4px -8px 0 0;
+            background: rgba(0, 0, 0, 0.4);
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            color: #888;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+        }
+        .upload-modal-box .modal-close:hover {
+            background: rgba(255, 170, 85, 0.2);
+            color: #ffaa55;
+        }
+
+        .upload-modal-box .modal-title {
+            font-family: monospace;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: #ffaa55;
+            margin-bottom: 2px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding-right: 30px;
+        }
+        .upload-modal-box .modal-title i { font-size: 0.8rem; }
+        .upload-modal-box .modal-sub {
+            font-family: monospace;
+            font-size: 0.45rem;
+            color: #666;
+            margin-bottom: 12px;
+            padding-right: 30px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            margin-bottom: 10px;
+        }
+        .form-group label {
+            font-size: 0.45rem;
+            color: #888;
+            font-family: monospace;
+            letter-spacing: 0.5px;
+        }
+        .form-group label .required { color: #ff6644; }
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 4px;
+            padding: 5px 8px;
+            color: #ddd;
+            font-family: monospace;
+            font-size: 0.5rem;
+            outline: none;
+            transition: border-color 0.2s;
+            width: 100%;
+            -webkit-appearance: none;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus { border-color: #ffaa55; }
+        .form-group input::placeholder,
+        .form-group textarea::placeholder { color: #444; }
+        .form-group textarea {
+            resize: none;
+            min-height: 30px;
+            max-height: 50px;
+        }
+        .form-group select option { background: #1a1a2e; }
+
+        .file-drop-zone {
+            border: 2px dashed rgba(255, 170, 85, 0.2);
+            border-radius: 4px;
+            padding: 8px 12px;
+            text-align: center;
+            transition: border-color 0.3s, background 0.3s;
+            background: rgba(255, 170, 85, 0.03);
+            position: relative;
+            touch-action: manipulation;
+            cursor: default;
+        }
+        .file-drop-zone:hover {
+            border-color: rgba(255, 170, 85, 0.4);
+            background: rgba(255, 170, 85, 0.06);
+        }
+        .file-drop-zone.dragover {
+            border-color: #ffaa55;
+            background: rgba(255, 170, 85, 0.1);
+        }
+        .file-drop-zone .file-icon {
+            font-size: 0.9rem;
+            color: #444;
+            display: block;
+            margin-bottom: 2px;
+            pointer-events: none;
+        }
+        .file-drop-zone .file-text {
+            font-family: monospace;
+            font-size: 0.4rem;
+            color: #666;
+            pointer-events: none;
+        }
+        .file-drop-zone .file-text .highlight { color: #ffaa55; }
+        .file-drop-zone .file-name-display {
+            font-family: monospace;
+            font-size: 0.38rem;
+            color: #88dd88;
+            margin-top: 2px;
+            min-height: 14px;
+            word-break: break-all;
+            pointer-events: none;
+        }
+        .file-drop-zone .file-input-wrapper {
+            display: inline-block;
+            position: relative;
+            margin-top: 4px;
+            pointer-events: auto;
+            cursor: pointer;
+        }
+        .file-drop-zone .file-input-wrapper input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 5;
+            font-size: 100px;
+            touch-action: manipulation;
+        }
+        .file-drop-zone .file-click-area {
+            display: inline-block;
+            padding: 3px 10px;
+            background: rgba(255, 170, 85, 0.1);
+            border: 1px solid rgba(255, 170, 85, 0.2);
+            border-radius: 3px;
+            color: #ffaa55;
+            font-family: monospace;
+            font-size: 0.4rem;
+            transition: background 0.2s;
+            pointer-events: none;
+        }
+        .file-drop-zone .file-click-area:hover { background: rgba(255, 170, 85, 0.2); }
+        .file-drop-zone .file-click-area i { margin-right: 3px; }
+        .file-drop-zone .file-hint {
+            font-size: 0.32rem;
+            color: #444;
+            font-family: monospace;
+            margin-top: 2px;
+            pointer-events: none;
+        }
+        .file-drop-zone .upload-progress { margin-top: 4px; }
+
+        .modal-actions {
+            display: flex;
+            gap: 4px;
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            position: relative;
+            z-index: 20;
+        }
+        .modal-actions .btn-submit {
+            flex: 1;
+            padding: 5px 12px;
+            border: none;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+            background: rgba(255, 170, 85, 0.2);
+            border: 1px solid rgba(255, 170, 85, 0.3);
+            color: #ffaa55;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            touch-action: manipulation;
+            pointer-events: auto !important;
+        }
+        .modal-actions .btn-submit:hover { background: rgba(255, 170, 85, 0.35); }
+        .modal-actions .btn-submit:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .modal-actions .btn-cancel {
+            padding: 5px 12px;
+            border: none;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.5rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #888;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            touch-action: manipulation;
+            pointer-events: auto !important;
+        }
+        .modal-actions .btn-cancel:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ccc;
+        }
+
+        /* ===== 我的模组 ===== */
+        .my-mod-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            padding: 5px 8px;
+            margin-bottom: 3px;
+            transition: border-color 0.2s;
+            cursor: default;
+        }
+        .my-mod-item:hover { border-color: rgba(255, 170, 85, 0.15); }
+        .my-mod-item .mod-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .my-mod-item .mod-info .name {
+            font-family: monospace;
+            font-size: 0.5rem;
+            color: #ddd;
+            font-weight: bold;
+        }
+        .my-mod-item .mod-info .name i {
+            color: #ffaa55;
+            margin-right: 3px;
+            font-size: 0.45rem;
+        }
+        .my-mod-item .mod-info .meta {
+            font-family: monospace;
+            font-size: 0.32rem;
+            color: #555;
+        }
+        .my-mod-item .mod-actions {
+            display: flex;
+            gap: 3px;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+        }
+        .my-mod-item .mod-actions button {
+            padding: 2px 6px;
+            border: none;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 0.32rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            touch-action: manipulation;
+        }
+        .my-mod-item .mod-actions .btn-edit {
+            background: rgba(255, 170, 85, 0.12);
+            color: #ffaa55;
+        }
+        .my-mod-item .mod-actions .btn-edit:hover { background: rgba(255, 170, 85, 0.25); }
+        .my-mod-item .mod-actions .btn-delete {
+            background: rgba(200, 50, 50, 0.1);
+            color: #ff6666;
+        }
+        .my-mod-item .mod-actions .btn-delete:hover { background: rgba(200, 50, 50, 0.2); }
+        .my-mod-item .mod-actions button i { font-size: 0.28rem; }
+
+        .my-mod-empty {
+            text-align: center;
+            padding: 16px 10px;
+            color: #444;
+            font-family: monospace;
+            font-size: 0.5rem;
+        }
+        .my-mod-empty i {
+            font-size: 1.2rem;
+            color: #333;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        /* ===== 删除确认弹窗 ===== */
+        .delete-confirm-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.2s ease;
+        }
+        .delete-confirm-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+        .delete-confirm-box {
+            background: #2a2a35;
+            border: 1px solid rgba(255, 170, 85, 0.3);
+            border-radius: 8px;
+            padding: 20px 24px;
+            max-width: 340px;
+            width: 90%;
+            text-align: center;
+        }
+        .delete-confirm-box .title {
+            color: #ff6644;
+            font-family: monospace;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+        .delete-confirm-box .msg {
+            color: #aaa;
+            font-family: monospace;
+            font-size: 0.55rem;
+            margin-bottom: 14px;
+        }
+        .delete-confirm-box .actions {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+        .delete-confirm-box .actions button {
+            padding: 6px 18px;
+            border: none;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.5rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            touch-action: manipulation;
+        }
+        .delete-confirm-box .actions .btn-confirm {
+            background: rgba(255, 60, 60, 0.3);
+            color: #ff6666;
+            border: 1px solid rgba(255, 60, 60, 0.3);
+        }
+        .delete-confirm-box .actions .btn-confirm:hover { background: rgba(255, 60, 60, 0.5); }
+        .delete-confirm-box .actions .btn-cancel {
+            background: rgba(255, 255, 255, 0.08);
+            color: #888;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .delete-confirm-box .actions .btn-cancel:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #ccc;
+        }
+
+        /* ===== 响应式 ===== */
+        @media (min-width: 1025px) {
+            .mod-card .mod-name { font-size: 0.6rem; }
+            .mod-card .mod-author { font-size: 0.4rem; }
+            .mod-card .mod-desc { font-size: 0.38rem; }
+            .mod-card .mod-actions button { font-size: 0.38rem; padding: 3px 6px; }
+            .mod-card .mod-meta { font-size: 0.32rem; }
+            .mod-card .mod-icon-wrap { width: 36px; height: 36px; font-size: 14px; }
+            .modal-box { max-width: 680px; }
+            .upload-modal-box { max-width: 460px; }
+        }
+
+        @media (max-width: 1024px) {
+            .mod-grid { grid-template-columns: repeat(6, 1fr); gap: 6px; }
+            .sidebar { width: 130px; min-width: 130px; max-width: 130px; }
+            .sidebar .cat-btn, .sidebar .action-btn { font-size: 0.5rem; padding: 3px 5px; }
+            .sidebar .cat-btn i, .sidebar .action-btn i { font-size: 0.5rem; width: 10px; }
+            .mod-card .mod-icon-wrap { width: 28px; height: 28px; font-size: 10px; }
+            .mod-card .mod-icon-wrap i { font-size: 12px; }
+            .mod-card .mod-name { font-size: 0.45rem; }
+            .mod-card .mod-author { font-size: 0.28rem; }
+            .mod-card .mod-desc { font-size: 0.25rem; }
+            .top-bar .brand .title { font-size: 0.65rem; }
+            .top-bar .brand .logo-icon { width: 20px; height: 20px; font-size: 10px; }
+            .top-bar .center-group .search-input { font-size: 0.5rem; height: 24px; padding: 3px 8px; }
+            .top-bar .center-group .search-btn { font-size: 0.5rem; height: 24px; padding: 3px 8px; }
+            .top-bar .actions .btn-refresh { font-size: 0.5rem; height: 24px; padding: 3px 10px; }
+            .top-bar .actions .btn-back { width: 24px; height: 24px; }
+            .top-bar .actions .btn-back i { font-size: 0.6rem; }
+            .top-bar .center-group { max-width: 300px; }
+            .content-area { padding: 8px 10px; }
+        }
+
+        @media (max-width: 768px) {
+            .mod-grid { grid-template-columns: repeat(6, 1fr); gap: 4px; }
+            .sidebar { width: 100px; min-width: 100px; max-width: 100px; padding: 6px 4px; }
+            .sidebar .cat-btn, .sidebar .action-btn { font-size: 0.4rem; padding: 3px 4px; gap: 3px; }
+            .sidebar .cat-btn i, .sidebar .action-btn i { font-size: 0.4rem; width: 8px; }
+            .sidebar .cat-btn .badge { font-size: 0.3rem; padding: 1px 4px; }
+            .mod-card .mod-icon-wrap { width: 22px; height: 22px; font-size: 8px; }
+            .mod-card .mod-icon-wrap i { font-size: 10px; }
+            .mod-card .mod-name { font-size: 0.4rem; }
+            .mod-card .mod-author { font-size: 0.25rem; }
+            .mod-card .mod-desc { font-size: 0.2rem; -webkit-line-clamp: 1; }
+            .mod-card .mod-meta { font-size: 0.2rem; }
+            .mod-card .mod-actions button { font-size: 0.25rem; padding: 1px 3px; }
+            .mod-card .mod-status-badge { width: 14px; height: 14px; font-size: 0.4rem; }
+            .mod-card .mod-status-badge i { font-size: 0.35rem; }
+            .top-bar { height: 44px; min-height: 44px; padding: 6px 10px; }
+            .main-content { top: 44px; }
+            .top-bar .brand .title { font-size: 0.6rem; }
+            .top-bar .brand .logo-icon { width: 18px; height: 18px; font-size: 8px; }
+            .top-bar .brand .version-tag { font-size: 0.3rem; padding: 1px 4px; }
+            .top-bar .center-group .search-input { font-size: 0.45rem; height: 22px; padding: 2px 6px; min-width: 40px; }
+            .top-bar .center-group .search-btn { font-size: 0.45rem; height: 22px; padding: 2px 6px; }
+            .top-bar .center-group .search-btn i { font-size: 0.5rem; }
+            .top-bar .actions .btn-refresh { font-size: 0.45rem; height: 22px; padding: 2px 8px; }
+            .top-bar .actions .btn-refresh i { font-size: 0.5rem; }
+            .top-bar .actions .btn-back { width: 22px; height: 22px; }
+            .top-bar .actions .btn-back i { font-size: 0.5rem; }
+            .top-bar .center-group { max-width: 200px; }
+            .content-area { padding: 6px 6px; }
+            .detail-content { flex-direction: column; }
+            .detail-preview { border-radius: 8px 8px 0 0; min-height: 100px; }
+            .detail-info { padding: 4px 0; }
+            .modal-box { max-width: 100%; }
+            .upload-modal-box { max-width: 100%; padding: 16px 16px 20px; }
+            .comments-section .comment-input-row { flex-direction: column; }
+            .comments-section .comment-input-row .comment-tools { width: 100%; justify-content: flex-end; }
+            .detail-info .mod-stats { grid-template-columns: 1fr 1fr; }
+            .check-box { padding: 24px 20px; }
+            .check-box .check-title { font-size: 0.95rem; }
+            .check-box .check-desc { font-size: 0.55rem; }
+        }
+
+        @media (max-width: 480px) {
+            .mod-grid { grid-template-columns: repeat(6, 1fr); gap: 3px; }
+            .sidebar { width: 70px; min-width: 70px; max-width: 70px; padding: 4px 3px; }
+            .sidebar .sidebar-label { font-size: 0.3rem; padding: 2px 4px; }
+            .sidebar .cat-btn, .sidebar .action-btn { font-size: 0.35rem; padding: 2px 3px; gap: 2px; border-radius: 2px; }
+            .sidebar .cat-btn i, .sidebar .action-btn i { font-size: 0.35rem; width: 6px; }
+            .sidebar .cat-btn .badge { font-size: 0.25rem; padding: 1px 3px; }
+            .mod-card .mod-icon-wrap { width: 18px; height: 18px; font-size: 6px; }
+            .mod-card .mod-icon-wrap i { font-size: 8px; }
+            .mod-card .mod-name { font-size: 0.3rem; }
+            .mod-card .mod-author { font-size: 0.2rem; }
+            .mod-card .mod-desc { display: none; }
+            .mod-card .mod-meta { font-size: 0.18rem; }
+            .mod-card .mod-meta i { font-size: 0.2rem; }
+            .mod-card .mod-actions button { font-size: 0.2rem; padding: 1px 2px; }
+            .mod-card .mod-actions button i { font-size: 0.2rem; }
+            .mod-card .mod-status-badge { width: 12px; height: 12px; font-size: 0.3rem; top: 2px; right: 2px; }
+            .mod-card .mod-status-badge i { font-size: 0.3rem; }
+            .category-header .cat-icon { width: 18px; height: 18px; font-size: 8px; }
+            .category-header .cat-info h2 { font-size: 0.6rem; }
+            .category-header .cat-info p { font-size: 0.35rem; }
+            .category-header .cat-count { font-size: 0.35rem; padding: 2px 6px; }
+            .top-bar { height: 38px; min-height: 38px; padding: 4px 6px; }
+            .main-content { top: 38px; }
+            .top-bar .brand .title { font-size: 0.5rem; }
+            .top-bar .brand .logo-icon { width: 16px; height: 16px; font-size: 8px; }
+            .top-bar .brand .version-tag { font-size: 0.25rem; padding: 1px 3px; }
+            .top-bar .center-group .search-input { font-size: 0.35rem; height: 20px; padding: 2px 4px; min-width: 30px; }
+            .top-bar .center-group .search-btn { font-size: 0.35rem; height: 20px; padding: 2px 4px; }
+            .top-bar .center-group .search-btn i { font-size: 0.4rem; }
+            .top-bar .actions .btn-refresh { font-size: 0.35rem; height: 20px; padding: 2px 6px; }
+            .top-bar .actions .btn-refresh i { font-size: 0.4rem; }
+            .top-bar .actions .btn-refresh .badge-count { font-size: 0.35rem; min-width: 12px; padding: 0 3px; }
+            .top-bar .actions .btn-back { width: 20px; height: 20px; }
+            .top-bar .actions .btn-back i { font-size: 0.4rem; }
+            .top-bar .center-group { max-width: 140px; }
+            .content-area { padding: 4px 4px; }
+            .detail-preview { min-height: 80px; }
+            .detail-info { padding: 2px 0; }
+            .detail-info .mod-header .icon-big { width: 24px; height: 24px; font-size: 12px; }
+            .detail-info .mod-header .icon-big i { font-size: 14px; }
+            .detail-info .mod-header .title-group h2 { font-size: 0.6rem; }
+            .detail-info .mod-description { font-size: 0.4rem; max-height: 40px; }
+            .detail-info .mod-stats .stat-item .num { font-size: 0.45rem; }
+            .detail-info .mod-actions-row button { font-size: 0.4rem; padding: 3px 6px; }
+            .upload-modal-box { padding: 12px 12px 16px; max-height: 80vh; }
+            .upload-modal-box .modal-title { font-size: 0.65rem; }
+            .upload-modal-box .modal-sub { font-size: 0.4rem; }
+            .form-group input, .form-group textarea, .form-group select { font-size: 0.45rem; padding: 4px 6px; }
+            .modal-actions { flex-direction: column; }
+            .modal-actions .btn-cancel { padding: 4px; }
+            .toast-container .toast-box { padding: 8px 14px; font-size: 0.5rem; max-width: 90%; }
+            .toast-container .toast-box .toast-icon { font-size: 1.2rem; }
+            .comments-section .comment-list { max-height: 150px; }
+            .comments-section .comment-item .comment-body .comment-text { font-size: 0.33rem; }
+            .my-mod-item { padding: 3px 6px; flex-wrap: wrap; }
+            .my-mod-item .mod-actions { width: 100%; justify-content: flex-end; }
+            .check-box { padding: 18px 16px; }
+            .check-box .check-title { font-size: 0.8rem; }
+            .check-box .check-items .item { font-size: 0.45rem; }
+            .check-box .btn-check-start { padding: 8px 20px; font-size: 0.6rem; }
+            .modal-overlay { padding: 8px; }
+            .reply-item { margin-left: 16px; padding-left: 8px; }
+            .comment-item .comment-avatar { width: 14px; height: 14px; font-size: 6px; }
+        }
+
+        @media (max-width: 380px) {
+            .mod-grid { grid-template-columns: repeat(6, 1fr); gap: 2px; }
+            .sidebar { width: 60px; min-width: 60px; max-width: 60px; padding: 3px 2px; }
+            .sidebar .cat-btn, .sidebar .action-btn { font-size: 0.3rem; padding: 2px 2px; gap: 2px; }
+            .sidebar .cat-btn i, .sidebar .action-btn i { font-size: 0.3rem; width: 5px; }
+            .sidebar .cat-btn .badge { font-size: 0.2rem; padding: 1px 2px; }
+            .mod-card .mod-icon-wrap { width: 14px; height: 14px; font-size: 5px; }
+            .mod-card .mod-icon-wrap i { font-size: 6px; }
+            .mod-card .mod-name { font-size: 0.25rem; }
+            .mod-card .mod-author { display: none; }
+            .mod-card .mod-meta { font-size: 0.15rem; }
+            .mod-card .mod-actions button { font-size: 0.18rem; padding: 1px 2px; }
+            .mod-card .mod-status-badge { width: 10px; height: 10px; font-size: 0.25rem; }
+            .mod-card .mod-status-badge i { font-size: 0.25rem; }
+            .category-header .cat-icon { width: 14px; height: 14px; font-size: 6px; }
+            .category-header .cat-info h2 { font-size: 0.5rem; }
+            .top-bar .center-group { max-width: 100px; }
+            .top-bar .center-group .search-input { font-size: 0.3rem; height: 18px; padding: 1px 3px; min-width: 20px; }
+            .top-bar .center-group .search-btn { font-size: 0.3rem; height: 18px; padding: 1px 4px; }
+            .top-bar .center-group .search-btn i { font-size: 0.35rem; }
+            .top-bar .actions .btn-refresh { font-size: 0.3rem; height: 18px; padding: 1px 4px; }
+            .top-bar .actions .btn-refresh i { font-size: 0.35rem; }
+            .top-bar .actions .btn-refresh .badge-count { font-size: 0.3rem; min-width: 10px; padding: 0 2px; }
+            .top-bar .actions .btn-back { width: 18px; height: 18px; }
+            .top-bar .actions .btn-back i { font-size: 0.35rem; }
+        }
+
+        @media (max-height: 500px) and (orientation: landscape) {
+            .top-bar { height: 36px; min-height: 36px; padding: 3px 8px; }
+            .main-content { top: 36px; }
+            .sidebar { padding: 3px 3px; }
+            .sidebar .cat-btn, .sidebar .action-btn { padding: 2px 4px; font-size: 0.4rem; }
+            .mod-grid { gap: 4px; }
+            .mod-card .mod-icon-wrap { width: 20px; height: 20px; font-size: 8px; }
+            .mod-card .mod-name { font-size: 0.35rem; }
+            .category-header { margin-bottom: 4px; padding-bottom: 3px; }
+            .detail-preview { min-height: 70px; }
+            .upload-modal-box { max-height: 80vh; padding: 12px 14px; }
+            .modal-box { max-height: 80vh; }
+            .top-bar .brand .title { font-size: 0.5rem; }
+            .top-bar .brand .logo-icon { width: 16px; height: 16px; font-size: 8px; }
+            .top-bar .center-group .search-input { font-size: 0.4rem; height: 20px; padding: 2px 6px; }
+            .top-bar .center-group .search-btn { font-size: 0.4rem; height: 20px; padding: 2px 6px; }
+            .top-bar .actions .btn-refresh { font-size: 0.4rem; height: 20px; padding: 2px 8px; }
+            .top-bar .actions .btn-back { width: 20px; height: 20px; }
+            .check-box { padding: 16px 20px; max-width: 420px; }
+            .check-box .check-title { font-size: 0.85rem; }
+            .check-box .check-items .item { font-size: 0.45rem; padding: 2px 0; }
+        }
+
+        .upload-modal-box {
+            overscroll-behavior: contain;
+        }
+        .upload-modal-box form {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+        .upload-modal-box .modal-actions {
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="dynamic-bg"></div>
+    <div class="dynamic-glow"></div>
+
+    <div class="check-overlay" id="checkOverlay">
+        <div class="check-box">
+            <div class="check-icon"><i class="fas fa-shield-alt"></i></div>
+            <div class="check-title">环境检测</div>
+            <div class="check-desc">正在检测创意工坊运行环境，请确认以下项目全部通过</div>
+            <div class="check-items" id="checkItems">
+                <div class="item"><span class="status" id="checkToken"><i class="fas fa-hourglass-half"></i></span> 扫描模组</div>
+                <div class="item"><span class="status" id="checkNetwork"><i class="fas fa-hourglass-half"></i></span> 网络测试</div>
+                <div class="item"><span class="status" id="checkRepo"><i class="fas fa-hourglass-half"></i></span> 加载模组</div>
+                <div class="item"><span class="status" id="checkMods"><i class="fas fa-hourglass-half"></i></span> 同步模组</div>
+            </div>
+            <button class="btn-check-start" id="checkStartBtn"><i class="fas fa-play"></i> 开始检测</button>
+        </div>
+    </div>
+
+    <div class="top-bar">
+        <div class="brand">
+            <div class="logo-icon"><i class="fas fa-cubes"></i></div>
+            <div class="title">DS-<span>MOD</span>★</div>
+            <div class="version-tag"><i class="fas fa-tag" style="margin-right:4px;font-size:0.2rem;"></i>BETA 1.0</div>
+        </div>
+        <div class="center-group">
+            <input class="search-input" id="searchInput" type="text" placeholder="搜索模组..." maxlength="30">
+            <button class="search-btn" id="searchBtn"><i class="fas fa-search"></i> 搜索</button>
+        </div>
+        <div class="actions">
+            <button class="btn-refresh" id="refreshBtn"><i class="fas fa-sync-alt"></i> <span class="badge-count" id="modCount">0</span></button>
+            <button class="btn-back" id="backBtn"><i class="fas fa-arrow-left"></i></button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-label"><i class="fas fa-list-ul" style="margin-right:4px;font-size:0.4rem;"></i>分类</div>
+            <button class="cat-btn" data-category="all"><i class="fas fa-th-large"></i> 全部模组 <span class="badge">0</span></button>
+            <div class="divider"></div>
+            <button class="cat-btn active" data-category="prop"><i class="fas fa-box"></i> 物体类 <span class="badge">0</span></button>
+            <button class="cat-btn" data-category="creature"><i class="fas fa-dragon"></i> 生物类 <span class="badge">0</span></button>
+            <button class="cat-btn" data-category="vehicle"><i class="fas fa-car"></i> 车辆类 <span class="badge">0</span></button>
+            <button class="cat-btn" data-category="weapon"><i class="fas fa-gun"></i> 武器类 <span class="badge">0</span></button>
+            <button class="cat-btn" data-category="test"><i class="fas fa-flask"></i> 测试类 <span class="badge">0</span></button>
+            <button class="cat-btn" data-category="other"><i class="fas fa-music"></i> 特殊类 <span class="badge">0</span></button>
+            <div class="divider"></div>
+            <button class="cat-btn" data-category="abnormal"><i class="fas fa-exclamation-triangle"></i> 异常模组 <span class="badge" id="abnormalBadge">0</span></button>
+            <div class="divider"></div>
+            <button class="action-btn primary" id="uploadBtn"><i class="fas fa-cloud-upload-alt"></i> 上传模组</button>
+            <button class="action-btn" id="myModsBtn"><i class="fas fa-boxes"></i> 我的模组</button>
+        </div>
+        <div class="content-area" id="contentArea"></div>
+    </div>
+
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal-box">
+            <button class="modal-close" id="detailModalClose"><i class="fas fa-times"></i></button>
+            <div class="detail-content" id="detailContent"></div>
+            <div class="comments-section" id="commentsSection">
+                <div class="comments-title"><i class="fas fa-comment"></i> 评论</div>
+                <div class="comment-input-row">
+                    <input type="text" id="commentInput" placeholder="写评论..." maxlength="500">
+                    <div class="comment-tools">
+                        <button id="commentSubmitBtn"><i class="fas fa-paper-plane"></i> 发送</button>
+                    </div>
+                </div>
+                <div class="comment-list" id="commentList">
+                    <div class="no-comments"><i class="fas fa-comment-slash" style="margin-right:4px;"></i>暂无评论</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="uploadModal">
+        <div class="upload-modal-box">
+            <button class="modal-close" id="uploadModalClose"><i class="fas fa-times"></i></button>
+            <div class="modal-title" id="uploadModalTitle"><i class="fas fa-cloud-upload-alt"></i> 上传模组</div>
+            <div class="modal-sub" id="uploadModalSub">上传作者：<span id="uploadAuthorDisplay" style="color:#ffaa55;">加载中...</span></div>
+            <form id="uploadForm">
+                <div class="form-group">
+                    <label>模组名称 <span class="required">*</span></label>
+                    <input type="text" id="modName" placeholder="输入模组名称..." maxlength="30" required>
+                </div>
+                <div class="form-group">
+                    <label>分类 <span class="required">*</span></label>
+                    <select id="modCategory">
+                        <option value="prop">物体类</option>
+                        <option value="creature">生物类</option>
+                        <option value="vehicle">车辆类</option>
+                        <option value="weapon">武器类</option>
+                        <option value="test">测试类</option>
+                        <option value="other">特殊类</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>描述（可选）</label>
+                    <textarea id="modDesc" placeholder="简单描述你的模组..." maxlength="120"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>版本号</label>
+                    <input type="text" id="modVersion" placeholder="1.0.0" value="1.0.0">
+                </div>
+                <div class="form-group">
+                    <label>ZIP 文件 <span class="required" id="zipRequired">*</span></label>
+                    <div class="file-drop-zone" id="fileDropZone">
+                        <i class="fas fa-file-archive file-icon"></i>
+                        <div class="file-text">拖拽 ZIP 文件到这里，或 <span class="highlight">点击选择</span></div>
+                        <div class="file-name-display" id="uploadFileName">未选择文件</div>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="modFile" accept=".zip,application/zip">
+                            <div class="file-click-area"><i class="fas fa-folder-open"></i> 选择文件</div>
+                        </div>
+                        <div class="file-hint">支持 .zip，最大 25MB</div>
+                        <div class="upload-progress" id="zipProgress">
+                            <div class="bar" id="zipProgressBar"></div>
+                            <div class="label" id="zipProgressLabel">0%</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>模组图标（可选）</label>
+                    <div class="file-drop-zone" id="iconDropZone">
+                        <i class="fas fa-image file-icon"></i>
+                        <div class="file-text">拖拽图片到这里</div>
+                        <div class="file-name-display" id="uploadIconName">未选择文件</div>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="iconFile" accept="image/*">
+                            <div class="file-click-area"><i class="fas fa-folder-open"></i> 选择图标</div>
+                        </div>
+                        <div class="file-hint">PNG / JPG / WEBP，建议 128×128</div>
+                        <div class="upload-progress" id="iconProgress">
+                            <div class="bar" id="iconProgressBar"></div>
+                            <div class="label" id="iconProgressLabel">0%</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>预览图（可选）</label>
+                    <div class="file-drop-zone" id="previewDropZone">
+                        <i class="fas fa-images file-icon"></i>
+                        <div class="file-text">拖拽图片到这里</div>
+                        <div class="file-name-display" id="uploadPreviewName">未选择文件</div>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="previewFile" accept="image/*">
+                            <div class="file-click-area"><i class="fas fa-folder-open"></i> 选择预览图</div>
+                        </div>
+                        <div class="file-hint">PNG / JPG / WEBP，建议 800×450</div>
+                        <div class="upload-progress" id="previewProgress">
+                            <div class="bar" id="previewProgressBar"></div>
+                            <div class="label" id="previewProgressLabel">0%</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" id="uploadCancel"><i class="fas fa-times"></i> 取消</button>
+                    <button type="submit" class="btn-submit" id="uploadSubmit"><i class="fas fa-upload"></i> 上传模组</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="myModsModal">
+        <div class="upload-modal-box" style="max-width:500px;">
+            <button class="modal-close" id="myModsModalClose"><i class="fas fa-times"></i></button>
+            <div class="modal-title"><i class="fas fa-boxes"></i> 我的模组</div>
+            <div class="modal-sub">当前玩家：<span id="myModsAuthorDisplay" style="color:#ffaa55;">加载中...</span></div>
+            <div id="myModsList"></div>
+        </div>
+    </div>
+
+    <div class="delete-confirm-overlay" id="deleteConfirmOverlay">
+        <div class="delete-confirm-box">
+            <div class="title"><i class="fas fa-trash" style="margin-right:6px;"></i>删除评论</div>
+            <div class="msg" id="deleteConfirmMsg">确定要删除这条评论吗？</div>
+            <div class="actions">
+                <button class="btn-cancel" id="deleteConfirmCancel">取消</button>
+                <button class="btn-confirm" id="deleteConfirmOk">删除</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer">
+        <div class="toast-box" id="toastBox">
+            <span class="toast-icon" id="toastIcon"><i class="fas fa-info-circle"></i></span>
+            <span class="toast-msg" id="toastMsg">提示信息</span>
+            <span class="toast-sub" id="toastSub"></span>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            var GITHUB_OWNER = 'FOXBOT-CING32';
+            var GITHUB_REPO = 'dsmod-workshop';
+            var GITHUB_TOKEN = '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';
+            var CDN_BASE = 'https://cdn.jsdelivr.net/gh/' + GITHUB_OWNER + '/' + GITHUB_REPO;
+            var GITHUB_API = 'https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents';
+
+            function getAccountName() {
+                var name = localStorage.getItem('dsmod_user_nickname');
+                if (name && name !== 'null' && name !== 'undefined') {
+                    return name.trim();
+                }
+                var oldName = localStorage.getItem('workshop_user');
+                if (oldName && oldName !== 'null' && oldName !== 'undefined') {
+                    return oldName.trim();
+                }
+                try {
+                    var settings = localStorage.getItem('DSMOD_settings');
+                    if (settings) {
+                        var parsed = JSON.parse(settings);
+                        if (parsed && parsed.playerName) {
+                            return parsed.playerName.trim();
+                        }
+                    }
+                } catch (e) {}
+                return '玩家';
+            }
+
+            function getAccountEmail() {
+                var email = localStorage.getItem('dsmod_user_email');
+                if (email && email !== 'null' && email !== 'undefined' && !email.startsWith('guest_')) {
+                    return email;
+                }
+                return null;
+            }
+
+            function isGuestMode() {
+                return localStorage.getItem('dsmod_is_guest') === 'true';
+            }
+
+            function getAvatarHtml(email, size) {
+                size = size || 18;
+                if (!email) {
+                    return '<span class="avatar-small default" style="width:' + size + 'px;height:' + size +
+                        'px;border-radius:50%;background:#1a1a2e;color:#ffaa55;font-size:' + (size * 0.45) +
+                        'px;font-weight:bold;font-family:monospace;display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(255,170,85,0.15);">DS</span>';
+                }
+                var avatarData = localStorage.getItem('avatar_' + email);
+                if (avatarData && avatarData !== 'null' && avatarData !== 'undefined') {
+                    return '<img src="' + avatarData + '" class="avatar-small" style="width:' + size + 'px;height:' + size +
+                        'px;border-radius:50%;object-fit:cover;border:1px solid rgba(255,170,85,0.2);">';
+                }
+                return '<span class="avatar-small default" style="width:' + size + 'px;height:' + size +
+                    'px;border-radius:50%;background:#1a1a2e;color:#ffaa55;font-size:' + (size * 0.45) +
+                    'px;font-weight:bold;font-family:monospace;display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(255,170,85,0.15);">DS</span>';
+            }
+
+            var currentCategory = 'prop';
+            var allMods = [];
+            var filteredMods = [];
+            var currentDetailMod = null;
+            var isLoading = false;
+            var checkPassed = false;
+            var commentsCache = {};
+            var isEditingMode = false;
+            var editingModId = null;
+            var folderScanCache = { zips: {}, icons: {}, previews: {} };
+            var selectedFiles = { zip: null, icon: null, preview: null };
+
+            var CATEGORY_NAMES = {
+                all: '全部模组',
+                prop: '物体类',
+                creature: '生物类',
+                vehicle: '车辆类',
+                weapon: '武器类',
+                test: '测试类',
+                other: '特殊类',
+                abnormal: '异常模组'
+            };
+            var CATEGORY_ICONS = {
+                all: 'fa-th-large',
+                prop: 'fa-box',
+                creature: 'fa-dragon',
+                vehicle: 'fa-car',
+                weapon: 'fa-gun',
+                test: 'fa-flask',
+                other: 'fa-music',
+                abnormal: 'fa-exclamation-triangle'
+            };
+            var CATEGORY_DESCS = {
+                all: '所有非异常模组',
+                prop: '静态物品与装饰物',
+                creature: '具有AI行为的生物',
+                vehicle: '可驾驶或移动的载具',
+                weapon: '近战与远程武器',
+                test: '实验性功能模组',
+                other: '音效与特效模组',
+                abnormal: '缺少必要信息的模组'
+            };
+            var CATEGORY_ORDER = ['all', 'prop', 'creature', 'vehicle', 'weapon', 'test', 'other', 'abnormal'];
+
+            var contentArea = document.getElementById('contentArea');
+            var detailModal = document.getElementById('detailModal');
+            var detailContent = document.getElementById('detailContent');
+            var commentList = document.getElementById('commentList');
+            var commentInput = document.getElementById('commentInput');
+            var searchInput = document.getElementById('searchInput');
+            var searchBtn = document.getElementById('searchBtn');
+            var modCount = document.getElementById('modCount');
+            var checkOverlay = document.getElementById('checkOverlay');
+            var checkStartBtn = document.getElementById('checkStartBtn');
+            var abnormalBadge = document.getElementById('abnormalBadge');
+
+            function checkUploadPermission() {
+                if (isGuestMode()) {
+                    showToast('游客模式无法上传模组，请先登录邮箱', 'warning');
+                    return false;
+                }
+                return true;
+            }
+
+            function checkMyModsPermission() {
+                if (isGuestMode()) {
+                    showToast('游客模式无法查看我的模组', 'warning');
+                    return false;
+                }
+                return true;
+            }
+
+            var menuAudio = null;
+
+            function playMenuSound() {
+                try {
+                    if (!menuAudio) {
+                        menuAudio = new Audio();
+                        menuAudio.src = "sound/spawnmenu.mp3";
+                        menuAudio.volume = 0.4;
+                    }
+                    menuAudio.currentTime = 0;
+                    menuAudio.play().catch(function(e) {});
+                } catch (e) {}
+            }
+
+            var toastContainer = document.getElementById('toastContainer');
+            var toastBox = document.getElementById('toastBox');
+            var toastIcon = document.getElementById('toastIcon');
+            var toastMsg = document.getElementById('toastMsg');
+            var toastSub = document.getElementById('toastSub');
+            var toastTimer = null;
+
+            function showToast(msg, type, sub, icon) {
+                if (toastTimer) {
+                    clearTimeout(toastTimer);
+                    toastContainer.classList.remove('visible');
+                }
+                toastBox.className = 'toast-box';
+                if (type === 'success') toastBox.classList.add('success');
+                else if (type === 'error') toastBox.classList.add('error');
+                else if (type === 'warning') toastBox.classList.add('warning');
+                toastIcon.innerHTML = icon || '<i class="fas fa-info-circle"></i>';
+                toastMsg.textContent = msg;
+                toastSub.textContent = sub || '';
+                toastContainer.classList.add('visible');
+                toastTimer = setTimeout(function() {
+                    toastContainer.classList.remove('visible');
+                    toastTimer = null;
+                }, 3500);
+            }
+
+            toastContainer.addEventListener('click', function() {
+                if (toastTimer) {
+                    clearTimeout(toastTimer);
+                    toastTimer = null;
+                }
+                toastContainer.classList.remove('visible');
+            });
+
+            function shouldShowCheck() {
+                var hasPassed = localStorage.getItem('workshop_check_passed');
+                var checkTime = parseInt(localStorage.getItem('workshop_check_time') || '0');
+                var isExpired = (Date.now() - checkTime) > 24 * 60 * 60 * 1000;
+                if (hasPassed === 'true' && !isExpired) { return false; }
+                return true;
+            }
+
+            function runEnvironmentCheck() {
+                return new Promise(function(resolve) {
+                    var items = {
+                        token: { el: document.getElementById('checkToken'), pass: false },
+                        network: { el: document.getElementById('checkNetwork'), pass: false },
+                        repo: { el: document.getElementById('checkRepo'), pass: false },
+                        mods: { el: document.getElementById('checkMods'), pass: false }
+                    };
+
+                    function updateItem(key, pass, msg) {
+                        var item = items[key];
+                        if (pass) {
+                            item.el.className = 'status pass';
+                            item.el.innerHTML = '<i class="fas fa-check-circle"></i>';
+                            item.pass = true;
+                        } else {
+                            item.el.className = 'status fail';
+                            item.el.innerHTML = '<i class="fas fa-times-circle"></i>';
+                            item.pass = false;
+                        }
+                        if (msg) {
+                            var parent = item.el.parentElement;
+                            var textNode = parent.childNodes[parent.childNodes.length - 1];
+                            if (textNode && textNode.nodeType === 3) {
+                                parent.replaceChild(document.createTextNode(' ' + msg), textNode);
+                            }
+                        }
+                    }
+
+                    var tokenOk = GITHUB_TOKEN && GITHUB_TOKEN.length > 10 && GITHUB_TOKEN !== '你的GitHub Token';
+                    updateItem('token', tokenOk, tokenOk ? '已配置' : '未配置或无效');
+                    var networkOk = navigator.onLine !== false;
+                    updateItem('network', networkOk, networkOk ? '已连接' : '未连接');
+
+                    var repoUrl = 'https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO;
+                    fetch(repoUrl, { headers: { 'Accept': 'application/vnd.github.v3+json' } })
+                        .then(function(res) {
+                            var repoOk = res.status === 200;
+                            updateItem('repo', repoOk, repoOk ? '可访问' : '状态码 ' + res.status);
+                            return res.status === 200;
+                        })
+                        .catch(function() { updateItem('repo', false, '访问失败'); return false; })
+                        .then(function(repoOk) {
+                            if (!repoOk) { resolve(false); return; }
+                            var modsUrl = CDN_BASE + '/mods.json';
+                            return fetch(modsUrl, { cache: 'no-store' })
+                                .then(function(res) {
+                                    var modsOk = res.status === 200;
+                                    updateItem('mods', modsOk, modsOk ? '已存在' : '不存在或无法读取');
+                                    return modsOk;
+                                })
+                                .catch(function() { updateItem('mods', false, '无法读取'); return false; });
+                        })
+                        .then(function(allPass) { resolve(allPass); });
+                });
+            }
+
+            function showCheckModal() {
+                if (!shouldShowCheck()) {
+                    initWorkshop();
+                    return;
+                }
+                checkOverlay.classList.add('active');
+                checkStartBtn.innerHTML = '<i class="fas fa-play"></i> 开始检测';
+                checkStartBtn.disabled = false;
+
+                var items = ['checkToken', 'checkNetwork', 'checkRepo', 'checkMods'];
+                items.forEach(function(id) {
+                    var el = document.getElementById(id);
+                    el.className = 'status';
+                    el.innerHTML = '<i class="fas fa-hourglass-half"></i>';
+                    var parent = el.parentElement;
+                    var textNode = parent.childNodes[parent.childNodes.length - 1];
+                    if (textNode && textNode.nodeType === 3) {
+                        var label = textNode.textContent.trim();
+                        parent.replaceChild(document.createTextNode(' ' + label), textNode);
+                    }
+                });
+
+                checkStartBtn.onclick = function() {
+                    checkStartBtn.disabled = true;
+                    checkStartBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 检测中...';
+                    runEnvironmentCheck().then(function(passed) {
+                        checkPassed = passed;
+                        checkStartBtn.disabled = false;
+                        if (passed) {
+                            localStorage.setItem('workshop_check_passed', 'true');
+                            localStorage.setItem('workshop_check_time', String(Date.now()));
+                            checkStartBtn.innerHTML = '<i class="fas fa-check"></i> 全部通过，进入创意工坊';
+                            showToast('环境检测通过', 'success', '正在加载创意工坊', '<i class="fas fa-shield-alt"></i>');
+                            setTimeout(function() {
+                                checkOverlay.classList.remove('active');
+                                initWorkshop();
+                            }, 800);
+                        } else {
+                            checkStartBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> 检测未通过，重试';
+                            showToast('部分检测未通过', 'error', '请检查配置后重试', '<i class="fas fa-exclamation-triangle"></i>');
+                        }
+                    });
+                };
+            }
+
+            function scanAllFolders() {
+                var folders = ['mods', 'icons', 'previews'];
+                var promises = folders.map(function(folder) {
+                    var url = GITHUB_API + '/' + folder;
+                    return fetch(url, {
+                        headers: {
+                            'Authorization': 'token ' + GITHUB_TOKEN,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    })
+                    .then(function(res) {
+                        if (!res.ok) { return {}; }
+                        return res.json();
+                    })
+                    .then(function(files) {
+                        if (!Array.isArray(files)) return {};
+                        var result = {};
+                        files.forEach(function(f) {
+                            if (f.type === 'file') {
+                                var name = f.name;
+                                if (folder === 'mods' && name.endsWith('.zip')) {
+                                    result[name.replace('.zip', '')] = {
+                                        exists: true,
+                                        size: f.size || 0,
+                                        sha: f.sha || null,
+                                        name: name
+                                    };
+                                } else if (folder === 'icons' || folder === 'previews') {
+                                    result[name] = {
+                                        exists: true,
+                                        size: f.size || 0,
+                                        sha: f.sha || null
+                                    };
+                                }
+                            }
+                        });
+                        return result;
+                    })
+                    .catch(function() { return {}; });
+                });
+
+                return Promise.all(promises).then(function(results) {
+                    folderScanCache = {
+                        zips: results[0] || {},
+                        icons: results[1] || {},
+                        previews: results[2] || {}
+                    };
+                    return folderScanCache;
+                });
+            }
+
+            function fetchModsJsonFromAPI() {
+                return fetch(GITHUB_API + '/mods.json', {
+                    headers: {
+                        'Authorization': 'token ' + GITHUB_TOKEN,
+                        'Accept': 'application/vnd.github.v3+json'
+                    },
+                    cache: 'no-store'
+                })
+                .then(function(res) {
+                    if (res.status === 200) { return res.json(); }
+                    throw new Error('API 返回 ' + res.status);
+                })
+                .then(function(data) {
+                    if (data && data.content) {
+                        var decoded = decodeURIComponent(escape(atob(data.content)));
+                        return JSON.parse(decoded);
+                    }
+                    throw new Error('API 数据无效');
+                })
+                .catch(function() {
+                    return fetch(CDN_BASE + '/mods.json?_=' + Date.now(), { cache: 'no-store' })
+                        .then(function(res) {
+                            if (res.ok) return res.json();
+                            return { mods: [] };
+                        });
+                });
+            }
+
+            function verifyModFiles(mod) {
+                var zipExists = false;
+                var iconExists = false;
+                var previewExists = false;
+
+                if (mod.id && folderScanCache.zips[mod.id]) { zipExists = true; }
+                if (mod._scanned && mod.id && folderScanCache.zips[mod.id]) { zipExists = true; }
+
+                var iconExtensions = ['.png', '.jpg', '.jpeg', '.webp', '.gif'];
+                if (mod.iconUrl) {
+                    var iconFileName = mod.iconUrl.split('/').pop();
+                    if (iconFileName && folderScanCache.icons[iconFileName]) { iconExists = true; }
+                }
+                if (!iconExists && mod.id) {
+                    for (var i = 0; i < iconExtensions.length; i++) {
+                        var ext = iconExtensions[i];
+                        if (folderScanCache.icons[mod.id + ext]) {
+                            iconExists = true;
+                            mod.iconUrl = CDN_BASE + '/icons/' + mod.id + ext;
+                            break;
+                        }
+                    }
+                }
+
+                var previewExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
+                if (mod.previewUrl) {
+                    var previewFileName = mod.previewUrl.split('/').pop();
+                    if (previewFileName && folderScanCache.previews[previewFileName]) { previewExists = true; }
+                }
+                if (!previewExists && mod.id) {
+                    for (var i = 0; i < previewExtensions.length; i++) {
+                        var ext = previewExtensions[i];
+                        if (folderScanCache.previews[mod.id + ext]) {
+                            previewExists = true;
+                            mod.previewUrl = CDN_BASE + '/previews/' + mod.id + ext;
+                            break;
+                        }
+                    }
+                }
+
+                return { zipExists: zipExists, iconExists: iconExists, previewExists: previewExists };
+            }
+
+            function getDisplayImages(mod) {
+                var t = Date.now();
+                var iconUrl = mod.iconUrl || null;
+                var previewUrl = mod.previewUrl || null;
+                if (iconUrl && !previewUrl) { previewUrl = iconUrl; }
+                if (!iconUrl && previewUrl) { iconUrl = previewUrl; }
+                if (iconUrl) iconUrl = iconUrl + (iconUrl.indexOf('?') === -1 ? '?t=' + t : '&t=' + t);
+                if (previewUrl) previewUrl = previewUrl + (previewUrl.indexOf('?') === -1 ? '?t=' + t : '&t=' + t);
+                return { iconUrl: iconUrl, previewUrl: previewUrl };
+            }
+
+            function getAbnormalStatus(mod) {
+                var verified = verifyModFiles(mod);
+                mod._zipExists = verified.zipExists;
+                mod._iconExists = verified.iconExists;
+                mod._previewExists = verified.previewExists;
+
+                if (!mod.name || mod.name.trim() === '') {
+                    return { type: 'danger', icon: 'fa-info-circle', label: '无名称', detail: '模组名称为空' };
+                }
+                if (!verified.zipExists) {
+                    return { type: 'warning', icon: 'fa-exclamation-triangle', label: '无模组文件', detail: 'ZIP 文件不存在' };
+                }
+                if (!verified.iconExists && !verified.previewExists) {
+                    return { type: 'orange', icon: 'fa-exclamation-circle', label: '缺少图片资源', detail: '请上传图标或预览图' };
+                }
+                return null;
+            }
+
+            function isNormalMod(mod) { return getAbnormalStatus(mod) === null; }
+
+            function mergeModsData(apiData) {
+                var result = [];
+                var processedIds = [];
+
+                var apiMods = [];
+                if (apiData && apiData.mods) {
+                    if (Array.isArray(apiData.mods)) { apiMods = apiData.mods; } 
+                    else if (typeof apiData.mods === 'object') { apiMods = Object.values(apiData.mods); }
+                }
+
+                apiMods.forEach(function(mod) {
+                    if (!mod.id) return;
+                    var processed = {
+                        id: mod.id,
+                        name: mod.name || mod.id,
+                        author: mod.author || '未知',
+                        authorEmail: mod.authorEmail || null,
+                        category: String(mod.category || 'other'),
+                        description: mod.description || '暂无描述',
+                        version: mod.version || '1.0.0',
+                        fileSize: mod.fileSize || 0,
+                        downloadCount: mod.downloadCount || 0,
+                        uploadedAt: mod.uploadedAt || new Date().toISOString(),
+                        downloadUrl: mod.downloadUrl || (CDN_BASE + '/mods/' + mod.id + '.zip'),
+                        iconUrl: mod.iconUrl || null,
+                        previewUrl: mod.previewUrl || null,
+                        _fromAPI: true
+                    };
+                    var verified = verifyModFiles(processed);
+                    processed._zipExists = verified.zipExists;
+                    processed._iconExists = verified.iconExists;
+                    processed._previewExists = verified.previewExists;
+                    result.push(processed);
+                    processedIds.push(mod.id);
+                });
+
+                Object.keys(folderScanCache.zips).forEach(function(zipId) {
+                    if (!processedIds.includes(zipId)) {
+                        var category = 'other';
+                        var nameParts = zipId.split('_');
+                        if (nameParts.length > 1) {
+                            var prefix = nameParts[0].toLowerCase();
+                            if (['prop', 'creature', 'vehicle', 'weapon', 'test', 'other'].includes(prefix)) {
+                                category = prefix;
+                            }
+                        }
+                        var iconFile = null,
+                            previewFile = null;
+                        var iconExts = ['.png', '.jpg', '.jpeg', '.webp', '.gif'];
+                        var previewExts = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
+                        for (var i = 0; i < iconExts.length; i++) {
+                            if (folderScanCache.icons[zipId + iconExts[i]]) { iconFile = zipId + iconExts[i]; break; }
+                        }
+                        for (var i = 0; i < previewExts.length; i++) {
+                            if (folderScanCache.previews[zipId + previewExts[i]]) { previewFile = zipId + previewExts[i]; break; }
+                        }
+                        result.push({
+                            id: zipId,
+                            name: zipId,
+                            author: '自动恢复',
+                            authorEmail: null,
+                            category: category,
+                            description: '从 mods/ 文件夹自动恢复，请完善信息',
+                            version: '1.0.0',
+                            fileSize: folderScanCache.zips[zipId].size || 0,
+                            downloadCount: 0,
+                            uploadedAt: new Date().toISOString(),
+                            downloadUrl: CDN_BASE + '/mods/' + zipId + '.zip',
+                            iconUrl: iconFile ? CDN_BASE + '/icons/' + iconFile : null,
+                            previewUrl: previewFile ? CDN_BASE + '/previews/' + previewFile : null,
+                            _scanned: true,
+                            _zipExists: true,
+                            _iconExists: !!iconFile,
+                            _previewExists: !!previewFile
+                        });
+                        processedIds.push(zipId);
+                    }
+                });
+
+                return result;
+            }
+
+            function fetchMods() {
+                if (isLoading) return Promise.resolve(allMods);
+                isLoading = true;
+                console.log('[Workshop] 开始加载...');
+
+                return scanAllFolders()
+                    .then(function() {
+                        return fetchModsJsonFromAPI();
+                    })
+                    .then(function(apiData) {
+                        var merged = mergeModsData(apiData);
+                        allMods = merged;
+                        isLoading = false;
+                        applySearch();
+                        updateBadges();
+                        updateModCount();
+                        console.log('[Workshop] 加载完成，共 ' + allMods.length + ' 个模组');
+                        return allMods;
+                    })
+                    .catch(function(err) {
+                        isLoading = false;
+                        console.error('[Workshop] 加载失败:', err);
+                        allMods = [];
+                        applySearch();
+                        updateBadges();
+                        updateModCount();
+                        showToast('加载失败: ' + err.message, 'error', '请检查网络', '<i class="fas fa-plug"></i>');
+                        return [];
+                    });
+            }
+
+            function forceRefresh() {
+                var btn = document.getElementById('refreshBtn');
+                if (btn) {
+                    btn.classList.add('spin');
+                    setTimeout(function() { btn.classList.remove('spin'); }, 800);
+                }
+                showToast('正在刷新...', 'warning', '重新加载模组列表', '<i class="fas fa-sync-alt fa-spin"></i>');
+                return fetchMods().then(function() {
+                    loadCommentsFromGitHub();
+                    return allMods;
+                });
+            }
+
+            function ensureFolderExists(folderName) {
+                var keepPath = folderName + '/.keep';
+                var url = GITHUB_API + '/' + encodeURIComponent(keepPath);
+
+                return fetch(url, {
+                    headers: {
+                        'Authorization': 'token ' + GITHUB_TOKEN,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                })
+                .then(function(res) {
+                    if (res.status === 200) {
+                        console.log('[Folder] 已存在:', folderName);
+                        return { exists: true };
+                    }
+                    var emptyContent = btoa('keep');
+                    return fetch(url, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': 'token ' + GITHUB_TOKEN,
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/vnd.github.v3+json'
+                        },
+                        body: JSON.stringify({
+                            message: '自动创建文件夹: ' + folderName,
+                            content: emptyContent,
+                            branch: 'main'
+                        })
+                    })
+                    .then(function(res) {
+                        if (res.ok) {
+                            console.log('[Folder] 已创建:', folderName);
+                            return { exists: false, created: true };
+                        }
+                        console.warn('[Folder] 创建失败:', folderName);
+                        return { exists: false, created: false };
+                    });
+                })
+                .catch(function(err) {
+                    console.warn('[Folder] 检测失败:', err);
+                    return { exists: false, created: false };
+                });
+            }
+
+            function uploadToGitHubWithProgress(file, filePath, onProgress) {
+                return new Promise(function(resolve, reject) {
+                    var reader = new FileReader();
+                    reader.onprogress = function(e) {
+                        if (onProgress && e.total > 0) {
+                            onProgress(Math.round((e.loaded / e.total) * 100));
+                        }
+                    };
+                    reader.onload = function(e) {
+                        var base64 = e.target.result.split(',')[1];
+                        var url = GITHUB_API + '/' + encodeURIComponent(filePath);
+                        fetch(url, {
+                            headers: {
+                                'Authorization': 'token ' + GITHUB_TOKEN,
+                                'Accept': 'application/vnd.github.v3+json'
+                            }
+                        })
+                        .then(function(res) {
+                            return res.json().then(function(data) {
+                                return { status: res.status, data: data };
+                            });
+                        })
+                        .then(function(result) {
+                            var sha = null;
+                            if (result.status === 200 && result.data && result.data.sha) {
+                                sha = result.data.sha;
+                            }
+                            var body = {
+                                message: '上传模组文件: ' + filePath,
+                                content: base64,
+                                branch: 'main'
+                            };
+                            if (sha) body.sha = sha;
+                            return fetch(url, {
+                                method: 'PUT',
+                                headers: {
+                                    'Authorization': 'token ' + GITHUB_TOKEN,
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/vnd.github.v3+json'
+                                },
+                                body: JSON.stringify(body)
+                            });
+                        })
+                        .then(function(res) {
+                            if (!res.ok) {
+                                return res.text().then(function(text) {
+                                    var errorMsg = '上传失败: ' + res.status;
+                                    try { var json = JSON.parse(text); if (json.message) errorMsg = json.message; } catch (
+                                    e) {}
+                                    throw new Error(errorMsg);
+                                });
+                            }
+                            if (onProgress) onProgress(100);
+                            return res.json();
+                        })
+                        .then(function(data) { resolve(data); })
+                        .catch(function(err) { reject(err); });
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            function updateModsJson(newMod) {
+                var url = GITHUB_API + '/mods.json';
+                return fetch(url, {
+                    headers: {
+                        'Authorization': 'token ' + GITHUB_TOKEN,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                })
+                .then(function(res) {
+                    if (res.status === 200) { return res.json(); }
+                    return null;
+                })
+                .then(function(existingData) {
+                    var allExistingMods = [];
+                    var sha = null;
+                    if (existingData) {
+                        sha = existingData.sha;
+                        if (existingData.content) {
+                            try {
+                                var decoded = decodeURIComponent(escape(atob(existingData.content)));
+                                var parsed = JSON.parse(decoded);
+                                if (parsed && parsed.mods) {
+                                    if (Array.isArray(parsed.mods)) { allExistingMods = parsed.mods; } 
+                                    else if (typeof parsed.mods === 'object') { allExistingMods = Object.values(parsed.mods); }
+                                }
+                            } catch (e) { allExistingMods = []; }
+                        }
+                    }
+
+                    var exists = false;
+                    for (var i = 0; i < allExistingMods.length; i++) {
+                        if (allExistingMods[i].id === newMod.id) {
+                            allExistingMods[i] = newMod;
+                            exists = true;
+                            break;
+                        }
+                    }
+                    if (!exists) { allExistingMods.push(newMod); }
+
+                    var data = {
+                        version: '1.0.0',
+                        updatedAt: new Date().toISOString(),
+                        mods: allExistingMods,
+                        categories: {
+                            prop: { name: '物体类', icon: 'fa-box' },
+                            creature: { name: '生物类', icon: 'fa-dragon' },
+                            vehicle: { name: '车辆类', icon: 'fa-car' },
+                            weapon: { name: '武器类', icon: 'fa-gun' },
+                            test: { name: '测试类', icon: 'fa-flask' },
+                            other: { name: '特殊类', icon: 'fa-music' }
+                        }
+                    };
+
+                    var jsonString = JSON.stringify(data, null, 2);
+                    var base64 = btoa(unescape(encodeURIComponent(jsonString)));
+                    var body = {
+                        message: (exists ? '更新' : '追加') + '模组: ' + newMod.name + ' (ID: ' + newMod.id + ')',
+                        content: base64,
+                        branch: 'main'
+                    };
+                    if (sha) body.sha = sha;
+
+                    return fetch(url, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': 'token ' + GITHUB_TOKEN,
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/vnd.github.v3+json'
+                        },
+                        body: JSON.stringify(body)
+                    });
+                })
+                .then(function(res) {
+                    if (!res.ok) {
+                        return res.text().then(function(text) {
+                            var errorMsg = '更新失败: ' + res.status;
+                            try { var json = JSON.parse(text); if (json.message) errorMsg = json.message; } catch (e) {}
+                            throw new Error(errorMsg);
+                        });
+                    }
+                    return res.json();
+                });
+            }
+
+            function deleteModFromGitHub(modId) {
+                return new Promise(function(resolve, reject) {
+                    var mod = allMods.find(function(m) { return m.id === modId; });
+                    if (!mod) { reject(new Error('模组不存在')); return; }
+
+                    var filesToDelete = [
+                        'mods/' + modId + '.zip',
+                        'icons/' + modId + '.png',
+                        'icons/' + modId + '.jpg',
+                        'icons/' + modId + '.webp',
+                        'previews/' + modId + '.jpg',
+                        'previews/' + modId + '.png',
+                        'previews/' + modId + '.webp'
+                    ];
+
+                    var deletePromises = filesToDelete.map(function(filePath) {
+                        var url = GITHUB_API + '/' + encodeURIComponent(filePath);
+                        return fetch(url, {
+                            headers: {
+                                'Authorization': 'token ' + GITHUB_TOKEN,
+                                'Accept': 'application/vnd.github.v3+json'
+                            }
+                        })
+                        .then(function(res) {
+                            if (res.status === 200) {
+                                return res.json().then(function(data) {
+                                    if (data && data.sha) {
+                                        return fetch(url, {
+                                            method: 'DELETE',
+                                            headers: {
+                                                'Authorization': 'token ' + GITHUB_TOKEN,
+                                                'Accept': 'application/vnd.github.v3+json'
+                                            },
+                                            body: JSON.stringify({
+                                                message: '删除模组文件: ' + filePath,
+                                                sha: data.sha,
+                                                branch: 'main'
+                                            })
+                                        });
+                                    }
+                                    return null;
+                                });
+                            }
+                            return null;
+                        })
+                        .catch(function() { return null; });
+                    });
+
+                    Promise.all(deletePromises)
+                        .then(function() {
+                            var idx = allMods.findIndex(function(m) { return m.id === modId; });
+                            if (idx !== -1) { allMods.splice(idx, 1); }
+                            return updateModsJsonForDelete(modId);
+                        })
+                        .then(function() {
+                            resolve();
+                        })
+                        .catch(function(err) {
+                            reject(err);
+                        });
+                });
+            }
+
+            function updateModsJsonForDelete(modId) {
+                var url = GITHUB_API + '/mods.json';
+                return fetch(url, {
+                    headers: {
+                        'Authorization': 'token ' + GITHUB_TOKEN,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                })
+                .then(function(res) {
+                    if (res.status === 200) { return res.json(); }
+                    return null;
+                })
+                .then(function(existingData) {
+                    var allExistingMods = [];
+                    var sha = null;
+                    if (existingData) {
+                        sha = existingData.sha;
+                        if (existingData.content) {
+                            try {
+                                var decoded = decodeURIComponent(escape(atob(existingData.content)));
+                                var parsed = JSON.parse(decoded);
+                                if (parsed && parsed.mods) {
+                                    if (Array.isArray(parsed.mods)) { allExistingMods = parsed.mods; } 
+                                    else if (typeof parsed.mods === 'object') { allExistingMods = Object.values(parsed.mods); }
+                                }
+                            } catch (e) { allExistingMods = []; }
+                        }
+                    }
+
+                    allExistingMods = allExistingMods.filter(function(m) { return m.id !== modId; });
+
+                    var data = {
+                        version: '1.0.0',
+                        updatedAt: new Date().toISOString(),
+                        mods: allExistingMods,
+                        categories: {
+                            prop: { name: '物体类', icon: 'fa-box' },
+                            creature: { name: '生物类', icon: 'fa-dragon' },
+                            vehicle: { name: '车辆类', icon: 'fa-car' },
+                            weapon: { name: '武器类', icon: 'fa-gun' },
+                            test: { name: '测试类', icon: 'fa-flask' },
+                            other: { name: '特殊类', icon: 'fa-music' }
+                        }
+                    };
+
+                    var jsonString = JSON.stringify(data, null, 2);
+                    var base64 = btoa(unescape(encodeURIComponent(jsonString)));
+                    var body = {
+                        message: '删除模组: ' + modId,
+                        content: base64,
+                        branch: 'main'
+                    };
+                    if (sha) body.sha = sha;
+
+                    return fetch(url, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': 'token ' + GITHUB_TOKEN,
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/vnd.github.v3+json'
+                        },
+                        body: JSON.stringify(body)
+                    });
+                });
+            }
+
+            function waitForGitHubSync(modId, fileType, maxRetries, delay) {
+                maxRetries = maxRetries || 10;
+                delay = delay || 1500;
+                var folder = fileType === 'zip' ? 'mods' : (fileType === 'icon' ? 'icons' : 'previews');
+                var fileName = fileType === 'zip' ? modId + '.zip' :
+                    (fileType === 'icon' ? modId + '.png' : modId + '.jpg');
+
+                return new Promise(function(resolve) {
+                    var attempts = 0;
+
+                    function check() {
+                        attempts++;
+                        var url = GITHUB_API + '/' + folder + '/' + encodeURIComponent(fileName);
+                        fetch(url, {
+                            headers: {
+                                'Authorization': 'token ' + GITHUB_TOKEN,
+                                'Accept': 'application/vnd.github.v3+json'
+                            }
+                        })
+                        .then(function(res) {
+                            if (res.status === 200) { resolve(true); } 
+                            else if (attempts >= maxRetries) { resolve(false); } 
+                            else { setTimeout(check, delay); }
+                        })
+                        .catch(function() {
+                            if (attempts >= maxRetries) { resolve(false); } 
+                            else { setTimeout(check, delay); }
+                        });
+                    }
+                    check();
+                });
+            }
+
+            function ensureCommentsFileExists() {
+                var url = GITHUB_API + '/comments.json';
+                return fetch(url, {
+                    headers: {
+                        'Authorization': 'token ' + GITHUB_TOKEN,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                })
+                .then(function(res) {
+                    if (res.status === 404) {
+                        var emptyData = JSON.stringify({}, null, 2);
+                        var base64 = btoa(unescape(encodeURIComponent(emptyData)));
+                        return fetch(url, {
+                            method: 'PUT',
+                            headers: {
+                                'Authorization': 'token ' + GITHUB_TOKEN,
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/vnd.github.v3+json'
+                            },
+                            body: JSON.stringify({
+                                message: '初始化评论系统',
+                                content: base64,
+                                branch: 'main'
+                            })
+                        });
+                    }
+                    return res;
+                })
+                .catch(function(err) { console.warn('[Workshop] 评论初始化失败:', err.message); });
+            }
+
+            function loadCommentsFromGitHub() {
+                var url = GITHUB_API + '/comments.json';
+                return ensureCommentsFileExists().then(function() {
+                    return fetch(url, {
+                        headers: {
+                            'Authorization': 'token ' + GITHUB_TOKEN,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    });
+                })
+                .then(function(res) {
+                    if (res && res.status === 200) { return res.json(); }
+                    return {};
+                })
+                .then(function(data) {
+                    if (data && data.content) {
+                        try {
+                            var decoded = decodeURIComponent(escape(atob(data.content)));
+                            commentsCache = JSON.parse(decoded) || {};
+                        } catch (e) { commentsCache = {}; }
+                    } else { commentsCache = {}; }
+                    return commentsCache;
+                })
+                .catch(function() { commentsCache = {}; return {}; });
+            }
+
+            function saveCommentsToGitHub() {
+                var url = GITHUB_API + '/comments.json';
+                var jsonString = JSON.stringify(commentsCache, null, 2);
+                var base64 = btoa(unescape(encodeURIComponent(jsonString)));
+
+                return fetch(url, {
+                    headers: {
+                        'Authorization': 'token ' + GITHUB_TOKEN,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                })
+                .then(function(res) {
+                    if (res.status === 200) { return res.json(); }
+                    return null;
+                })
+                .then(function(existing) {
+                    var sha = existing ? existing.sha : null;
+                    var body = { message: '更新评论数据', content: base64, branch: 'main' };
+                    if (sha) body.sha = sha;
+                    return fetch(url, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': 'token ' + GITHUB_TOKEN,
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/vnd.github.v3+json'
+                        },
+                        body: JSON.stringify(body)
+                    });
+                })
+                .catch(function(err) { console.warn('[Workshop] 保存评论失败:', err); });
+            }
+
+            function applySearch() {
+                var keyword = searchInput.value.trim().toLowerCase();
+                if (!keyword) { filteredMods = allMods.slice(); } 
+                else {
+                    filteredMods = allMods.filter(function(m) {
+                        return m.name.toLowerCase().includes(keyword) ||
+                            m.author.toLowerCase().includes(keyword) ||
+                            (m.description && m.description.toLowerCase().includes(keyword));
+                    });
+                }
+                renderCategory(currentCategory);
+                updateModCount();
+            }
+
+            function updateModCount() {
+                if (modCount) { modCount.textContent = filteredMods.length || allMods.length; }
+            }
+
+            function updateBadges() {
+                var btns = document.querySelectorAll('.cat-btn');
+                for (var i = 0; i < btns.length; i++) {
+                    var btn = btns[i];
+                    var cat = btn.getAttribute('data-category');
+                    var badge = btn.querySelector('.badge');
+                    if (!badge) continue;
+                    var count = 0;
+                    if (cat === 'all') { count = filteredMods.filter(isNormalMod).length; } 
+                    else if (cat === 'abnormal') { count = filteredMods.filter(function(m) { return !isNormalMod(m); }).length; } 
+                    else {
+                        count = filteredMods.filter(function(m) {
+                            return String(m.category) === String(cat) && isNormalMod(m);
+                        }).length;
+                    }
+                    badge.textContent = count;
+                }
+                var abnormalCount = filteredMods.filter(function(m) { return !isNormalMod(m); }).length;
+                if (abnormalBadge) { abnormalBadge.textContent = abnormalCount; }
+            }
+
+            function updateSidebarBadges() { updateBadges(); }
+
+            function renderCategory(category) {
+                var items = [];
+                if (category === 'all') { items = filteredMods.filter(isNormalMod); } 
+                else if (category === 'abnormal') { items = filteredMods.filter(function(m) { return !isNormalMod(m); }); } 
+                else {
+                    items = filteredMods.filter(function(m) {
+                        return String(m.category) === String(category) && isNormalMod(m);
+                    });
+                }
+
+                var name = CATEGORY_NAMES[category] || category;
+                var desc = CATEGORY_DESCS[category] || '';
+                var icon = CATEGORY_ICONS[category] || 'fa-folder';
+
+                var html = '';
+                html += '<div class="category-header">';
+                html += '  <div class="cat-icon"><i class="fas ' + icon + '"></i></div>';
+                html += '  <div class="cat-info">';
+                html += '    <h2>' + name + '</h2>';
+                html += '    <p>' + desc + '</p>';
+                html += '  </div>';
+                html += '  <div class="cat-count"><i class="fas fa-cube" style="margin-right:6px;font-size:0.6rem;"></i>' + items
+                    .length + ' 个模组</div>';
+                html += '</div>';
+                html += '<div class="mod-grid">';
+
+                if (items.length === 0) {
+                    html += '<div class="empty-state">';
+                    html += '  <i class="fas fa-inbox"></i>';
+                    html += '  <p>该分类暂无模组</p>';
+                    html += '  <p style="font-size:0.6rem;color:#444;margin-top:6px;">点击「上传模组」分享你的作品！</p>';
+                    html += '</div>';
+                } else {
+                    for (var i = 0; i < items.length; i++) {
+                        var mod = items[i];
+                        var images = getDisplayImages(mod);
+                        var iconUrl = images.iconUrl;
+                        var previewUrl = images.previewUrl;
+                        var fileSize = mod.fileSize ? (mod.fileSize / 1024 / 1024).toFixed(1) + ' MB' : '未知大小';
+                        var iconHtml = iconUrl ?
+                            '<img src="' + iconUrl + '" alt="' + mod.name + '">' :
+                            '<i class="fas fa-cube"></i>';
+                        var previewBg = previewUrl ?
+                            'background-image: url(' + previewUrl + ');' :
+                            'background: #2a2a3a;';
+                        var status = getAbnormalStatus(mod);
+                        var statusHtml = '';
+                        if (status) {
+                            statusHtml = '<div class="mod-status-badge ' + status.type + '"><i class="fas ' + status.icon +
+                                '"></i></div>';
+                        }
+                        var displayName = mod.name;
+
+                        var authorName = mod.author || '未知';
+                        var authorEmail = mod.authorEmail || null;
+                        var avatarHtml = getAvatarHtml(authorEmail, 18);
+
+                        html += '<div class="mod-card" data-id="' + mod.id + '">';
+                        html += '  <div class="mod-bg ' + (previewUrl ? '' : 'no-image') + '" style="' + previewBg + '">';
+                        if (!previewUrl) {
+                            html +=
+                                '    <i class="fas fa-cube" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:2.5rem;opacity:0.15;color:#888;z-index:0;"></i>';
+                        }
+                        html += '  </div>';
+                        html += statusHtml;
+                        html += '  <div class="mod-content">';
+                        html += '    <div class="mod-icon-wrap">' + iconHtml + '</div>';
+                        html += '    <div class="mod-name">' + displayName + '</div>';
+                        html += '    <div class="mod-author">' + avatarHtml + ' ' + authorName + '</div>';
+                        html += '    <div class="mod-desc">' + (mod.description || '暂无描述') + '</div>';
+                        html += '    <div class="mod-meta">';
+                        html += '      <span><i class="fas fa-download"></i> ' + (mod.downloadCount || 0) + '</span>';
+                        html += '      <span><i class="fas fa-code-branch"></i> ' + (mod.version || '1.0.0') + '</span>';
+                        html += '    </div>';
+                        html += '    <div class="mod-actions">';
+                        html += '      <button class="btn-download" data-action="download"><i class="fas fa-download"></i> 下载</button>';
+                        html += '    </div>';
+                        html += '  </div>';
+                        html += '</div>';
+                    }
+                }
+                html += '</div>';
+                contentArea.innerHTML = html;
+
+                var cards = contentArea.querySelectorAll('.mod-card');
+                for (var i = 0; i < cards.length; i++) {
+                    (function(card) {
+                        var modId = card.getAttribute('data-id');
+                        var mod = filteredMods.find(function(m) { return m.id === modId; });
+                        if (!mod) return;
+                        card.addEventListener('click', function(e) {
+                            if (e.target.closest('.mod-actions')) return;
+                            openDetailModal(mod);
+                        });
+                        var btns = card.querySelectorAll('[data-action]');
+                        for (var j = 0; j < btns.length; j++) {
+                            (function(btn) {
+                                btn.addEventListener('click', function(e) {
+                                    e.stopPropagation();
+                                    if (btn.getAttribute('data-action') === 'download') {
+                                        playMenuSound();
+                                        mod.downloadCount = (mod.downloadCount || 0) + 1;
+                                        updateModsJson(mod).then(function() { fetchMods(); });
+                                        var a = document.createElement('a');
+                                        a.href = mod.downloadUrl;
+                                        a.download = mod.name + '.zip';
+                                        a.target = '_blank';
+                                        document.body.appendChild(a);
+                                        a.click();
+                                        document.body.removeChild(a);
+                                        showToast('开始下载: ' + mod.name, 'success', '下载次数 +1',
+                                        '<i class="fas fa-download"></i>');
+                                    }
+                                });
+                            })(btns[j]);
+                        }
+                    })(cards[i]);
+                }
+                updateSidebarBadges();
+            }
+
+            function openDetailModal(mod) {
+                currentDetailMod = mod;
+                playMenuSound();
+                var images = getDisplayImages(mod);
+                var iconUrl = images.iconUrl;
+                var previewUrl = images.previewUrl;
+                var iconHtml = iconUrl ?
+                    '<img src="' + iconUrl + '" alt="' + mod.name + '">' :
+                    '<i class="fas fa-cube"></i>';
+                var previewHtml = previewUrl ?
+                    '<img src="' + previewUrl + '" alt="' + mod.name + ' 预览图">' :
+                    '<div class="no-preview"><i class="fas fa-image"></i>暂无预览图</div>';
+                var fileSize = mod.fileSize ? (mod.fileSize / 1024 / 1024).toFixed(1) + ' MB' : '未知';
+                var status = getAbnormalStatus(mod);
+                var statusNote = '';
+                if (status) {
+                    statusNote = '<span style="color:#ff8844;font-size:0.4rem;display:block;margin-top:2px;">' +
+                        status.detail + '</span>';
+                }
+
+                var authorName = mod.author || '未知';
+                var authorEmail = mod.authorEmail || null;
+                var avatarHtml = getAvatarHtml(authorEmail, 20);
+
+                detailContent.innerHTML = `
+                    <div class="detail-preview">${previewHtml}</div>
+                    <div class="detail-info">
+                        <div>
+                            <div class="mod-header">
+                                <div class="icon-big">${iconHtml}</div>
+                                <div class="title-group">
+                                    <h2>${mod.name}</h2>
+                                    <div class="sub-info">
+                                        <span><i class="fas fa-user" style="font-size:0.4rem;"></i> ${avatarHtml} ${authorName}</span>
+                                        <span><i class="fas fa-tag" style="font-size:0.4rem;"></i> ${CATEGORY_NAMES[mod.category] || mod.category}</span>
+                                        <span><i class="fas fa-code-branch" style="font-size:0.4rem;"></i> v${mod.version || '1.0.0'}</span>
+                                    </div>
+                                    ${statusNote}
+                                </div>
+                            </div>
+                            <div class="mod-description">${mod.description || '暂无描述'}</div>
+                        </div>
+                        <div>
+                            <div class="mod-stats">
+                                <div class="stat-item"><div class="num">${mod.downloadCount || 0}</div><span class="label">下载次数</span></div>
+                                <div class="stat-item"><div class="num">${fileSize}</div><span class="label">文件大小</span></div>
+                                <div class="stat-item"><div class="num">${new Date(mod.uploadedAt).toLocaleDateString()}</div><span class="label">上传日期</span></div>
+                            </div>
+                            <div class="mod-actions-row">
+                                <button class="btn-download-detail" id="detailDownloadBtn"><i class="fas fa-download"></i> 下载模组</button>
+                                <button class="btn-close-detail" id="detailCloseBtn"><i class="fas fa-times"></i> 关闭</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                detailModal.classList.add('active');
+
+                document.getElementById('detailDownloadBtn').addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    playMenuSound();
+                    mod.downloadCount = (mod.downloadCount || 0) + 1;
+                    updateModsJson(mod).then(function() { fetchMods(); });
+                    var a = document.createElement('a');
+                    a.href = mod.downloadUrl;
+                    a.download = mod.name + '.zip';
+                    a.target = '_blank';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    showToast('开始下载: ' + mod.name, 'success', '下载次数 +1', '<i class="fas fa-download"></i>');
+                });
+
+                document.getElementById('detailCloseBtn').addEventListener('click', function() {
+                    closeModal('detailModal');
+                });
+
+                loadComments(mod.id);
+            }
+
+            document.getElementById('detailModalClose').addEventListener('click', function() {
+                closeModal('detailModal');
+            });
+
+            function loadComments(modId) {
+                var comments = commentsCache[modId] || [];
+                renderComments(modId);
+            }
+
+            function renderComments(modId) {
+                var comments = commentsCache[modId] || [];
+                var list = document.getElementById('commentList');
+                var currentEmail = getAccountEmail();
+
+                if (comments.length === 0) {
+                    list.innerHTML =
+                        '<div class="no-comments"><i class="fas fa-comment-slash" style="margin-right:4px;"></i>暂无评论</div>';
+                    return;
+                }
+
+                var html = '';
+                for (var i = comments.length - 1; i >= 0; i--) {
+                    var c = comments[i];
+                    var isOwn = c.authorEmail && c.authorEmail === currentEmail;
+                    var avatarHtml = getAvatarHtml(c.authorEmail || null, 18);
+
+                    html += `
+                        <div class="comment-item ${isOwn ? 'own-comment' : ''}" data-index="${i}">
+                            <div class="comment-avatar">${avatarHtml}</div>
+                            <div class="comment-body">
+                                <span class="comment-name">${c.author}</span>
+                                <div class="comment-text">${c.content}</div>
+                                <div class="comment-actions">
+                                    <button class="reply-btn" data-index="${i}"><i class="fas fa-reply"></i> 回复</button>
+                                </div>
+                                <div class="reply-input-wrapper" id="replyWrapper_${i}">
+                                    <input type="text" class="reply-input" placeholder="回复 ${c.author}..." maxlength="200">
+                                    <button class="reply-send" data-index="${i}">发送</button>
+                                </div>
+                                <div class="replies-container" id="repliesContainer_${i}">
+                    `;
+
+                    if (c.replies && c.replies.length > 0) {
+                        for (var j = c.replies.length - 1; j >= 0; j--) {
+                            var r = c.replies[j];
+                            var rIsOwn = r.authorEmail && r.authorEmail === currentEmail;
+                            var rAvatarHtml = getAvatarHtml(r.authorEmail || null, 14);
+                            html += `
+                                <div class="reply-item comment-item ${rIsOwn ? 'own-comment' : ''}">
+                                    <div class="comment-avatar">${rAvatarHtml}</div>
+                                    <div class="comment-body">
+                                        <span class="comment-name">${r.author}</span>
+                                        <span class="reply-to-author">@${c.author}</span>
+                                        <div class="comment-text">${r.content}</div>
+                                        <div class="comment-actions">
+                                            <button class="reply-btn" data-parent="${i}" data-reply="${j}"><i class="fas fa-reply"></i> 回复</button>
+                                        </div>
+                                        <div class="reply-input-wrapper" id="replyWrapper_${i}_${j}">
+                                            <input type="text" class="reply-input" placeholder="回复 ${r.author}..." maxlength="200">
+                                            <button class="reply-send" data-parent="${i}" data-reply="${j}">发送</button>
+                                        </div>
+                                    </div>
+                                    <span class="comment-time">${r.time || ''}</span>
+                                    ${rIsOwn ? '<button class="delete-comment-btn" data-parent="'+i+'" data-reply="'+j+'"><i class="fas fa-trash"></i></button>' : ''}
+                                </div>
+                            `;
+                        }
+                    }
+
+                    html += `
+                                </div>
+                            </div>
+                            <span class="comment-time">${c.time || ''}</span>
+                            ${isOwn ? '<button class="delete-comment-btn" data-index="'+i+'"><i class="fas fa-trash"></i></button>' : ''}
+                        </div>
+                    `;
+                }
+                list.innerHTML = html;
+
+                list.querySelectorAll('.reply-btn').forEach(function(btn) {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        var parentIdx = btn.getAttribute('data-parent') || btn.getAttribute('data-index');
+                        var replyIdx = btn.getAttribute('data-reply');
+                        var wrapperId = replyIdx !== null ? 'replyWrapper_' + parentIdx + '_' + replyIdx :
+                            'replyWrapper_' + parentIdx;
+                        var wrapper = document.getElementById(wrapperId);
+                        if (wrapper) {
+                            wrapper.classList.toggle('active');
+                            wrapper.querySelector('.reply-input').focus();
+                        }
+                    });
+                });
+
+                list.querySelectorAll('.reply-send').forEach(function(btn) {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        var parentIdx = btn.getAttribute('data-parent') || btn.getAttribute('data-index');
+                        var replyIdx = btn.getAttribute('data-reply');
+                        var wrapperId = replyIdx !== null ? 'replyWrapper_' + parentIdx + '_' + replyIdx :
+                            'replyWrapper_' + parentIdx;
+                        var wrapper = document.getElementById(wrapperId);
+                        var input = wrapper ? wrapper.querySelector('.reply-input') : null;
+                        if (input && input.value.trim()) {
+                            var content = input.value.trim();
+                            var targetAuthor = null;
+                            var comment = comments[parseInt(parentIdx)];
+                            if (comment) {
+                                if (replyIdx !== null && comment.replies && comment.replies[parseInt(replyIdx)]) {
+                                    targetAuthor = comment.replies[parseInt(replyIdx)].author;
+                                } else {
+                                    targetAuthor = comment.author;
+                                }
+                            }
+                            addReply(modId, parseInt(parentIdx), replyIdx !== null ? parseInt(replyIdx) : null, content,
+                                targetAuthor);
+                            input.value = '';
+                            wrapper.classList.remove('active');
+                        }
+                    });
+                });
+
+                list.querySelectorAll('.reply-input').forEach(function(input) {
+                    input.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            var wrapper = input.closest('.reply-input-wrapper');
+                            var btn = wrapper ? wrapper.querySelector('.reply-send') : null;
+                            if (btn) btn.click();
+                        }
+                    });
+                });
+
+                list.querySelectorAll('.delete-comment-btn').forEach(function(btn) {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        var index = btn.getAttribute('data-index');
+                        var parent = btn.getAttribute('data-parent');
+                        var reply = btn.getAttribute('data-reply');
+                        if (index !== null) {
+                            showDeleteConfirm(modId, parseInt(index));
+                        } else if (parent !== null && reply !== null) {
+                            showDeleteReplyConfirm(modId, parseInt(parent), parseInt(reply));
+                        }
+                    });
+                });
+
+                list.querySelectorAll('.comment-item.own-comment').forEach(function(item) {
+                    var longPressTimer = null;
+                    var index = item.getAttribute('data-index');
+                    var parent = item.getAttribute('data-parent');
+                    var reply = item.getAttribute('data-reply');
+                    item.addEventListener('touchstart', function(e) {
+                        longPressTimer = setTimeout(function() {
+                            if (index !== null) {
+                                showDeleteConfirm(modId, parseInt(index));
+                            } else if (parent !== null && reply !== null) {
+                                showDeleteReplyConfirm(modId, parseInt(parent), parseInt(reply));
+                            }
+                        }, 600);
+                    }, { passive: true });
+                    item.addEventListener('touchend', function() { clearTimeout(longPressTimer); }, { passive: true });
+                    item.addEventListener('touchmove', function() { clearTimeout(longPressTimer); }, { passive: true });
+                    item.addEventListener('contextmenu', function(e) {
+                        e.preventDefault();
+                        if (index !== null) {
+                            showDeleteConfirm(modId, parseInt(index));
+                        } else if (parent !== null && reply !== null) {
+                            showDeleteReplyConfirm(modId, parseInt(parent), parseInt(reply));
+                        }
+                    });
+                });
+            }
+
+            function showDeleteConfirm(modId, commentIndex) {
+                var overlay = document.getElementById('deleteConfirmOverlay');
+                var msg = document.getElementById('deleteConfirmMsg');
+                msg.textContent = '确定要删除这条评论吗？';
+                overlay.classList.add('active');
+                document.getElementById('deleteConfirmCancel').onclick = function() { overlay.classList.remove('active'); };
+                document.getElementById('deleteConfirmOk').onclick = function() {
+                    overlay.classList.remove('active');
+                    deleteComment(modId, commentIndex);
+                };
+                overlay.onclick = function(e) {
+                    if (e.target === overlay) { overlay.classList.remove('active'); }
+                };
+            }
+
+            function showDeleteReplyConfirm(modId, commentIndex, replyIndex) {
+                var overlay = document.getElementById('deleteConfirmOverlay');
+                var msg = document.getElementById('deleteConfirmMsg');
+                msg.textContent = '确定要删除这条回复吗？';
+                overlay.classList.add('active');
+                document.getElementById('deleteConfirmCancel').onclick = function() { overlay.classList.remove('active'); };
+                document.getElementById('deleteConfirmOk').onclick = function() {
+                    overlay.classList.remove('active');
+                    deleteReply(modId, commentIndex, replyIndex);
+                };
+                overlay.onclick = function(e) {
+                    if (e.target === overlay) { overlay.classList.remove('active'); }
+                };
+            }
+
+            function deleteComment(modId, commentIndex) {
+                if (!commentsCache[modId]) return;
+                if (commentIndex < 0 || commentIndex >= commentsCache[modId].length) return;
+                var currentEmail = getAccountEmail();
+                var comment = commentsCache[modId][commentIndex];
+                if (!comment.authorEmail || comment.authorEmail !== currentEmail) {
+                    showToast('不能删除别人的评论', 'error');
+                    return;
+                }
+                commentsCache[modId].splice(commentIndex, 1);
+                if (commentsCache[modId].length === 0) { delete commentsCache[modId]; }
+                renderComments(modId);
+                saveCommentsToGitHub();
+                showToast('评论已删除', 'success');
+                playMenuSound();
+            }
+
+            function deleteReply(modId, commentIndex, replyIndex) {
+                if (!commentsCache[modId]) return;
+                if (commentIndex < 0 || commentIndex >= commentsCache[modId].length) return;
+                var comment = commentsCache[modId][commentIndex];
+                if (!comment.replies || replyIndex < 0 || replyIndex >= comment.replies.length) return;
+                var currentEmail = getAccountEmail();
+                var reply = comment.replies[replyIndex];
+                if (!reply.authorEmail || reply.authorEmail !== currentEmail) {
+                    showToast('不能删除别人的回复', 'error');
+                    return;
+                }
+                comment.replies.splice(replyIndex, 1);
+                if (comment.replies.length === 0) { delete comment.replies; }
+                renderComments(modId);
+                saveCommentsToGitHub();
+                showToast('回复已删除', 'success');
+                playMenuSound();
+            }
+
+            function addReply(modId, commentIndex, replyIndex, content, targetAuthor) {
+                if (!commentsCache[modId]) { commentsCache[modId] = []; }
+                if (commentIndex < 0 || commentIndex >= commentsCache[modId].length) { return; }
+                var comment = commentsCache[modId][commentIndex];
+                var currentUser = getAccountName();
+                var currentEmail = getAccountEmail();
+
+                var replyData = {
+                    author: currentUser,
+                    authorEmail: currentEmail,
+                    content: content,
+                    time: new Date().toLocaleString()
+                };
+
+                if (!comment.replies) { comment.replies = []; }
+                comment.replies.push(replyData);
+
+                renderComments(modId);
+                saveCommentsToGitHub();
+
+                var targetEmail = comment.authorEmail || null;
+                if (targetEmail && targetEmail !== currentEmail) {
+                    sendNotification(targetEmail, 'reply', currentUser, modId, null, content);
+                }
+
+                showToast('回复已发送', 'success');
+                playMenuSound();
+            }
+
+            function addComment(modId) {
+                var input = document.getElementById('commentInput');
+                var text = input.value.trim();
+                if (!text) { showToast('请输入评论内容', 'warning'); return; }
+                if (text.length > 500) { showToast('评论不能超过500字', 'warning'); return; }
+
+                var currentUser = getAccountName();
+                var currentEmail = getAccountEmail();
+
+                if (!commentsCache[modId]) commentsCache[modId] = [];
+                commentsCache[modId].push({
+                    author: currentUser,
+                    authorEmail: currentEmail,
+                    content: text,
+                    time: new Date().toLocaleString(),
+                    replies: []
+                });
+
+                input.value = '';
+                renderComments(modId);
+                saveCommentsToGitHub();
+
+                var mod = allMods.find(function(m) { return m.id === modId; });
+                if (mod && mod.authorEmail && mod.authorEmail !== currentEmail) {
+                    sendNotification(mod.authorEmail, 'comment', currentUser, modId, mod.name, text);
+                }
+
+                showToast('评论已发送', 'success');
+                playMenuSound();
+            }
+
+            document.getElementById('commentSubmitBtn').addEventListener('click', function() {
+                if (currentDetailMod) { addComment(currentDetailMod.id); }
+            });
+            document.getElementById('commentInput').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (currentDetailMod) { addComment(currentDetailMod.id); }
+                }
+            });
+
+            function sendNotification(targetEmail, type, from, modId, modName, content) {
+                if (!targetEmail || targetEmail === 'guest') return Promise.resolve();
+
+                var url = GITHUB_API + '/notifications.json';
+                return fetch(url, {
+                    headers: {
+                        'Authorization': 'token ' + GITHUB_TOKEN,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                })
+                .then(function(res) {
+                    if (res.status === 404) {
+                        return { notifications: {} };
+                    }
+                    if (!res.ok) return { notifications: {} };
+                    return res.json();
+                })
+                .then(function(data) {
+                    var allNotifs = {};
+                    var sha = null;
+                    if (data && data.content) {
+                        try {
+                            var decoded = decodeURIComponent(escape(atob(data.content)));
+                            allNotifs = JSON.parse(decoded);
+                            sha = data.sha;
+                        } catch (e) {
+                            allNotifs = {};
+                        }
+                    }
+
+                    if (!allNotifs[targetEmail]) {
+                        allNotifs[targetEmail] = { unread: 0, items: [] };
+                    }
+
+                    allNotifs[targetEmail].items.push({
+                        id: 'n_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+                        type: type,
+                        from: from,
+                        modId: modId,
+                        modName: modName || '未知模组',
+                        content: content || '',
+                        time: new Date().toISOString(),
+                        read: false
+                    });
+                    allNotifs[targetEmail].unread = (allNotifs[targetEmail].unread || 0) + 1;
+
+                    var jsonString = JSON.stringify(allNotifs, null, 2);
+                    var base64 = btoa(unescape(encodeURIComponent(jsonString)));
+                    var body = {
+                        message: '新通知: ' + type + ' from ' + from,
+                        content: base64,
+                        branch: 'main'
+                    };
+                    if (sha) body.sha = sha;
+
+                    return fetch(url, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': 'token ' + GITHUB_TOKEN,
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/vnd.github.v3+json'
+                        },
+                        body: JSON.stringify(body)
+                    });
+                })
+                .catch(function(err) {
+                    console.warn('[Workshop] 发送通知失败:', err);
+                });
+            }
+
+            function openModal(modalId) {
+                var modal = document.getElementById(modalId);
+                if (modal) { modal.classList.add('active');
+                    playMenuSound(); }
+            }
+
+            function closeModal(modalId) {
+                var modal = document.getElementById(modalId);
+                if (modal) { modal.classList.remove('active'); }
+            }
+            document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
+                overlay.addEventListener('click', function(e) {
+                    if (e.target === overlay) { overlay.classList.remove('active'); }
+                });
+            });
+
+            function setupFileDrop(zoneId, inputId, displayId, progressId, progressBarId, progressLabelId) {
+                var zone = document.getElementById(zoneId);
+                var input = document.getElementById(inputId);
+                var display = document.getElementById(displayId);
+                var progress = document.getElementById(progressId);
+                var progressBar = document.getElementById(progressBarId);
+                var progressLabel = document.getElementById(progressLabelId);
+
+                if (!zone || !input || !display) return;
+
+                var fileKey = inputId === 'modFile' ? 'zip' : (inputId === 'iconFile' ? 'icon' : 'preview');
+
+                input.addEventListener('change', function(e) {
+                    var file = input.files[0];
+                    if (file) {
+                        selectedFiles[fileKey] = file;
+                        var sizeKB = (file.size / 1024).toFixed(0);
+                        var sizeMB = (file.size / 1024 / 1024).toFixed(1);
+                        var sizeDisplay = file.size > 1024 * 1024 ? sizeMB + ' MB' : sizeKB + ' KB';
+                        display.textContent = file.name + ' (' + sizeDisplay + ')';
+                        display.style.color = '#88dd88';
+                        display.style.fontWeight = 'bold';
+                    } else {
+                        selectedFiles[fileKey] = null;
+                        display.textContent = '未选择文件';
+                        display.style.color = '#88dd88';
+                        display.style.fontWeight = 'normal';
+                    }
+                    if (progress) {
+                        progress.classList.remove('active');
+                        progressBar.style.width = '0%';
+                        if (progressLabel) progressLabel.textContent = '0%';
+                    }
+                });
+
+                zone.addEventListener('click', function(e) {
+                    if (e.target.closest('button') || e.target.closest('a') || e.target.tagName === 'INPUT') {
+                        e.stopPropagation();
+                        return;
+                    }
+                    var wrapper = e.target.closest('.file-input-wrapper');
+                    if (wrapper) {
+                        var fileInput = wrapper.querySelector('input[type="file"]');
+                        if (fileInput) {
+                            fileInput.click();
+                        }
+                        e.stopPropagation();
+                        return;
+                    }
+                });
+
+                zone.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    zone.classList.add('dragover');
+                });
+                zone.addEventListener('dragleave', function(e) {
+                    e.preventDefault();
+                    zone.classList.remove('dragover');
+                });
+                zone.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    zone.classList.remove('dragover');
+                    var files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                        input.files = files;
+                        var event = new Event('change', { bubbles: true });
+                        input.dispatchEvent(event);
+                    }
+                });
+            }
+
+            setupFileDrop('fileDropZone', 'modFile', 'uploadFileName', 'zipProgress', 'zipProgressBar', 'zipProgressLabel');
+            setupFileDrop('iconDropZone', 'iconFile', 'uploadIconName', 'iconProgress', 'iconProgressBar',
+                'iconProgressLabel');
+            setupFileDrop('previewDropZone', 'previewFile', 'uploadPreviewName', 'previewProgress', 'previewProgressBar',
+                'previewProgressLabel');
+
+            function showProgress(progressId, percent) {
+                var progress = document.getElementById(progressId);
+                var bar = document.getElementById(progressId + 'Bar');
+                var label = document.getElementById(progressId + 'Label');
+                if (progress) progress.classList.add('active');
+                if (bar) bar.style.width = Math.min(100, percent) + '%';
+                if (label) label.textContent = Math.min(100, percent) + '%';
+            }
+
+            function resetUploadForm() {
+                document.getElementById('uploadForm').reset();
+                document.getElementById('uploadFileName').textContent = '未选择文件';
+                document.getElementById('uploadIconName').textContent = '未选择文件';
+                document.getElementById('uploadPreviewName').textContent = '未选择文件';
+                document.getElementById('uploadSubmit').disabled = false;
+                document.getElementById('uploadSubmit').innerHTML = '<i class="fas fa-upload"></i> 上传模组';
+                document.getElementById('zipRequired').textContent = '*';
+                isEditingMode = false;
+                editingModId = null;
+                selectedFiles = { zip: null, icon: null, preview: null };
+
+                ['zipProgress', 'iconProgress', 'previewProgress'].forEach(function(id) {
+                    var el = document.getElementById(id);
+                    if (el) el.classList.remove('active');
+                    var bar = document.getElementById(id + 'Bar');
+                    if (bar) bar.style.width = '0%';
+                    var label = document.getElementById(id + 'Label');
+                    if (label) label.textContent = '0%';
+                });
+
+                var hiddenInput = document.getElementById('editModIdHidden');
+                if (hiddenInput) hiddenInput.remove();
+
+                document.getElementById('uploadModalTitle').innerHTML = '<i class="fas fa-cloud-upload-alt"></i> 上传模组';
+                document.getElementById('uploadModalSub').innerHTML = '上传作者：<span id="uploadAuthorDisplay" style="color:#ffaa55;">' +
+                    getAccountName() + '</span>';
+                var authorDisplay = document.getElementById('uploadAuthorDisplay');
+                if (authorDisplay) authorDisplay.textContent = getAccountName();
+
+                var form = document.getElementById('uploadForm');
+                form.onsubmit = function(e) {
+                    e.preventDefault();
+                    handleUpload(false, null);
+                };
+            }
+
+            function openUploadModal(editMode, modData) {
+                if (!checkUploadPermission()) return;
+
+                resetUploadForm();
+
+                if (editMode && modData) {
+                    isEditingMode = true;
+                    editingModId = modData.id;
+
+                    document.getElementById('modName').value = modData.name || '';
+                    document.getElementById('modCategory').value = modData.category || 'prop';
+                    document.getElementById('modDesc').value = modData.description || '';
+                    document.getElementById('modVersion').value = modData.version || '1.0.0';
+                    document.getElementById('uploadFileName').textContent = '保持当前文件（可选替换）';
+                    document.getElementById('uploadFileName').style.color = '#888';
+                    document.getElementById('uploadFileName').style.fontWeight = 'normal';
+                    document.getElementById('uploadIconName').textContent = modData.iconUrl ? '当前有图标（可选替换）' : '未选择文件';
+                    document.getElementById('uploadPreviewName').textContent = modData.previewUrl ? '当前有预览图（可选替换）' :
+                        '未选择文件';
+                    document.getElementById('zipRequired').textContent = '（可选）';
+
+                    var hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.id = 'editModIdHidden';
+                    hiddenInput.value = modData.id;
+                    document.getElementById('uploadForm').appendChild(hiddenInput);
+
+                    document.getElementById('uploadModalTitle').innerHTML = '<i class="fas fa-edit"></i> 编辑模组';
+                    document.getElementById('uploadModalSub').innerHTML = '编辑作者：<span id="uploadAuthorDisplay" style="color:#ffaa55;">' +
+                        getAccountName() + '</span>';
+                    var authorDisplay = document.getElementById('uploadAuthorDisplay');
+                    if (authorDisplay) authorDisplay.textContent = getAccountName();
+
+                    document.getElementById('uploadSubmit').innerHTML = '<i class="fas fa-sync-alt"></i> 更新模组';
+
+                    var form = document.getElementById('uploadForm');
+                    form.onsubmit = function(e) {
+                        e.preventDefault();
+                        handleUpload(true, modData.id);
+                    };
+                }
+
+                openModal('uploadModal');
+            }
+
+            function handleUpload(isEdit, editId) {
+                var file = selectedFiles.zip || document.getElementById('modFile').files[0];
+                var name = document.getElementById('modName').value.trim();
+                var category = document.getElementById('modCategory').value;
+                var desc = document.getElementById('modDesc').value.trim();
+                var version = document.getElementById('modVersion').value.trim() || '1.0.0';
+                var iconFile = selectedFiles.icon || document.getElementById('iconFile').files[0];
+                var previewFile = selectedFiles.preview || document.getElementById('previewFile').files[0];
+
+                if (!isEdit && !file) {
+                    showToast('请选择 ZIP 文件', 'error', '', '<i class="fas fa-file-archive"></i>');
+                    return;
+                }
+                if (!name) {
+                    showToast('请输入模组名称', 'error', '', '<i class="fas fa-pencil-alt"></i>');
+                    return;
+                }
+
+                var author = getAccountName();
+                var authorEmail = getAccountEmail();
+                var id = editId || ('mod_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6));
+
+                var zipPath = 'mods/' + id + '.zip';
+                var iconPath = 'icons/' + id + '.png';
+                var previewPath = 'previews/' + id + '.jpg';
+
+                var existingMod = null;
+                if (isEdit) { existingMod = allMods.find(function(m) { return m.id === id; }); }
+
+                var newMod = {
+                    id: id,
+                    name: name,
+                    author: author,
+                    authorEmail: authorEmail,
+                    category: category,
+                    description: desc || '暂无描述',
+                    version: version,
+                    fileSize: file ? file.size : (existingMod ? existingMod.fileSize : 0),
+                    downloadCount: existingMod ? existingMod.downloadCount : 0,
+                    uploadedAt: new Date().toISOString(),
+                    downloadUrl: CDN_BASE + '/' + zipPath,
+                    iconUrl: iconFile ? CDN_BASE + '/' + iconPath : (existingMod ? existingMod.iconUrl : null),
+                    previewUrl: previewFile ? CDN_BASE + '/' + previewPath : (existingMod ? existingMod.previewUrl : null)
+                };
+
+                var submitBtn = document.getElementById('uploadSubmit');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + (isEdit ? '更新中...' : '上传中...');
+
+                showToast(isEdit ? '正在更新...' : '正在上传...', 'warning', '请稍候', '<i class="fas fa-spinner fa-spin"></i>');
+
+                var chain = Promise.resolve();
+
+                chain = chain.then(function() {
+                    return Promise.all([
+                        ensureFolderExists('mods'),
+                        ensureFolderExists('icons'),
+                        ensureFolderExists('previews'),
+                        ensureFolderExists('avatars')
+                    ]);
+                });
+
+                if (file) {
+                    chain = chain.then(function() {
+                        showProgress('zipProgress', 10);
+                        return uploadToGitHubWithProgress(file, zipPath, function(p) { showProgress('zipProgress', p); });
+                    });
+                } else if (isEdit) {
+                    chain = chain.then(function() { showProgress('zipProgress', 100); return Promise.resolve(); });
+                }
+
+                if (iconFile) {
+                    chain = chain.then(function() {
+                        showProgress('iconProgress', 10);
+                        return uploadToGitHubWithProgress(iconFile, iconPath, function(p) { showProgress('iconProgress',
+                            p); });
+                    });
+                } else if (isEdit) {
+                    chain = chain.then(function() { showProgress('iconProgress', 100); return Promise.resolve(); });
+                }
+
+                if (previewFile) {
+                    chain = chain.then(function() {
+                        showProgress('previewProgress', 10);
+                        return uploadToGitHubWithProgress(previewFile, previewPath, function(p) { showProgress(
+                                'previewProgress', p); });
+                    });
+                } else if (isEdit) {
+                    chain = chain.then(function() { showProgress('previewProgress', 100); return Promise.resolve(); });
+                }
+
+                chain = chain.then(function() { return updateModsJson(newMod); })
+                    .then(function() {
+                        var waitPromises = [];
+                        if (file) { waitPromises.push(waitForGitHubSync(id, 'zip', 10, 1500)); }
+                        if (iconFile) { waitPromises.push(waitForGitHubSync(id, 'icon', 8, 1500)); }
+                        if (previewFile) { waitPromises.push(waitForGitHubSync(id, 'preview', 8, 1500)); }
+                        return Promise.all(waitPromises);
+                    })
+                    .then(function() {
+                        var successMsg = isEdit ? '模组 "' + name + '" 已更新！' : '模组 "' + name + '" 上传成功！';
+                        showToast(successMsg, 'success', '正在刷新列表...', '<i class="fas fa-check-circle"></i>');
+                        playMenuSound();
+                        return scanAllFolders();
+                    })
+                    .then(function() {
+                        return forceRefresh();
+                    })
+                    .then(function() {
+                        applySearch();
+                        updateBadges();
+                        if (isEdit) { renderMyMods(); }
+                        showToast('已切换到 ' + CATEGORY_NAMES[category], 'success', '你的模组已出现在列表中',
+                            '<i class="fas fa-rocket"></i>');
+                        closeModal('uploadModal');
+                    })
+                    .catch(function(err) {
+                        showToast('失败: ' + err.message, 'error', '请检查 Token 和权限',
+                            '<i class="fas fa-exclamation-triangle"></i>');
+                        console.error('[Upload Error]', err);
+                        fetchMods();
+                    });
+
+                chain.finally(function() {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = isEdit ? '<i class="fas fa-sync-alt"></i> 更新模组' :
+                        '<i class="fas fa-upload"></i> 上传模组';
+                    ['zipProgress', 'iconProgress', 'previewProgress'].forEach(function(id) {
+                        var el = document.getElementById(id);
+                        if (el) el.classList.remove('active');
+                    });
+                });
+            }
+
+            document.getElementById('uploadBtn').addEventListener('click', function() {
+                openUploadModal(false, null);
+            });
+            document.getElementById('uploadModalClose').addEventListener('click', function() { closeModal('uploadModal'); });
+            document.getElementById('uploadCancel').addEventListener('click', function() { closeModal('uploadModal'); });
+
+            var myModsList = document.getElementById('myModsList');
+
+            function renderMyMods() {
+                if (!checkMyModsPermission()) return;
+
+                var currentEmail = getAccountEmail();
+                var currentName = getAccountName();
+                var authorDisplay = document.getElementById('myModsAuthorDisplay');
+                if (authorDisplay) { authorDisplay.textContent = currentName; }
+
+                var userMods = allMods.filter(function(m) {
+                    return m.authorEmail && m.authorEmail === currentEmail;
+                });
+
+                if (userMods.length === 0) {
+                    myModsList.innerHTML =
+                        `
+                        <div class="my-mod-empty">
+                            <i class="fas fa-box-open"></i>
+                            你还没有上传过模组
+                            <br><span style="font-size:0.55rem;color:#555;">点击「上传模组」分享你的作品</span>
+                        </div>
+                    `;
+                    return;
+                }
+
+                var html = '';
+                for (var i = 0; i < userMods.length; i++) {
+                    var mod = userMods[i];
+                    var status = getAbnormalStatus(mod);
+                    var statusIcon = status ? '<i class="fas ' + status.icon + '" style="color:#ff8844;font-size:0.4rem;margin-right:3px;"></i>' :
+                        '';
+                    var avatarHtml = getAvatarHtml(mod.authorEmail || null, 18);
+
+                    html += `
+                        <div class="my-mod-item" data-id="${mod.id}">
+                            <div class="mod-info">
+                                <div class="name">${avatarHtml} ${statusIcon}${mod.name}</div>
+                                <div class="meta">${CATEGORY_NAMES[mod.category] || mod.category} · v${mod.version || '1.0.0'} · 下载 ${mod.downloadCount || 0} 次</div>
+                            </div>
+                            <div class="mod-actions">
+                                <button class="btn-edit" data-action="edit"><i class="fas fa-edit"></i> 编辑</button>
+                                <button class="btn-delete" data-action="delete"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                myModsList.innerHTML = html;
+
+                var items = myModsList.querySelectorAll('.my-mod-item');
+                for (var i = 0; i < items.length; i++) {
+                    (function(item) {
+                        var modId = item.getAttribute('data-id');
+                        var mod = allMods.find(function(m) { return m.id === modId; });
+                        if (!mod) return;
+
+                        var btns = item.querySelectorAll('[data-action]');
+                        for (var j = 0; j < btns.length; j++) {
+                            (function(btn) {
+                                btn.addEventListener('click', function(e) {
+                                    e.stopPropagation();
+                                    playMenuSound();
+
+                                    if (btn.getAttribute('data-action') === 'delete') {
+                                        if (confirm('确定要删除模组 "' + mod.name + '" 吗？\n此操作将同步删除仓库中的文件！')) {
+                                            showToast('正在删除...', 'warning', '请稍候', '<i class="fas fa-spinner fa-spin"></i>');
+                                            deleteModFromGitHub(modId)
+                                                .then(function() {
+                                                    showToast('已删除: ' + mod.name, 'success', '',
+                                                        '<i class="fas fa-trash"></i>');
+                                                    return scanAllFolders();
+                                                })
+                                                .then(function() { return forceRefresh(); })
+                                                .then(function() {
+                                                    renderMyMods();
+                                                    applySearch();
+                                                    updateBadges();
+                                                    closeModal('myModsModal');
+                                                    openModal('myModsModal');
+                                                })
+                                                .catch(function(err) {
+                                                    showToast('删除失败: ' + err.message, 'error', '',
+                                                        '<i class="fas fa-exclamation-triangle"></i>');
+                                                });
+                                        }
+                                    }
+
+                                    if (btn.getAttribute('data-action') === 'edit') {
+                                        closeModal('myModsModal');
+                                        setTimeout(function() {
+                                            openUploadModal(true, mod);
+                                        }, 300);
+                                    }
+                                });
+                            })(btns[j]);
+                        }
+                    })(items[i]);
+                }
+            }
+
+            document.getElementById('myModsBtn').addEventListener('click', function() {
+                if (!checkMyModsPermission()) return;
+                renderMyMods();
+                openModal('myModsModal');
+            });
+            document.getElementById('myModsModalClose').addEventListener('click', function() { closeModal('myModsModal'); });
+
+            function switchCategory(category) {
+                if (category === currentCategory) { applySearch(); return; }
+                playMenuSound();
+                currentCategory = category;
+                var btns = document.querySelectorAll('.cat-btn');
+                for (var i = 0; i < btns.length; i++) {
+                    var btn = btns[i];
+                    if (btn.getAttribute('data-category') === category) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                }
+                applySearch();
+            }
+
+            searchInput.addEventListener('input', function() {
+                applySearch();
+                updateBadges();
+                updateModCount();
+            });
+            searchBtn.addEventListener('click', function() {
+                applySearch();
+                updateBadges();
+                updateModCount();
+                if (searchInput.value.trim()) {
+                    showToast('搜索: "' + searchInput.value.trim() + '"', 'warning', '找到 ' + filteredMods.length +
+                        ' 个结果', '<i class="fas fa-search"></i>');
+                }
+            });
+            searchInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') { e.preventDefault();
+                    searchBtn.click(); }
+            });
+
+            document.getElementById('refreshBtn').addEventListener('click', function() { forceRefresh(); });
+            document.getElementById('backBtn').addEventListener('click', function() {
+                playMenuSound();
+                window.location.href = 'menu.html';
+            });
+
+            function initWorkshop() {
+                console.log('[Workshop] 初始化创意工坊...');
+                var btns = document.querySelectorAll('.cat-btn');
+                for (var i = 0; i < btns.length; i++) {
+                    (function(btn) {
+                        btn.addEventListener('click', function() {
+                            var cat = btn.getAttribute('data-category');
+                            switchCategory(cat);
+                        });
+                    })(btns[i]);
+                }
+
+                var playerName = getAccountName();
+                console.log('[Workshop] 当前玩家:', playerName);
+
+                if (isGuestMode()) {
+                    showToast('游客模式：可浏览下载，但不能上传或管理模组', 'warning', 4000);
+                }
+
+                Promise.all([fetchMods(), loadCommentsFromGitHub()])
+                    .then(function() {
+                        applySearch();
+                        updateBadges();
+                        updateModCount();
+                        console.log('[Workshop] 初始化完成');
+                        console.log('CDN:', CDN_BASE);
+                        console.log('玩家:', playerName);
+                        console.log('模组总数:', allMods.length);
+                        console.log('模式:', isGuestMode() ? '游客' : '邮箱用户');
+                    })
+                    .catch(function(err) {
+                        console.error('[Workshop] 初始化失败:', err);
+                    });
+            }
+
+            function start() {
+                var loggedIn = localStorage.getItem('dsmod_logged_in');
+                if (loggedIn !== 'true') {
+                    showToast('请先登录', 'warning', '', '<i class="fas fa-exclamation-circle"></i>');
+                    setTimeout(function() {
+                        window.location.href = 'index.html';
+                    }, 1200);
+                    return;
+                }
+                showCheckModal();
+            }
+
+            if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                start();
+            } else {
+                document.addEventListener('DOMContentLoaded', start);
+            }
+
+        })();
+    </script>
+
+</body>
+</html>

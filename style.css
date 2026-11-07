@@ -1,0 +1,852 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    background: #1a2a1a;
+    overflow: hidden;
+    font-family: 'Segoe UI', system-ui, 'Roboto', sans-serif;
+    touch-action: none;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+
+.game-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #3a7a4a;
+    overflow: hidden;
+}
+
+canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    z-index: 1;
+}
+
+/* ===== 菜单按钮 - 右上角 ===== */
+.circle-menu-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 55px;
+    height: 55px;
+    background: rgba(30,30,35,0.85);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 20;
+    border: 2px solid #888;
+    backdrop-filter: blur(4px);
+}
+.circle-menu-btn:active { transform: scale(0.94); background: rgba(50,50,60,0.9); }
+.circle-menu-btn span { font-size: 1.3rem; font-weight: 800; color: #ddd; font-family: monospace; }
+
+/* ===== 击杀提示 - 左上角 ===== */
+.kill-feed {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    pointer-events: none;
+    font-family: monospace;
+    font-weight: bold;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+}
+.kill-entry {
+    background: transparent;
+    padding: 4px 8px;
+    border-radius: 0px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    animation: killFadeIn 0.2s ease-out, killFadeOut 0.5s ease-in 3s forwards;
+    white-space: nowrap;
+}
+.kill-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    display: inline-block;
+}
+.kill-avatar {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    display: inline-block;
+    font-size: 16px;
+    text-align: center;
+    line-height: 20px;
+    border-radius: 50%;
+}
+@keyframes killFadeIn {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+@keyframes killFadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; transform: translateX(-20px); }
+}
+
+/* ===== 模态框 ===== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.7);
+    backdrop-filter: blur(6px);
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0.2s, opacity 0.2s;
+}
+.modal-overlay.active { visibility: visible; opacity: 1; }
+
+/* ============================================================
+   ===== 关键修复：菜单打开时隐藏所有 HUD =====
+   ============================================================ */
+.modal-overlay.active ~ .health-container,
+.modal-overlay.active ~ .weapon-panel,
+.modal-overlay.active ~ .move-joystick,
+.modal-overlay.active ~ .reload-btn,
+.modal-overlay.active ~ .pc-health-container,
+.modal-overlay.active ~ .pc-controls,
+.modal-overlay.active ~ .circle-menu-btn,
+.modal-overlay.active ~ .kill-feed {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    transition: opacity 0.15s ease, visibility 0.15s ease;
+}
+
+.modal-overlay.active + * .health-container,
+.modal-overlay.active + * .weapon-panel,
+.modal-overlay.active + * .move-joystick,
+.modal-overlay.active + * .reload-btn,
+.modal-overlay.active + * .pc-health-container,
+.modal-overlay.active + * .pc-controls,
+.modal-overlay.active + * .circle-menu-btn,
+.modal-overlay.active + * .kill-feed {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+/* ===== PC 按键在菜单打开时隐藏 ===== */
+.modal-overlay.active ~ .pc-controls .key,
+.modal-overlay.active ~ .pc-controls .pc-attack,
+.modal-overlay.active ~ .pc-controls .pc-switch,
+.modal-overlay.active ~ .pc-controls .pc-reload,
+.modal-overlay.active ~ .pc-controls .pc-menu {
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
+.upgraded-menu {
+    width: 90%;
+    max-width: 1400px;
+    height: 85%;
+    max-height: 750px;
+    background: #2a2a2e;
+    border-radius: 0px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.menu-header {
+    background: #1e1e22;
+    padding: 10px 18px;
+    border-bottom: 1px solid #3a3a40;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.menu-title { 
+    font-size: 0.85rem; 
+    font-weight: bold; 
+    color: #e0e0e0; 
+    font-family: monospace;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.version-badge {
+    background: #ffaa55;
+    color: #1a1a2e;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 0.6rem;
+    font-weight: bold;
+}
+.close-modal-btn {
+    background: none;
+    border: none;
+    color: #aaa;
+    font-size: 1.4rem;
+    cursor: pointer;
+    padding: 0 8px;
+}
+
+.main-tabs {
+    background: #252529;
+    padding: 6px 14px;
+    border-bottom: 1px solid #3a3a40;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.main-tab-btn {
+    background: #3a3a40;
+    color: #ccc;
+    border: none;
+    padding: 6px 22px;
+    font-weight: bold;
+    font-size: 0.8rem;
+    cursor: pointer;
+    font-family: monospace;
+}
+.main-tab-btn.active { background: white; color: #111; }
+
+.category-scroll {
+    flex: 1;
+    overflow-y: auto;
+    background: #3a3a3f;
+    padding: 12px 16px;
+}
+.category-scroll::-webkit-scrollbar { width: 5px; }
+.category-scroll::-webkit-scrollbar-track { background: #555; }
+.category-scroll::-webkit-scrollbar-thumb { background: #888; }
+
+.category-block { margin-bottom: 20px; }
+.category-title {
+    background: #4a4a52;
+    color: #f0f0f0;
+    padding: 4px 10px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    font-family: monospace;
+    margin-bottom: 8px;
+    border-left: 3px solid #ffaa55;
+}
+
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 6px;
+}
+
+.spawn-card {
+    position: relative;
+    width: 100%;
+    background: rgba(20,20,30,0.8);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 0px;
+    cursor: pointer;
+    transition: all 0.15s;
+    overflow: hidden;
+    padding-bottom: 100%;
+    height: 0;
+}
+.spawn-card-inner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+}
+.spawn-card-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+.spawn-card:hover, .spawn-card:active {
+    transform: scale(1.05);
+    border-color: #ffaa55;
+    box-shadow: 0 0 8px rgba(255,170,85,0.5);
+    background: rgba(35,35,50,0.95);
+    z-index: 2;
+}
+.spawn-card-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.7;
+}
+.spawn-card-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(60,60,80,0.9);
+    font-size: 22px;
+    color: #888;
+    font-family: monospace;
+}
+.spawn-card-music {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(60,60,80,0.9);
+    font-size: 22px;
+    color: #ffaa55;
+    font-family: monospace;
+}
+.spawn-card-name {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,0.75);
+    text-align: center;
+    padding: 2px;
+    font-size: 0.45rem;
+    font-family: monospace;
+    color: white;
+    font-weight: bold;
+    z-index: 2;
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.2;
+    max-height: 32px;
+    overflow: hidden;
+}
+
+.empty-cat { 
+    color: #999; 
+    font-size: 0.65rem; 
+    padding: 10px; 
+    text-align: center; 
+    background: rgba(0,0,0,0.2);
+}
+
+.toast {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: #ffd966;
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    z-index: 100;
+    font-family: monospace;
+    white-space: nowrap;
+}
+
+@keyframes redPulse {
+    0% { box-shadow: inset 0 0 0 0px rgba(255,40,40,0); }
+    20% { box-shadow: inset 0 0 0 80px rgba(255,40,40,0.5); }
+    40% { box-shadow: inset 0 0 0 120px rgba(255,40,40,0.3); }
+    100% { box-shadow: inset 0 0 0 0px rgba(255,40,40,0); }
+}
+.screen-red-pulse {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 60;
+    animation: redPulse 0.5s ease-out forwards;
+}
+
+/* ===== 生命值 - 左下角（移动端） ===== */
+.health-container {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 25;
+    pointer-events: none;
+}
+.health-panel {
+    background: transparent;
+    border-radius: 4px;
+    padding: 2px 8px 3px 8px;
+    backdrop-filter: none;
+    border: none;
+    min-width: 100px;
+}
+.health-stats {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 2px;
+}
+.health-label {
+    font-family: 'Segoe UI', monospace;
+    font-size: 0.5rem;
+    font-weight: bold;
+    color: #ffffff;
+    letter-spacing: 1px;
+}
+.health-number {
+    font-family: 'Segoe UI', monospace;
+    font-size: 0.7rem;
+    font-weight: bold;
+    color: #ffffff;
+}
+.health-bar-container {
+    width: 100%;
+    height: 4px;
+    background: #2a1a0a;
+    border-radius: 2px;
+    border: 1px solid #6a5a3a;
+    overflow: hidden;
+}
+.health-fill {
+    width: 100%;
+    height: 100%;
+    background: #ffffff;
+    border-radius: 2px;
+    transition: width 0.2s ease;
+}
+
+/* ===== 移动摇杆 ===== */
+.move-joystick {
+    position: fixed;
+    bottom: 90px;
+    left: 40px;
+    width: 90px;
+    height: 90px;
+    z-index: 25;
+    background: rgba(20,22,32,0.7);
+    border-radius: 50%;
+    touch-action: none;
+    border: 2px solid rgba(255,255,255,0.15);
+}
+.move-joystick .move-thumb {
+    position: absolute;
+    width: 38px;
+    height: 38px;
+    background: rgba(200,200,220,0.7);
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    border: 1px solid rgba(255,255,255,0.3);
+    box-shadow: 0 0 15px rgba(0,0,0,0.3);
+}
+
+/* ===== 换弹按钮 R ===== */
+.reload-btn {
+    position: fixed;
+    bottom: 195px;
+    left: 140px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(30,30,40,0.85);
+    border: 2px solid #888;
+    color: #fff;
+    font-size: 18px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 25;
+    backdrop-filter: blur(4px);
+    font-family: monospace;
+    touch-action: none;
+}
+.reload-btn:active {
+    transform: scale(0.90);
+    border-color: #ffaa55;
+    color: #ffaa55;
+}
+
+/* ===== 右侧武器面板 ===== */
+.weapon-panel {
+    position: fixed;
+    bottom: 110px;
+    right: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    z-index: 25;
+}
+
+/* ===== 切换武器按钮 X ===== */
+.switch-weapon-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(20,22,32,0.8);
+    border: 2.5px solid #888;
+    color: #ccc;
+    font-size: 18px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.15s ease;
+    box-shadow: 0 0 8px rgba(0,0,0,0.4);
+    font-family: monospace;
+    touch-action: none;
+}
+.switch-weapon-btn:active {
+    transform: scale(0.90);
+    border-color: #ffaa55;
+    color: #ffaa55;
+    box-shadow: 0 0 18px rgba(255,170,85,0.3);
+}
+
+/* ===== 攻击摇杆 ===== */
+.attack-joystick {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: rgba(20,22,32,0.5);
+    border: 3px solid #888;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: border-color 0.15s ease;
+    box-shadow: 0 0 15px rgba(0,0,0,0.35);
+    touch-action: none;
+    cursor: grab;
+}
+.attack-joystick.dragging {
+    border-color: #ff6644;
+    cursor: grabbing;
+}
+.attack-joystick .crosshair-icon {
+    font-size: 36px;
+    color: #bbb;
+    line-height: 1;
+    pointer-events: none;
+    text-shadow: 0 0 8px rgba(0,0,0,0.6);
+    transition: color 0.15s ease, transform 0.1s ease;
+}
+.attack-joystick.dragging .crosshair-icon {
+    color: #ff6644;
+    transform: scale(1.15);
+}
+.attack-joystick .thumb-dot {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    background: rgba(255,100,60,0.6);
+    border-radius: 50%;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    top: 50%;
+    left: 50%;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    box-shadow: 0 0 15px rgba(255,100,60,0.3);
+}
+.attack-joystick.dragging .thumb-dot {
+    opacity: 1;
+}
+
+/* ===== PC 血条（PC端显示） ===== */
+.pc-health-container {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 25;
+    pointer-events: none;
+}
+.pc-health-panel {
+    background: transparent;
+    border-radius: 4px;
+    padding: 2px 8px 3px 8px;
+    backdrop-filter: none;
+    border: none;
+    min-width: 100px;
+}
+.pc-health-stats {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 2px;
+}
+.pc-health-label {
+    font-family: 'Segoe UI', monospace;
+    font-size: 0.5rem;
+    font-weight: bold;
+    color: #ffffff;
+    letter-spacing: 1px;
+}
+.pc-health-number {
+    font-family: 'Segoe UI', monospace;
+    font-size: 0.7rem;
+    font-weight: bold;
+    color: #ffffff;
+}
+.pc-health-bar-container {
+    width: 100%;
+    height: 4px;
+    background: #2a1a0a;
+    border-radius: 2px;
+    border: 1px solid #6a5a3a;
+    overflow: hidden;
+}
+.pc-health-fill {
+    width: 100%;
+    height: 100%;
+    background: #ffffff;
+    border-radius: 2px;
+    transition: width 0.2s ease;
+}
+
+/* ===== PC 控制容器 ===== */
+.pc-controls {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 25;
+    display: none;
+}
+.pc-controls.visible {
+    display: block;
+}
+
+/* ===== WASD ===== */
+.pc-wasd {
+    position: fixed;
+    bottom: 100px;
+    left: 50px;
+    width: 130px;
+    height: 130px;
+    z-index: 26;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    gap: 5px;
+    pointer-events: none;
+}
+.pc-wasd .key {
+    background: rgba(30,30,40,0.75);
+    border: 2px solid rgba(255,255,255,0.25);
+    border-radius: 6px;
+    color: rgba(255,255,255,0.85);
+    font-family: monospace;
+    font-size: 22px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    transition: background 0.1s ease;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    pointer-events: none;
+}
+.pc-wasd .key.active {
+    background: rgba(0,200,80,0.8) !important;
+    border-color: rgba(0,255,100,0.6);
+    color: #fff;
+}
+.pc-wasd .key-w { grid-column: 2; grid-row: 1; }
+.pc-wasd .key-a { grid-column: 1; grid-row: 2; }
+.pc-wasd .key-s { grid-column: 2; grid-row: 2; }
+.pc-wasd .key-d { grid-column: 3; grid-row: 2; }
+
+/* ===== 攻击键 LMB ===== */
+.pc-attack {
+    position: fixed;
+    bottom: 120px;
+    right: 40px;
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    background: rgba(30,30,40,0.75);
+    border: 3px solid rgba(255,255,255,0.25);
+    color: rgba(255,255,255,0.85);
+    font-family: monospace;
+    font-size: 18px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    z-index: 26;
+    pointer-events: none;
+    transition: background 0.1s ease;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    text-align: center;
+    line-height: 1.2;
+}
+.pc-attack.active {
+    background: rgba(0,200,80,0.8) !important;
+    border-color: rgba(0,255,100,0.6);
+    color: #fff;
+}
+
+/* ===== 切换武器 X ===== */
+.pc-switch {
+    position: fixed;
+    bottom: 260px;
+    right: 40px;
+    width: 60px;
+    height: 60px;
+    background: rgba(30,30,40,0.75);
+    border: 2px solid rgba(255,255,255,0.25);
+    border-radius: 6px;
+    color: rgba(255,255,255,0.85);
+    font-family: monospace;
+    font-size: 24px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    z-index: 26;
+    pointer-events: none;
+    transition: background 0.1s ease;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+.pc-switch.active {
+    background: rgba(0,200,80,0.8) !important;
+    border-color: rgba(0,255,100,0.6);
+    color: #fff;
+}
+
+/* ===== 换弹键 R ===== */
+.pc-reload {
+    position: fixed;
+    bottom: 230px;
+    left: 190px;
+    width: 60px;
+    height: 60px;
+    background: rgba(30,30,40,0.75);
+    border: 2px solid rgba(255,255,255,0.25);
+    border-radius: 6px;
+    color: rgba(255,255,255,0.85);
+    font-family: monospace;
+    font-size: 24px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    z-index: 26;
+    pointer-events: none;
+    transition: background 0.1s ease;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+.pc-reload.active {
+    background: rgba(0,200,80,0.8) !important;
+    border-color: rgba(0,255,100,0.6);
+    color: #fff;
+}
+
+/* ===== 菜单键 Q ===== */
+.pc-menu {
+    position: fixed;
+    top: 25px;
+    right: 25px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: rgba(30,30,40,0.5);
+    border: 2px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.85);
+    font-family: monospace;
+    font-size: 28px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    z-index: 26;
+    pointer-events: none;
+    transition: background 0.1s ease;
+    backdrop-filter: blur(4px);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+.pc-menu.active {
+    background: rgba(0,200,80,0.7) !important;
+    border-color: rgba(0,255,100,0.5);
+    color: #fff;
+}
+
+/* ============================================================
+   响应式 - PC 端显示 PC 按键，手机端显示摇杆
+   ============================================================ */
+
+/* ===== 手机端（小于768px）：显示摇杆，隐藏 PC 按键 ===== */
+@media (max-width: 768px) {
+    .pc-controls { display: none !important; }
+    .pc-health-container { display: none !important; }
+    .move-joystick,
+    .attack-joystick,
+    .switch-weapon-btn,
+    .reload-btn,
+    .health-container,
+    .weapon-panel { display: flex !important; }
+    .circle-menu-btn { display: flex !important; }
+}
+
+/* ===== PC 端（大于768px）：隐藏摇杆，显示 PC 按键和血条 ===== */
+@media (min-width: 769px) {
+    .move-joystick,
+    .attack-joystick,
+    .switch-weapon-btn,
+    .reload-btn,
+    .health-container,
+    .weapon-panel { display: none !important; }
+    .circle-menu-btn { display: none !important; }
+    .pc-controls.visible { display: block !important; }
+    .pc-health-container { display: block !important; }
+}
